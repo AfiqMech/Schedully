@@ -190,10 +190,6 @@
             </div>
 
             <!-- Grid Dimensions & Typography -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label" title="Physical diagonal size in inches">Screen Diagonal (Inches)</span>
-              <input type="number" id="input-screen-inch" class="m3-input opt-input" value="6.1" step="0.1" min="4.0" max="14.0" placeholder="e.g. 6.1">
-            </div>
 
             <div class="opt-row margin-top-xs">
               <span class="opt-label">Grid Width</span>
@@ -507,80 +503,39 @@
         </div>
       </section>
 
-      <!-- File Importer Card (CSV / .ics) -->
+      <!-- Universal Schedule Importer Card (CSV, .ics, or Screenshot AI) -->
       <section class="m3-card m3-card-elevated expandable-card">
         <div class="card-expand-header" id="header-file-import">
           <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">upload_file</span>
+            <span class="material-symbols-outlined icon-primary">cloud_upload</span>
             <div>
-              <h2 class="m3-card-title">File Importer</h2>
-              <p class="m3-card-subtitle">Import CSV or .ics calendar files</p>
+              <h2 class="m3-card-title">Schedule Importer</h2>
+              <p class="m3-card-subtitle">Import CSV, .ics, or Timetable Screenshot</p>
             </div>
           </div>
           <span class="material-symbols-outlined expand-arrow">expand_more</span>
         </div>
         <div class="card-expand-content hidden" id="content-file-import" style="padding-top: 4px;">
-          <label for="ics-csv-file-input" class="m3-dropzone">
-            <span class="material-symbols-outlined dropzone-icon">upload_file</span>
-            <span class="dropzone-title">Import CSV or .ics File</span>
-            <span class="dropzone-sub">TimeEdit, Canvas, Google Calendar, Standard CSV</span>
+          <label for="universal-file-input" class="m3-dropzone">
+            <span class="material-symbols-outlined dropzone-icon">cloud_upload</span>
+            <span class="dropzone-title">Upload Timetable File or Image</span>
+            <span class="dropzone-sub">Supports CSV, .ics, PNG, JPG, WebP</span>
           </label>
-          <input type="file" id="ics-csv-file-input" accept=".csv, .ics, text/csv, text/calendar" class="hidden">
-        </div>
-      </section>
+          <input type="file" id="universal-file-input" accept=".csv, .ics, text/csv, text/calendar, image/*" class="hidden">
 
-      <section class="m3-card m3-card-elevated expandable-card">
-        <div class="card-expand-header" id="header-scanner">
-          <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">document_scanner</span>
-            <div>
-              <h2 class="m3-card-title">Timetable Scanner</h2>
-              <p class="m3-card-subtitle">Upload a screenshot to auto-fill schedule</p>
+          <div id="ocr-loading-bar" class="m3-loading-banner hidden">
+            <span class="material-symbols-outlined spin-icon">sync</span>
+            <span id="ocr-loading-text">Analyzing schedule...</span>
+          </div>
+
+          <!-- Scan Error Alert Banner -->
+          <div id="scan-error-alert" class="m3-alert-banner hidden" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); margin-top: 10px;">
+            <span class="material-symbols-outlined alert-icon" style="color: var(--m3-sys-color-error);">warning</span>
+            <div class="alert-info">
+              <h4 id="scan-error-title" style="color: var(--m3-sys-color-error);">Import Failed</h4>
+              <p id="scan-error-desc">The file or image could not be processed.</p>
             </div>
           </div>
-          <span class="material-symbols-outlined expand-arrow">expand_more</span>
-        </div>
-        <div class="card-expand-content hidden" id="content-scanner" style="padding-top: 4px;">
-
-        <!-- API Scanner Settings -->
-        <div id="cloud-api-settings" style="background: var(--m3-sys-color-primary-container); border: 1px solid var(--m3-sys-color-primary); border-radius: var(--m3-shape-m); padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-          <div class="form-row">
-            <label for="select-api-provider" style="font-size: 12px; font-weight: 600; color: var(--m3-sys-text-primary);">API Provider</label>
-            <select id="select-api-provider" class="m3-input" style="font-size: 12px; padding: 8px 12px; border-color: rgba(128,128,128,0.2);">
-              <option value="gemini" selected>Google Gemini 3.5 Flash (Recommended)</option>
-              <option value="openai">OpenAI GPT-4o / Compatible</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label for="input-api-key" style="font-size: 12px; font-weight: 600; color: var(--m3-sys-text-primary);">API Key</label>
-            <input type="password" id="input-api-key" placeholder="Paste your API key here (AIzaSy...)" class="m3-input" style="font-size: 12px; padding: 8px 12px; border-color: rgba(128,128,128,0.2);">
-          </div>
-          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-            <span class="material-symbols-outlined" style="font-size: 14px; color: var(--m3-sys-color-primary);">vpn_key</span>
-            <p style="font-size: 11px; font-weight: 600; color: var(--m3-sys-color-primary); margin: 0;">You need a valid API key to use the scanner.</p>
-          </div>
-        </div>
-
-        <label for="ocr-file-input" class="m3-dropzone">
-          <span class="material-symbols-outlined dropzone-icon">image</span>
-          <span class="dropzone-title">Upload Timetable Screenshot</span>
-          <span class="dropzone-sub">Supports PNG, JPG, WebP</span>
-        </label>
-        <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
-
-        <div id="ocr-loading-bar" class="m3-loading-banner hidden">
-          <span class="material-symbols-outlined spin-icon">sync</span>
-          <span id="ocr-loading-text">Scanning schedule...</span>
-        </div>
-
-        <!-- OCR Scan Error Alert Banner -->
-        <div id="scan-error-alert" class="m3-alert-banner hidden" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); margin-top: 10px;">
-          <span class="material-symbols-outlined alert-icon" style="color: var(--m3-sys-color-error);">warning</span>
-          <div class="alert-info">
-            <h4 id="scan-error-title" style="color: var(--m3-sys-color-error);">Scanning Failed</h4>
-            <p id="scan-error-desc">The scanner could not recognize text in this image.</p>
-          </div>
-        </div>
         </div>
       </section>
 
@@ -858,8 +813,8 @@
   </style>
 
   <script src="timetable_engine.js?v=11"></script>
-  <script src="ocr_parser.js?v=10"></script>
+  <script src="ocr_parser.js?v=11"></script>
   <script src="ics_csv_parser_v3.js?v=13"></script>
-  <script src="app_v3.js?v=16"></script>
+  <script src="app_v3.js?v=20"></script>
 </body>
 </html>

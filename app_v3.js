@@ -261,8 +261,8 @@ class SchedullyApp {
     this.inputTitleStage = document.getElementById('input-title-text-stage');
     this.inputTitleSidebar = document.getElementById('input-title-text-sidebar');
 
-    // New Importer
-    this.icsCsvFileInput = document.getElementById('ics-csv-file-input');
+    // Universal Importer
+    this.universalFileInput = document.getElementById('universal-file-input');
     
     // OCC Modal
     this.occModal = document.getElementById('occ-modal');
@@ -1064,140 +1064,81 @@ class SchedullyApp {
       this.renderAll();
     });
 
-    // Scanner Image Upload
-    this.ocrFileInput.addEventListener('change', async (e) => {
-      if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        this.ocrLoadingBar.classList.remove('hidden');
-        
-        let extracted = [];
-        try {
-          const provider = document.getElementById('select-api-provider')?.value || 'gemini';
-          const apiKey = document.getElementById('input-api-key')?.value.trim() || '';
-          
-          if (!apiKey) {
-            alert("Please enter a valid API key to use the scanner.");
-            return;
-          }
-          
-          localStorage.setItem('tf_api_key', apiKey);
-
-          const extracted = await window.ocrParser.scanWithCloudAPI(file, provider, apiKey, (msg) => {
-            this.ocrLoadingText.innerText = msg;
-          });
-          
-          if (!extracted || extracted.length === 0) {
-            const scanErrorAlert = document.getElementById('scan-error-alert');
-            const scanErrorTitle = document.getElementById('scan-error-title');
-            const scanErrorDesc = document.getElementById('scan-error-desc');
-            if (scanErrorAlert) {
-              scanErrorAlert.classList.remove('hidden');
-              if (scanErrorTitle) scanErrorTitle.innerText = "Scanning Failed: Image Unreadable";
-              if (scanErrorDesc) scanErrorDesc.innerText = "The scanner could not recognize valid timetable text in this image. Please ensure your API key is correct and the image is clear.";
-            }
-            return;
-          }
-
-          this.classes = extracted.map((c, i) => ({
-            id: Date.now() + i,
-            code: c.code,
-            title: c.title,
-            day: (c.day && c.day.length >= 3) ? (c.day.charAt(0).toUpperCase() + c.day.slice(1, 3).toLowerCase()) : 'Mon',
-            startTime: c.startTime,
-            endTime: c.endTime,
-            type: c.type || '',
-            room: c.room || '',
-            lecturer: c.lecturer || '',
-            group: c.group || '',
-            customColor: this.selectedColor,
-            fontColor: this.newCourseFontColor,
-            displayTime: this.newCourseDisplayTime
-          }));
-
-          const scannedDays = Array.from(new Set(this.classes.map(c => c.day.substring(0, 3))));
-          if (scannedDays.length > 0) {
-            const daysOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            this.activeDays = daysOrder.filter(d => scannedDays.includes(d));
-            if (this.activeDays.length < 5) this.activeDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-            document.querySelectorAll('.display-days-row input[type="checkbox"]').forEach(cb => {
-              cb.checked = this.activeDays.includes(cb.value);
-            });
-          }
-
-          const numActiveDays = this.activeDays.length;
-          const autoOptimumFont = Math.min(12, Math.max(7, Math.round(52 / numActiveDays)));
-          this.gridFontSizeVal = autoOptimumFont;
-          const fontInput = document.getElementById('input-grid-fontsize');
-          if (fontInput) fontInput.value = autoOptimumFont;
-
-          let minStartH = 24;
-          let maxEndH = 0;
-          this.classes.forEach(c => {
-            if (c.startTime) {
-              const sh = parseInt(c.startTime.split(':')[0], 10);
-              if (sh < minStartH) minStartH = sh;
-            }
-            if (c.endTime) {
-              const [eh, em] = c.endTime.split(':').map(Number);
-              const floatEnd = eh + (em > 0 ? 1 : 0);
-              if (floatEnd > maxEndH) maxEndH = floatEnd;
-            }
-          });
-
-          if (minStartH < 24) {
-            this.gridStartHour = minStartH;
-            if (this.gridStartTimeSelect) this.gridStartTimeSelect.value = String(minStartH).padStart(2, '0') + ':00';
-          }
-          if (maxEndH > 0) {
-            this.gridEndHour = maxEndH;
-            if (this.gridEndTimeSelect) this.gridEndTimeSelect.value = String(maxEndH).padStart(2, '0') + ':00';
-          }
-
-          this.renderAll();
-        } catch (err) {
-          console.error("Scanner Error:", err);
-          const scanErrorAlert = document.getElementById('scan-error-alert');
-          const scanErrorTitle = document.getElementById('scan-error-title');
-          const scanErrorDesc = document.getElementById('scan-error-desc');
-          if (scanErrorAlert) {
-            scanErrorAlert.classList.remove('hidden');
-            if (scanErrorTitle) scanErrorTitle.innerText = "Scanning Failed";
-            if (scanErrorDesc) scanErrorDesc.innerText = err.message || "The scanner could not recognize valid timetable text.";
-          }
-        } finally {
-          this.ocrLoadingBar.classList.add('hidden');
-          e.target.value = '';
-        }
-      }
-    });
-
-    // ICS / CSV File Import
-    if (this.icsCsvFileInput) {
-      this.icsCsvFileInput.addEventListener('change', (e) => {
+    // Universal Schedule Importer (Auto-detects CSV, ICS, or Screenshot AI)
+    if (this.universalFileInput) {
+      this.universalFileInput.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
           const file = e.target.files[0];
-          const reader = new FileReader();
-          
-          reader.onload = (evt) => {
-            const content = evt.target.result;
+          const fileName = file.name.toLowerCase();
+          const isImage = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp)$/i.test(fileName);
+
+          if (isImage) {
+            // Run AI Screenshot Scanner
+            this.ocrLoadingBar.classList.remove('hidden');
+            let extracted = [];
             try {
-              let parsedEvents = [];
-              if (file.name.toLowerCase().endsWith('.ics') || content.includes('BEGIN:VEVENT')) {
-                 parsedEvents = window.ScheduleParser.parseICS(content);
-                 if (parsedEvents.length === 0) alert("No classes found in this ICS file.");
-                 this.importClassesDirectly(parsedEvents);
-              } else {
-                 parsedEvents = window.ScheduleParser.parseCSV(content);
-                 if (parsedEvents.length === 0) alert("No readable classes found in CSV. Make sure your CSV contains columns like 'Code', 'Subject', or 'Module Offering'.");
-                 this.handleCSVImportWithOCC(parsedEvents);
+              const provider = document.getElementById('select-api-provider')?.value || 'gemini';
+              const apiKey = document.getElementById('input-api-key')?.value.trim() || '';
+              
+              if (apiKey) {
+                localStorage.setItem('schedully_api_key', apiKey);
               }
+
+              extracted = await window.ocrParser.scanWithCloudAPI(file, provider, apiKey, (msg) => {
+                this.ocrLoadingText.innerText = msg;
+              });
+              
+              if (!extracted || extracted.length === 0) {
+                const scanErrorAlert = document.getElementById('scan-error-alert');
+                const scanErrorTitle = document.getElementById('scan-error-title');
+                const scanErrorDesc = document.getElementById('scan-error-desc');
+                if (scanErrorAlert) {
+                  scanErrorAlert.classList.remove('hidden');
+                  if (scanErrorTitle) scanErrorTitle.innerText = "Scanning Failed: Image Unreadable";
+                  if (scanErrorDesc) scanErrorDesc.innerText = "The scanner could not recognize valid timetable text in this image. Please ensure the image is clear.";
+                }
+                return;
+              }
+
+              this.importClassesDirectly(extracted);
             } catch (err) {
-              console.error("File parsing error:", err);
-              alert("CRITICAL ERROR parsing file: " + err.message + "\nStack: " + err.stack);
+              console.error("Scanner Error:", err);
+              const scanErrorAlert = document.getElementById('scan-error-alert');
+              const scanErrorTitle = document.getElementById('scan-error-title');
+              const scanErrorDesc = document.getElementById('scan-error-desc');
+              if (scanErrorAlert) {
+                scanErrorAlert.classList.remove('hidden');
+                if (scanErrorTitle) scanErrorTitle.innerText = "Scanning Failed";
+                if (scanErrorDesc) scanErrorDesc.innerText = err.message || "The scanner could not recognize valid timetable text.";
+              }
+            } finally {
+              this.ocrLoadingBar.classList.add('hidden');
+              e.target.value = '';
             }
-          };
-          reader.readAsText(file);
-          this.icsCsvFileInput.value = '';
+          } else {
+            // Run CSV or ICS File Parser
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+              const content = evt.target.result;
+              try {
+                let parsedEvents = [];
+                if (fileName.endsWith('.ics') || content.includes('BEGIN:VEVENT')) {
+                   parsedEvents = window.ScheduleParser.parseICS(content);
+                   if (parsedEvents.length === 0) alert("No classes found in this ICS file.");
+                   this.importClassesDirectly(parsedEvents);
+                } else {
+                   parsedEvents = window.ScheduleParser.parseCSV(content);
+                   if (parsedEvents.length === 0) alert("No readable classes found in CSV.");
+                   this.handleCSVImportWithOCC(parsedEvents);
+                }
+              } catch (err) {
+                console.error("File parsing error:", err);
+                alert("CRITICAL ERROR parsing file: " + err.message);
+              }
+            };
+            reader.readAsText(file);
+            this.universalFileInput.value = '';
+          }
         }
       });
     }

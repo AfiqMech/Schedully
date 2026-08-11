@@ -17,11 +17,6 @@ class OCRTimetableParser {
    * Universal Cloud Vision API Scanning (Supports Gemini 1.5 Flash Vision & OpenAI GPT-4o)
    */
   async scanWithCloudAPI(file, provider, apiKey, onProgress) {
-    if (!apiKey) {
-      alert("Please enter a valid API key to use Cloud Vision AI scanning!");
-      return [];
-    }
-
     onProgress("Encoding image for Cloud AI Vision Analysis...");
     const base64Data = await new Promise((resolve) => {
       const reader = new FileReader();
@@ -30,6 +25,25 @@ class OCRTimetableParser {
     });
 
     const mimeType = file.type || 'image/png';
+
+    // If no custom user API key is provided, use Netlify Serverless Function backend
+    if (!apiKey) {
+      onProgress("Analyzing timetable with Schedully AI Scanner...");
+      try {
+        const response = await fetch('/.netlify/functions/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64Data, mimeType, provider })
+        });
+        const resData = await response.json();
+        if (resData.error) throw new Error(resData.error);
+        return resData.data || [];
+      } catch (proxyErr) {
+        console.error("Serverless Scan Error:", proxyErr);
+        alert("AI Scanner Error: " + proxyErr.message);
+        return [];
+      }
+    }
 
     if (provider === 'gemini') {
       onProgress("Analyzing timetable with Google Gemini 3.5 Flash...");
