@@ -21,7 +21,7 @@ exports.handler = async (event, context) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing image data' }) };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    let apiKey = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
     if (!apiKey) {
       return {
         statusCode: 500,
@@ -43,39 +43,22 @@ exports.handler = async (event, context) => {
       }
     };
 
-    const modelsToTry = [
-      'gemini-3.5-flash',
-      'gemini-1.5-flash-latest',
-      'gemini-1.5-flash',
-      'gemini-2.0-flash-exp',
-      'gemini-2.5-flash'
-    ];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    let data = null;
-    let lastError = null;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    for (const modelName of modelsToTry) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+    const data = await response.json();
 
-        data = await response.json();
-        if (!data.error) {
-          lastError = null;
-          break;
-        }
-        lastError = data.error.message || 'Gemini API Error';
-      } catch (err) {
-        lastError = err.message;
-      }
+    if (data.error) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || 'Gemini API Error' }) };
     }
 
-    if (lastError || !data || !data.candidates) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: lastError || 'Gemini API Error' }) };
+    if (!data.candidates || !data.candidates[0]) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'No candidates returned from Gemini API' }) };
     }
 
     let rawJSON = data.candidates[0].content.parts[0].text;
