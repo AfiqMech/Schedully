@@ -43,12 +43,15 @@ exports.handler = async (event, context) => {
       }
     };
 
+    // Google API requires x-goog-api-key for new keys (AQ...)
     const googleHeaders = {
       'Content-Type': 'application/json',
       'x-goog-api-key': apiKey
     };
 
+    // The official Google model name is gemini-1.5-flash
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+
     const response = await fetch(url, {
       method: 'POST',
       headers: googleHeaders,
