@@ -43,22 +43,45 @@ exports.handler = async (event, context) => {
       }
     };
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Google AI Studio supports both header-based auth and query key auth for new AQ. keys
+    const googleHeaders = {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+      'Authorization': `Bearer ${apiKey}`
+    };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const modelsToTry = [
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-2.0-flash-exp',
+      'gemini-2.5-flash'
+    ];
 
-    const data = await response.json();
+    let data = null;
+    let lastError = null;
 
-    if (data.error) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || 'Gemini API Error' }) };
+    for (const modelName of modelsToTry) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: googleHeaders,
+          body: JSON.stringify(payload)
+        });
+
+        data = await response.json();
+        if (!data.error) {
+          lastError = null;
+          break;
+        }
+        lastError = data.error.message || 'Gemini API Error';
+      } catch (err) {
+        lastError = err.message;
+      }
     }
 
-    if (!data.candidates || !data.candidates[0]) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: 'No candidates returned from Gemini API' }) };
+    if (lastError || !data || !data.candidates) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: lastError || 'Gemini API Error' }) };
     }
 
     let rawJSON = data.candidates[0].content.parts[0].text;
