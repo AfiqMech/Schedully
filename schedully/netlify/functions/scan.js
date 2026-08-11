@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-  // CORS Headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -29,6 +28,8 @@ exports.handler = async (event, context) => {
         headers,
         body: JSON.stringify({ error: 'Server key not configured. Please set GEMINI_API_KEY in Netlify Environment Variables.' })
       };
+    }
+
     const payload = {
       contents: [{
         parts: [
@@ -42,24 +43,35 @@ exports.handler = async (event, context) => {
       }
     };
 
-    const modelsToTry = ['gemini-1.5-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash'];
+    const modelsToTry = [
+      'gemini-3.5-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-2.0-flash-exp',
+      'gemini-2.5-flash'
+    ];
+
     let data = null;
     let lastError = null;
 
     for (const modelName of modelsToTry) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      data = await response.json();
-      if (!data.error) {
-        lastError = null;
-        break;
+        data = await response.json();
+        if (!data.error) {
+          lastError = null;
+          break;
+        }
+        lastError = data.error.message || 'Gemini API Error';
+      } catch (err) {
+        lastError = err.message;
       }
-      lastError = data.error.message || 'Gemini API Error';
     }
 
     if (lastError || !data || !data.candidates) {
