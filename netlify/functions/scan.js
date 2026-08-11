@@ -1,5 +1,4 @@
 exports.handler = async (event, context) => {
-  // CORS Headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -22,7 +21,7 @@ exports.handler = async (event, context) => {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing image data' }) };
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    let apiKey = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
     if (!apiKey) {
       return {
         statusCode: 500,
@@ -30,8 +29,6 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ error: 'Server key not configured. Please set GEMINI_API_KEY in Netlify Environment Variables.' })
       };
     }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{
@@ -46,6 +43,8 @@ exports.handler = async (event, context) => {
       }
     };
 
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,8 +52,13 @@ exports.handler = async (event, context) => {
     });
 
     const data = await response.json();
+
     if (data.error) {
       return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || 'Gemini API Error' }) };
+    }
+
+    if (!data.candidates || !data.candidates[0]) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'No candidates returned from Gemini API' }) };
     }
 
     let rawJSON = data.candidates[0].content.parts[0].text;
