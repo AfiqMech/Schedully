@@ -48,38 +48,21 @@ exports.handler = async (event, context) => {
       'x-goog-api-key': apiKey
     };
 
-    const modelsToTry = [
-      'gemini-1.5-flash',
-      'gemini-1.5-flash-latest',
-      'gemini-2.0-flash-exp',
-      'gemini-2.5-flash'
-    ];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: googleHeaders,
+      body: JSON.stringify(payload)
+    });
 
-    let data = null;
-    let lastError = null;
+    const data = await response.json();
 
-    for (const modelName of modelsToTry) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: googleHeaders,
-          body: JSON.stringify(payload)
-        });
-
-        data = await response.json();
-        if (!data.error) {
-          lastError = null;
-          break;
-        }
-        lastError = data.error.message || 'Gemini API Error';
-      } catch (err) {
-        lastError = err.message;
-      }
+    if (data.error) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || 'Gemini API Error' }) };
     }
 
-    if (lastError || !data || !data.candidates) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: lastError || 'Gemini API Error' }) };
+    if (!data.candidates || !data.candidates[0]) {
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'No candidates returned from Gemini API' }) };
     }
 
     let rawJSON = data.candidates[0].content.parts[0].text;
