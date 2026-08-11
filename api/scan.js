@@ -42,10 +42,13 @@ export default async function handler(req, res) {
           m.supportedGenerationMethods.includes('generateContent') &&
           m.name.includes('gemini')
         );
-        let bestModel = validModels.find(m => m.name.includes('3.5-flash'));
+        // Prioritize Pro models for maximum accuracy and spatial grid reasoning
+        let bestModel = validModels.find(m => m.name.includes('3.5-pro'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-pro'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('3.5-flash'));
         if (!bestModel) bestModel = validModels.find(m => m.name.includes('3.0-flash'));
         if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-flash'));
-        if (!bestModel) bestModel = validModels.reverse().find(m => m.name.includes('flash'));
+        if (!bestModel) bestModel = validModels.reverse().find(m => m.name.includes('pro'));
         if (!bestModel && validModels.length > 0) bestModel = validModels[0];
         if (bestModel) targetModelName = bestModel.name.replace('models/', '');
       }

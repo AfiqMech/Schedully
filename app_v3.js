@@ -1591,19 +1591,27 @@ class SchedullyApp {
     // and pure 1fr allows grid tracks to grow beyond container bounds if inner text is too long.
     this.universalTimetableGrid.style.gridTemplateColumns = `${timeColWidth} repeat(${days.length}, calc((100% - ${timeColWidth}) / ${days.length}))`;
 
-    // Automatically expand grid hours if any active course is outside the default bounds
+    // Smart Auto-Crop Grid Hours based on actual classes
     let effectiveStartHour = this.gridStartHour;
     let effectiveEndHour = this.gridEndHour;
-    this.classes.forEach(c => {
-      if (c.startTime) {
-        const startH = parseInt(c.startTime.split(':')[0], 10);
-        if (startH < effectiveStartHour) effectiveStartHour = startH;
-      }
-      if (c.endTime) {
-        const endH = parseInt(c.endTime.split(':')[0], 10);
-        if (endH > effectiveEndHour) effectiveEndHour = endH;
-      }
-    });
+    
+    if (this.classes && this.classes.length > 0) {
+      let minH = 24;
+      let maxH = 0;
+      this.classes.forEach(c => {
+        if (c.startTime) {
+          const sh = parseInt(c.startTime.split(':')[0], 10);
+          if (sh < minH) minH = sh;
+        }
+        if (c.endTime) {
+          const [eh, em] = c.endTime.split(':').map(Number);
+          const trueEndH = em > 0 ? eh + 1 : eh;
+          if (trueEndH > maxH) maxH = trueEndH;
+        }
+      });
+      if (minH < 24) effectiveStartHour = minH;
+      if (maxH > 0) effectiveEndHour = Math.max(minH + 2, maxH);
+    }
 
     const timetableContainer = document.getElementById('lock-timetable-container');
     if (timetableContainer) {
@@ -1722,8 +1730,10 @@ class SchedullyApp {
           let formatStart = matched.startTime;
           let formatEnd = matched.endTime;
           if (this.clockFormat === '12') {
-            formatStart = `${matched.startTime} ${sh >= 12 ? 'PM' : 'AM'}`;
-            formatEnd = `${matched.endTime} ${eh >= 12 ? 'PM' : 'AM'}`;
+            const displaySh = sh > 12 ? sh - 12 : (sh === 0 ? 12 : sh);
+            const displayEh = eh > 12 ? eh - 12 : (eh === 0 ? 12 : eh);
+            formatStart = `${String(displaySh).padStart(2, '0')}:${String(sm || 0).padStart(2, '0')} ${sh >= 12 ? 'PM' : 'AM'}`;
+            formatEnd = `${String(displayEh).padStart(2, '0')}:${String(em || 0).padStart(2, '0')} ${eh >= 12 ? 'PM' : 'AM'}`;
           }
 
           // Compute exact pixel height based on duration ratio
@@ -1763,7 +1773,7 @@ class SchedullyApp {
             ${this.globalCourseRoom && matched.room ? `<div class="exact-card-room" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.room}</div>` : ''}
             ${this.globalCourseLecturer && matched.lecturer ? `<div class="exact-card-lecturer" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.lecturer}</div>` : ''}
             ${this.globalCourseGroup && matched.group ? `<div class="exact-card-group" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.group}</div>` : ''}
-            ${this.globalCardTimes && matched.displayTime !== false ? `<div class="exact-card-time" style="font-size: ${timeFontSize}px; margin-top: 1px; opacity: 0.9;">${formatStart}<br>${formatEnd}</div>` : ''}
+            ${this.globalCardTimes && matched.displayTime !== false ? `<div class="exact-card-time" style="font-size: ${timeFontSize}px; margin-top: 1px; opacity: 0.9;">${formatStart}</div>` : ''}
           `;
 
           const cardElement = document.createElement('div');
