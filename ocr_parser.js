@@ -35,7 +35,16 @@ class OCRTimetableParser {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ base64Data, mimeType, provider })
         });
-        const resData = await response.json();
+        const rawText = await response.text();
+        let resData;
+        try {
+          resData = JSON.parse(rawText);
+        } catch (e) {
+          if (response.status === 404) {
+            throw new Error("Serverless function not found (404). Please ensure the 'netlify' folder was uploaded to your GitHub repository.");
+          }
+          throw new Error(`Server returned status ${response.status}`);
+        }
         if (resData.error) throw new Error(resData.error);
         return resData.data || [];
       } catch (proxyErr) {
