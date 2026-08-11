@@ -30,6 +30,42 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Google API requires x-goog-api-key for new keys (AQ...)
+    const googleHeaders = {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    };
+
+    // 1. DYNAMICALLY FIND A SUPPORTED MODEL to prevent "model not found" errors
+    let targetModelName = 'gemini-1.5-flash'; // fallback default
+    try {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
+        method: 'GET',
+        headers: { 'x-goog-api-key': apiKey }
+      });
+      const listData = await listRes.json();
+      if (listData && listData.models) {
+        // Find the first model that supports generateContent and contains "gemini" and "flash" or "pro"
+        const validModels = listData.models.filter(m => 
+          m.supportedGenerationMethods && 
+          m.supportedGenerationMethods.includes('generateContent') &&
+          m.name.includes('gemini')
+        );
+        
+        // Prefer a flash model, otherwise pro, otherwise whatever is first
+        let bestModel = validModels.find(m => m.name.includes('flash'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('pro'));
+        if (!bestModel && validModels.length > 0) bestModel = validModels[0];
+
+        if (bestModel) {
+          // The name is usually in the format "models/gemini-..."
+          targetModelName = bestModel.name.replace('models/', '');
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to list models, using default", e);
+    }
+
     const payload = {
       contents: [{
         parts: [
@@ -43,14 +79,8 @@ exports.handler = async (event, context) => {
       }
     };
 
-    // Google API requires x-goog-api-key for new keys (AQ...)
-    const googleHeaders = {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey
-    };
-
-    // The official Google model name is gemini-1.5-flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    // Use the dynamically found model
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${targetModelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -61,11 +91,11 @@ exports.handler = async (event, context) => {
     const data = await response.json();
 
     if (data.error) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || 'Gemini API Error' }) };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: data.error.message || `Gemini API Error (Using model: ${targetModelName})` }) };
     }
 
     if (!data.candidates || !data.candidates[0]) {
-      return { statusCode: 500, headers, body: JSON.stringify({ error: 'No candidates returned from Gemini API' }) };
+      return { statusCode: 500, headers, body: JSON.stringify({ error: `No candidates returned from Gemini API (Using model: ${targetModelName})` }) };
     }
 
     let rawJSON = data.candidates[0].content.parts[0].text;
@@ -90,7 +120,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ success: true, data: result })
+      body: JSON.stringify({ success: true, data: result, usedModel: targetModelName })
     };
   } catch (err) {
     return {
