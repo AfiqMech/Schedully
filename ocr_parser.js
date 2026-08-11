@@ -76,8 +76,7 @@ class OCRTimetableParser {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
-            'Authorization': `Bearer ${apiKey}`
+            'x-goog-api-key': apiKey
           },
           body: JSON.stringify(payload)
         });

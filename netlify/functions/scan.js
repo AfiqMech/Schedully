@@ -43,11 +43,9 @@ exports.handler = async (event, context) => {
       }
     };
 
-    // Google AI Studio supports both header-based auth and query key auth for new AQ. keys
     const googleHeaders = {
       'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
-      'Authorization': `Bearer ${apiKey}`
+      'x-goog-api-key': apiKey
     };
 
     const modelsToTry = [
