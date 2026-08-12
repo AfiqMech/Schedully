@@ -2100,8 +2100,12 @@ class SchedullyApp {
       // DO NOT strip borders or margins from the clone! Changing the box model causes layout bugs in WebKit/Blink.
       // Instead, we will capture it exactly as is, and then crop the canvas image mathematically.
       
-      // CRITICAL FIX: WebKit Safari bug mitigation
+      // CRITICAL FIX: WebKit/Blink SVG Rendering Bug Mitigation
+      // Mobile engines notoriously miscalculate clipping masks and shadows when rendering SVGs with scale().
+      // By stripping border-radius, overflow, and shadows, we force the engine to draw a plain box, avoiding all shifting bugs.
       clone.style.setProperty('overflow', 'visible', 'important');
+      clone.style.setProperty('border-radius', '0', 'important');
+      clone.style.setProperty('box-shadow', 'none', 'important');
       
       // Make clock, camera dot, and nav bar INVISIBLE (but preserve their layout space)
       ['.phone-camera-dot', '#phone-lock-header', '.phone-nav-bar'].forEach(sel => {
