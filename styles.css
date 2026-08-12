@@ -1944,76 +1944,191 @@ textarea::placeholder,
 }
 
 /* ==========================================================================
-   Mobile (Vertical) & Tablet (Horizontal) Floating Layout Optimization
-   Sidebars float over workspace on all screens <= 1280px so canvas never squeezes!
+   RESPONSIVE LAYOUT — Mobile Vertical (≤768px) & Tablet Horizontal (≤1024px)
+   Strategy: sidebars become fixed floating panels ON TOP of the workspace.
+   The main canvas fills 100% of the screen — nothing gets squeezed.
+   Desktop (>1024px) is completely untouched.
    ========================================================================== */
-#bottom-floating-pill-bar {
-  position: fixed !important;
-  bottom: 16px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  z-index: 40 !important;
-  max-width: calc(100vw - 24px) !important;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15) !important;
-}
 
-@media (max-width: 1280px) {
+/* ── Tablet + Mobile shared: sidebars become floating overlays ── */
+@media (max-width: 1024px) {
+
+  /* Body stays as a flex row but sidebars get pulled out of flow */
   body {
     overflow: hidden !important;
-    position: relative !important;
   }
 
+  /* Sidebars: pulled out of the flex document flow and float over main */
   #left-sidebar, #right-sidebar {
     position: fixed !important;
     top: 12px !important;
     bottom: 12px !important;
-    height: calc(100vh - 24px) !important;
-    max-height: calc(100vh - 24px) !important;
-    z-index: 50 !important;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22) !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-  }
-
-  /* Dark mode support for floating sidebars */
-  body.dark-mode #left-sidebar,
-  body.dark-mode #right-sidebar {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
+    height: calc(100dvh - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    z-index: 60 !important;
+    border-radius: 24px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    /* Remove them from flex flow — they float on top */
+    flex-shrink: 0;
   }
 
   #left-sidebar {
     left: 12px !important;
     right: auto !important;
-    width: calc(100vw - 24px) !important;
-    max-width: 360px !important;
+    width: min(360px, calc(100vw - 24px)) !important;
+    max-width: min(360px, calc(100vw - 24px)) !important;
+    margin: 0 !important;
   }
 
   #right-sidebar {
     right: 12px !important;
     left: auto !important;
-    width: calc(100vw - 24px) !important;
-    max-width: 360px !important;
+    width: min(360px, calc(100vw - 24px)) !important;
+    max-width: min(360px, calc(100vw - 24px)) !important;
+    margin: 0 !important;
   }
 
-  .sidebar-collapsed-left {
-    transform: translateX(-125%) scale(0.9) !important;
+  /* Collapsed sidebars slide off-screen (not just opacity — real slide) */
+  #left-sidebar.sidebar-collapsed-left {
+    transform: translateX(calc(-100% - 24px)) !important;
     opacity: 0 !important;
     pointer-events: none !important;
+  }
+
+  #right-sidebar.sidebar-collapsed-right {
+    transform: translateX(calc(100% + 24px)) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  /* Override the generic collapsed classes so desktop isn't affected */
+  .sidebar-collapsed-left {
+    max-width: 0px !important;
+    width: 0px !important;
+    opacity: 0 !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    transform: translateX(-110%) scale(0.88) !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    border: none !important;
   }
 
   .sidebar-collapsed-right {
-    transform: translateX(125%) scale(0.9) !important;
+    max-width: 0px !important;
+    width: 0px !important;
     opacity: 0 !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    transform: translateX(110%) scale(0.88) !important;
     pointer-events: none !important;
+    overflow: hidden !important;
+    border: none !important;
   }
 
+  /* Main workspace fills the full screen, no shrinking */
   main {
-    width: 100vw !important;
-    height: 100vh !important;
-    padding: 12px !important;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100dvh !important;
     margin: 0 !important;
-    flex: 1 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Theme-adaptive sidebar backgrounds */
+  #left-sidebar:not(.sidebar-collapsed-left),
+  #right-sidebar:not(.sidebar-collapsed-right) {
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+  }
+
+  /* Floating trigger buttons always visible and never hidden by default on mobile */
+  #btn-expand-left-floating,
+  #btn-expand-right-floating {
+    display: flex !important;
+  }
+
+  /* Position the floating trigger buttons clearly */
+  #btn-expand-left-floating {
+    top: 16px !important;
+    left: 16px !important;
+  }
+
+  #btn-expand-right-floating {
+    top: 16px !important;
+    right: 16px !important;
+  }
+
+  /* Top action bar on mobile: compress and scroll horizontally if needed */
+  main > header {
+    height: auto !important;
+    min-height: 64px !important;
+    padding: 10px 16px !important;
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+  }
+
+  /* Bottom pill bar — keep visible, prevent overflow */
+  #bottom-floating-pill-bar {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    max-width: calc(100vw - 32px) !important;
   }
 }
+
+/* ── Dark mode sidebar overlay ── */
+@media (max-width: 1024px) {
+  body.dark-mode #left-sidebar:not(.sidebar-collapsed-left),
+  body.dark-mode #right-sidebar:not(.sidebar-collapsed-right) {
+    background: rgba(15, 23, 42, 0.97) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* ── Smartphone portrait (≤480px): tighten further ── */
+@media (max-width: 480px) {
+  #left-sidebar, #right-sidebar {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    top: 8px !important;
+    bottom: 8px !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 20px !important;
+  }
+
+  #left-sidebar {
+    left: 8px !important;
+  }
+
+  #right-sidebar {
+    right: 8px !important;
+  }
+
+  #btn-expand-left-floating {
+    top: 12px !important;
+    left: 12px !important;
+  }
+
+  #btn-expand-right-floating {
+    top: 12px !important;
+    right: 12px !important;
+  }
+
+  /* Bottom pill bar on phone: allow 2-row wrap */
+  #bottom-floating-pill-bar {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    border-radius: 20px !important;
+  }
+}
+

@@ -1684,20 +1684,36 @@ class SchedullyApp {
     const btnToggleRight = document.getElementById('btn-toggle-right-sidebar');
     const btnExpandRightFloating = document.getElementById('btn-expand-right-floating');
 
+    const isMobile = () => window.innerWidth < 1024;
+
+    const showFloatingBtn = (btn) => {
+      if (!btn) return;
+      btn.classList.remove('hidden');
+      btn.style.display = 'flex';
+    };
+
+    const hideFloatingBtn = (btn) => {
+      if (!btn) return;
+      // On mobile, always keep both buttons visible
+      if (isMobile()) return;
+      btn.classList.add('hidden');
+      btn.style.display = '';
+    };
+
     const toggleLeftSidebar = (collapse) => {
       const isCurrentlyCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
       const shouldCollapse = collapse !== undefined ? collapse : !isCurrentlyCollapsed;
       
       if (shouldCollapse) {
         leftSidebar.classList.add('sidebar-collapsed-left');
-        btnExpandLeftFloating?.classList.remove('hidden');
+        showFloatingBtn(btnExpandLeftFloating);
       } else {
         leftSidebar.classList.remove('sidebar-collapsed-left');
-        btnExpandLeftFloating?.classList.add('hidden');
+        hideFloatingBtn(btnExpandLeftFloating);
         // Auto-close right sidebar on mobile/tablet when opening left
-        if (window.innerWidth < 1280) {
+        if (isMobile()) {
           rightSidebar.classList.add('sidebar-collapsed-right');
-          btnExpandRightFloating?.classList.remove('hidden');
+          showFloatingBtn(btnExpandRightFloating);
         }
       }
     };
@@ -1708,14 +1724,14 @@ class SchedullyApp {
       
       if (shouldCollapse) {
         rightSidebar.classList.add('sidebar-collapsed-right');
-        btnExpandRightFloating?.classList.remove('hidden');
+        showFloatingBtn(btnExpandRightFloating);
       } else {
         rightSidebar.classList.remove('sidebar-collapsed-right');
-        btnExpandRightFloating?.classList.add('hidden');
+        hideFloatingBtn(btnExpandRightFloating);
         // Auto-close left sidebar on mobile/tablet when opening right
-        if (window.innerWidth < 1280) {
+        if (isMobile()) {
           leftSidebar.classList.add('sidebar-collapsed-left');
-          btnExpandLeftFloating?.classList.remove('hidden');
+          showFloatingBtn(btnExpandLeftFloating);
         }
       }
     };
@@ -1726,16 +1742,35 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
-    // Auto-collapse sidebars on mobile/tablet viewports (< 1280px) for maximum screen space
-    if (window.innerWidth < 1280) {
+    // Auto-collapse sidebars on mobile/tablet viewports for maximum screen space
+    // On mobile both floating buttons always stay visible
+    if (isMobile()) {
       toggleLeftSidebar(true);
       toggleRightSidebar(true);
+      showFloatingBtn(btnExpandLeftFloating);
+      showFloatingBtn(btnExpandRightFloating);
     }
+
+    // Re-check on resize (desktop <-> mobile transition)
+    window.addEventListener('resize', () => {
+      if (!isMobile()) {
+        // On desktop: restore normal state if both were collapsed
+        const leftCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
+        const rightCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
+        if (leftCollapsed) hideFloatingBtn(btnExpandLeftFloating);
+        if (rightCollapsed) hideFloatingBtn(btnExpandRightFloating);
+      } else {
+        // Went back to mobile: ensure both buttons are shown
+        showFloatingBtn(btnExpandLeftFloating);
+        showFloatingBtn(btnExpandRightFloating);
+      }
+    });
 
     // Close open floating sidebars on mobile/tablet when user taps workspace canvas
     document.querySelector('main')?.addEventListener('click', (e) => {
-      if (window.innerWidth < 1280) {
-        if (!e.target.closest('#btn-expand-left-floating, #btn-expand-right-floating')) {
+      if (isMobile()) {
+        const clickedFloating = e.target.closest('#btn-expand-left-floating, #btn-expand-right-floating');
+        if (!clickedFloating) {
           toggleLeftSidebar(true);
           toggleRightSidebar(true);
         }
