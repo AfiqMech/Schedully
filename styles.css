@@ -2231,66 +2231,45 @@ textarea::placeholder,
     right: 16px !important;
   }
 
-  /* Bottom floating pill bar: ALWAYS strictly 1 horizontal row pill (Image 1 layout, NEVER wraps!) */
+  /* Bottom floating pill bar: natural standard pill styling */
   #bottom-floating-pill-bar {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-radius: 9999px !important;
-    padding: 4px 10px !important;
-    gap: 4px !important;
-    max-width: min(calc(100vw - 16px), 480px) !important;
-    white-space: nowrap !important;
-    overflow-x: auto !important;
-    scrollbar-width: none !important;
+    gap: 8px !important;
+    max-width: calc(100vw - 24px) !important;
     z-index: 9999 !important;
   }
 }
 
-/* ── STRICT COMPACT SINGLE-ROW BOTTOM PILL BAR FOR PHONES (IMAGE 1 LAYOUT) ── */
-@media (max-width: 768px) {
-  #bottom-floating-pill-bar {
-    padding: 4px 8px !important;
-    gap: 4px !important;
-    max-width: calc(100vw - 12px) !important;
-  }
-
-  #bottom-floating-pill-bar > div {
-    padding: 2px 4px !important;
-    gap: 2px !important;
-    flex-shrink: 0 !important;
-  }
-
-  #bottom-floating-pill-bar button {
-    width: 28px !important;
-    height: 28px !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-  }
-
-  #zoom-label-text {
-    width: 34px !important;
-    font-size: 10px !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-  }
-
-  #btn-toggle-canvas-popover {
-    width: auto !important;
-    padding: 4px 12px !important;
-    font-size: 11px !important;
-    flex-shrink: 0 !important;
-  }
-}
-
-/* ── Dark mode sidebar overlay ── */
+/* ── Dark mode sidebar overlay & floating elements ── */
 @media (max-width: 1024px) {
   body.dark-mode #left-sidebar:not(.sidebar-collapsed-left),
   body.dark-mode #right-sidebar:not(.sidebar-collapsed-right) {
     background: rgba(15, 23, 42, 0.97) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: var(--m3-sys-text-primary) !important;
+  }
+
+  body.dark-mode #btn-expand-left-floating,
+  body.dark-mode #btn-expand-right-floating {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: var(--m3-sys-text-primary) !important;
+  }
+
+  body.dark-mode #bottom-floating-pill-bar {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  body.dark-mode #bottom-floating-pill-bar > div {
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  body.dark-mode #bottom-floating-pill-bar button:not(.btn-theme-primary) {
+    color: var(--m3-sys-text-primary) !important;
   }
 }
 

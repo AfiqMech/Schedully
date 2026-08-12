@@ -426,6 +426,7 @@ class SchedullyApp {
     root.style.setProperty('--m3-sys-text-secondary', subtext);
 
     // ── DARK MODE: apply dark surfaces & contrast to all layout elements ──
+    document.body.classList.toggle('dark-mode', isDark);
     if (isDark) {
       document.body.style.backgroundColor = bg;
       const mainEl = document.querySelector('main');
