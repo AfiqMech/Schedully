@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     }
 
     // 1. DYNAMICALLY DISCOVER SUPPORTED MODELS
-    let targetModelName = 'gemini-1.5-flash';
+    let targetModelName = 'gemini-3.5-flash';
     try {
       const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
         method: 'GET',
@@ -42,10 +42,11 @@ export default async function handler(req, res) {
           m.supportedGenerationMethods.includes('generateContent') &&
           m.name.includes('gemini')
         );
-        // Prioritize Pro/Flash models for maximum accuracy and spatial grid reasoning
-        let bestModel = validModels.find(m => m.name.includes('1.5-flash'));
-        if (!bestModel) bestModel = validModels.find(m => m.name.includes('2.0-flash'));
-        if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-pro'));
+        // Prioritize gemini-3.5-flash per user request
+        let bestModel = validModels.find(m => m.name.includes('3.5-flash'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('3.5-pro'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('2.5-flash'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-flash'));
         if (!bestModel) bestModel = validModels.find(m => m.name.includes('flash'));
         if (!bestModel && validModels.length > 0) bestModel = validModels[0];
         if (bestModel) targetModelName = bestModel.name.replace('models/', '');
