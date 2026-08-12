@@ -1529,20 +1529,24 @@ class SchedullyApp {
 
         const lockUIToggle = document.getElementById('toggle-lock-ui');
 
+        // Apply smooth scale morph class
+        this.phoneCanvas.classList.add('device-switching');
+        setTimeout(() => this.phoneCanvas.classList.remove('device-switching'), 450);
+
         if (device === 'tablet') {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-tablet';
+          this.phoneCanvas.className = 'm3-phone-canvas canvas-tablet device-switching';
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE TABLET LOCKSCREEN PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '920px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper tablet-mode';
           if (lockUIToggle) lockUIToggle.style.display = 'flex';
         } else if (device === 'paper') {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-paper';
+          this.phoneCanvas.className = 'm3-phone-canvas canvas-paper device-switching';
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE PAPER PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '720px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper paper-mode';
           if (lockUIToggle) lockUIToggle.style.display = 'none';
         } else {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-phone';
+          this.phoneCanvas.className = 'm3-phone-canvas canvas-phone device-switching';
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE PHONE LOCKSCREEN PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '380px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper';
@@ -1555,6 +1559,15 @@ class SchedullyApp {
 
         // Auto-adapt grid & font scaling on device switch
         this.renderTimetableGrid();
+
+        // Smooth scroll scroll area to center new device model
+        const scrollArea = document.getElementById('canvas-scroll-area');
+        if (scrollArea) {
+          setTimeout(() => {
+            const targetLeft = Math.max(0, (scrollArea.scrollWidth - scrollArea.clientWidth) / 2);
+            scrollArea.scrollTo({ left: targetLeft, behavior: 'smooth' });
+          }, 60);
+        }
 
         // On mobile/tablet screens, set zoom to 1.0 (100%) and auto-center scroll
         if (window.innerWidth < 1024) {
@@ -1719,34 +1732,42 @@ class SchedullyApp {
       btn.style.display = 'none';
     };
 
-    const syncMobileTopBarState = () => {
-      if (!isMobile()) return;
+    const syncFloatingButtonsState = () => {
       const leftCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
       const rightCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
       const mobileExportBar = document.getElementById('mobile-export-bar');
       const mobileDropdown = document.getElementById('mobile-export-dropdown');
       const mobileChevron = document.getElementById('mobile-export-chevron');
 
-      // If EITHER sidebar is open, hide ALL 3 floating top buttons (Menu, Export, Schedule)
-      if (!leftCollapsed || !rightCollapsed) {
-        hideFloatingBtn(btnExpandLeftFloating);
-        hideFloatingBtn(btnExpandRightFloating);
-        if (mobileExportBar) {
-          mobileExportBar.style.display = 'none';
-        }
-        if (mobileDropdown) {
-          mobileDropdown.classList.add('hidden');
-        }
-        if (mobileChevron) {
-          mobileChevron.classList.remove('mobile-export-chevron-open');
+      if (isMobile()) {
+        // MOBILE / TABLET: If EITHER sidebar is open, hide ALL 3 floating top buttons
+        if (!leftCollapsed || !rightCollapsed) {
+          hideFloatingBtn(btnExpandLeftFloating);
+          hideFloatingBtn(btnExpandRightFloating);
+          if (mobileExportBar) mobileExportBar.style.display = 'none';
+          if (mobileDropdown) mobileDropdown.classList.add('hidden');
+          if (mobileChevron) mobileChevron.classList.remove('mobile-export-chevron-open');
+        } else {
+          // Both sidebars closed: show all 3 floating top buttons
+          showFloatingBtn(btnExpandLeftFloating);
+          showFloatingBtn(btnExpandRightFloating);
+          if (mobileExportBar) mobileExportBar.style.display = 'flex';
         }
       } else {
-        // Both sidebars are closed: restore all 3 floating top buttons
-        showFloatingBtn(btnExpandLeftFloating);
-        showFloatingBtn(btnExpandRightFloating);
-        if (mobileExportBar) {
-          mobileExportBar.style.display = 'flex';
+        // DESKTOP: Show floating Menu/Schedule buttons whenever respective sidebar is collapsed
+        if (leftCollapsed) {
+          showFloatingBtn(btnExpandLeftFloating);
+        } else {
+          hideFloatingBtn(btnExpandLeftFloating);
         }
+
+        if (rightCollapsed) {
+          showFloatingBtn(btnExpandRightFloating);
+        } else {
+          hideFloatingBtn(btnExpandRightFloating);
+        }
+
+        if (mobileExportBar) mobileExportBar.style.display = '';
       }
     };
 
@@ -1758,12 +1779,11 @@ class SchedullyApp {
         leftSidebar.classList.add('sidebar-collapsed-left');
       } else {
         leftSidebar.classList.remove('sidebar-collapsed-left');
-        // Auto-close right sidebar on mobile/tablet when opening left
         if (isMobile()) {
           rightSidebar.classList.add('sidebar-collapsed-right');
         }
       }
-      syncMobileTopBarState();
+      syncFloatingButtonsState();
     };
 
     const toggleRightSidebar = (collapse) => {
@@ -1774,12 +1794,11 @@ class SchedullyApp {
         rightSidebar.classList.add('sidebar-collapsed-right');
       } else {
         rightSidebar.classList.remove('sidebar-collapsed-right');
-        // Auto-close left sidebar on mobile/tablet when opening right
         if (isMobile()) {
           leftSidebar.classList.add('sidebar-collapsed-left');
         }
       }
-      syncMobileTopBarState();
+      syncFloatingButtonsState();
     };
 
     btnToggleLeft?.addEventListener('click', () => toggleLeftSidebar(true));
@@ -1788,25 +1807,12 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
-    // Initial state on mobile
-    if (isMobile()) {
-      leftSidebar.classList.add('sidebar-collapsed-left');
-      rightSidebar.classList.add('sidebar-collapsed-right');
-      syncMobileTopBarState();
-    }
+    // Initial state check
+    syncFloatingButtonsState();
 
-    // Re-check on resize (desktop <-> mobile transition)
+    // Re-check on resize
     window.addEventListener('resize', () => {
-      if (!isMobile()) {
-        const leftCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
-        const rightCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
-        if (leftCollapsed) hideFloatingBtn(btnExpandLeftFloating);
-        if (rightCollapsed) hideFloatingBtn(btnExpandRightFloating);
-        const mobileExportBar = document.getElementById('mobile-export-bar');
-        if (mobileExportBar) mobileExportBar.style.display = '';
-      } else {
-        syncMobileTopBarState();
-      }
+      syncFloatingButtonsState();
     });
 
     // Close open floating sidebars on mobile/tablet when user taps workspace canvas

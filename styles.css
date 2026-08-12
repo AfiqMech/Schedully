@@ -1418,7 +1418,27 @@ textarea::placeholder,
   padding: 16px;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1), height 0.3s cubic-bezier(0.2, 0, 0, 1), background-color 0.3s ease;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              min-width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              min-height 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              border-radius 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.35s ease,
+              border 0.35s ease,
+              box-shadow 0.35s ease,
+              background-color 0.3s ease;
+  will-change: width, height;
+}
+
+/* Device Morph Scale Keyframes for silky smooth switching */
+.device-switching {
+  animation: deviceMorph 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes deviceMorph {
+  0%   { opacity: 0.9; transform: scale(0.97); }
+  60%  { opacity: 0.98; transform: scale(1.008); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .m3-phone-canvas.canvas-phone {
@@ -1445,6 +1465,27 @@ textarea::placeholder,
 /* Hide side buttons ONLY when in paper mode */
 .m3-phone-wrapper.paper-mode .side-btn {
   display: none !important;
+}
+
+/* Tablet Hardware Buttons Placement: Power on Left Side, Volume Rocker on Top Leftmost */
+.m3-phone-wrapper.tablet-mode .btn-power {
+  left: -5px !important;
+  right: auto !important;
+  top: 40px !important;
+  width: 5px !important;
+  height: 48px !important;
+  border-radius: 3px 0 0 3px !important;
+  box-shadow: inset 1px 0 2px rgba(255,255,255,0.2), -2px 0 4px rgba(0,0,0,0.4) !important;
+}
+
+.m3-phone-wrapper.tablet-mode .btn-vol-rocker {
+  top: -5px !important;
+  right: auto !important;
+  left: 80px !important;
+  width: 72px !important;
+  height: 5px !important;
+  border-radius: 3px 3px 0 0 !important;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 -2px 4px rgba(0,0,0,0.4) !important;
 }
 
 .m3-phone-canvas.canvas-paper .phone-camera-dot,
@@ -2058,28 +2099,87 @@ textarea::placeholder,
 .capsule-btn.active {
   background-color: var(--m3-sys-color-primary, #2563EB) !important;
   color: var(--m3-sys-color-on-primary, #FFFFFF) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
 }
 .capsule-btn {
   background-color: transparent;
   color: var(--m3-sys-text-secondary, #4B5563);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
+
+/* ── WORLD-CLASS MICRO-ANIMATIONS & TACTILE FEEDBACK ── */
+button, .pill-btn, .adaptive-icon-btn, .mobile-export-option, .palette-dot, .swatch-dot {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+button:active, .pill-btn:active, .adaptive-icon-btn:active {
+  transform: scale(0.93) !important;
+}
+
+/* Course Cards Grid Pop-In & Lift Hover */
+.m3-course-card {
+  animation: courseCardPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
+}
+.m3-course-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10;
+}
+
+@keyframes courseCardPopIn {
+  0%   { opacity: 0; transform: scale(0.88) translateY(6px); }
+  65%  { opacity: 0.98; transform: scale(1.02) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Popover Controls Card Spring Transition */
+#canvas-controls-popover:not(.hidden) {
+  animation: popoverSpring 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: bottom center;
+}
+
+@keyframes popoverSpring {
+  0%   { opacity: 0; transform: scale(0.9) translateY(12px); }
+  65%  { opacity: 0.98; transform: scale(1.015) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Inputs & Form Elements Smooth Glow */
+input, select, textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+}
+
 /* OCC / Group Selector Modal for CSVs */
 .modal-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); z-index: 9999;
+  background: rgba(0,0,0,0.55); z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px); transition: opacity 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.modal-overlay.hidden { display: none !important; opacity: 0; }
+.modal-overlay.hidden { display: none !important; opacity: 0; visibility: hidden; }
 .modal-card {
   background: var(--m3-sys-color-surface, #FFFFFF);
-  border-radius: 20px; padding: 24px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+  border-radius: 28px; padding: 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.25);
   width: 90%; max-width: 1000px; max-height: 90vh;
   display: flex; flex-direction: column;
   color: var(--m3-sys-text-primary);
+  animation: modalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center center;
 }
+
+@keyframes modalPopIn {
+  0%   { opacity: 0; transform: scale(0.92) translateY(12px); }
+  60%  { opacity: 0.98; transform: scale(1.01) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 .modal-header h3 { margin: 0; color: var(--m3-sys-text-primary); font-size: 20px; font-weight: 800; }
 .modal-header p { font-size: 13px; color: var(--m3-sys-text-secondary); margin-top: 4px; }
 .modal-body { margin-top: 16px; margin-bottom: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; flex-grow: 1; }
@@ -2094,10 +2194,10 @@ textarea::placeholder,
 
 .occ-card { 
   min-width: 150px; background: var(--m3-sys-color-surface, #FFFFFF); border: 2px solid var(--m3-sys-color-outline, #CBD5E1); 
-  border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.2s;
+  border-radius: 14px; padding: 12px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;
 }
-.occ-card:hover { border-color: var(--m3-sys-color-primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.occ-card:hover { border-color: var(--m3-sys-color-primary); transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
 .occ-card.selected { border-color: var(--m3-sys-color-primary) !important; background: var(--m3-sys-color-primary-container, #DBEAFE) !important; }
 
 .occ-card-title { font-weight: 700; font-size: 14px; color: var(--m3-sys-color-primary); text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 6px; }
@@ -2246,35 +2346,33 @@ textarea::placeholder,
   }
 }
 
-/* ── Dark mode sidebar overlay & floating elements ── */
-@media (max-width: 1280px) {
-  body.dark-mode #left-sidebar:not(.sidebar-collapsed-left),
-  body.dark-mode #right-sidebar:not(.sidebar-collapsed-right) {
-    background: rgba(15, 23, 42, 0.97) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    color: var(--m3-sys-text-primary) !important;
-  }
+/* ── GLOBAL Dark mode sidebar overlay & floating elements (Desktop + Mobile synchronized) ── */
+body.dark-mode #left-sidebar,
+body.dark-mode #right-sidebar {
+  background: rgba(15, 23, 42, 0.97) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--m3-sys-text-primary) !important;
+}
 
-  body.dark-mode #btn-expand-left-floating,
-  body.dark-mode #btn-expand-right-floating {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    color: var(--m3-sys-text-primary) !important;
-  }
+body.dark-mode #btn-expand-left-floating,
+body.dark-mode #btn-expand-right-floating {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--m3-sys-text-primary) !important;
+}
 
-  body.dark-mode #bottom-floating-pill-bar {
-    background: rgba(15, 23, 42, 0.95) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-  }
+body.dark-mode #bottom-floating-pill-bar {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
 
-  body.dark-mode #bottom-floating-pill-bar > div {
-    background: rgba(30, 41, 59, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-  }
+body.dark-mode #bottom-floating-pill-bar > div {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
 
-  body.dark-mode #bottom-floating-pill-bar button:not(.btn-theme-primary) {
-    color: var(--m3-sys-text-primary) !important;
-  }
+body.dark-mode #bottom-floating-pill-bar button:not(.btn-theme-primary) {
+  color: var(--m3-sys-text-primary) !important;
 }
 
 /* ── Smartphone portrait (≤480px): tighten further ── */
