@@ -2084,36 +2084,26 @@ class SchedullyApp {
     const exportWallpaper = (onComplete) => {
       const originalCanvas = document.getElementById('phone-canvas');
       
-      // Use scrollWidth/scrollHeight to guarantee we capture the entire timetable,
-      // even if the grid rows expand past the 760px boundary on mobile due to font scaling.
-      const cssW = Math.max(originalCanvas.clientWidth, originalCanvas.scrollWidth);
-      const cssH = Math.max(originalCanvas.clientHeight, originalCanvas.scrollHeight);
+      const cssW = originalCanvas.clientWidth + 24; // full width including borders if any
+      const cssH = originalCanvas.clientHeight + 24;
 
       const stagingContainer = document.createElement('div');
       stagingContainer.style.cssText = `
         position: absolute;
         top: -9999px; left: -9999px;
-        width: ${cssW}px; height: ${cssH}px;
         z-index: -9999;
-        zoom: 1; transform: none;
       `;
       document.body.appendChild(stagingContainer);
 
       const clone = originalCanvas.cloneNode(true);
       
-      // Remove the black bezel from the clone
-      clone.style.setProperty('width', cssW + 'px', 'important');
-      clone.style.setProperty('height', cssH + 'px', 'important');
-      clone.style.setProperty('border', 'none', 'important');
-      clone.style.setProperty('border-radius', '0', 'important');
-      clone.style.setProperty('box-shadow', 'none', 'important');
-      clone.style.setProperty('margin', '0', 'important');
+      // DO NOT strip borders or margins from the clone! Changing the box model causes layout bugs in WebKit/Blink.
+      // Instead, we will capture it exactly as is, and then crop the canvas image mathematically.
       
-      // CRITICAL FIX: WebKit (Safari on Mobile) has a rendering bug where `overflow: hidden` combined
-      // with `transform: scale()` inside an SVG completely shifts the layout and chops off the right side.
+      // CRITICAL FIX: WebKit Safari bug mitigation
       clone.style.setProperty('overflow', 'visible', 'important');
       
-      // Make clock, camera dot, and nav bar INVISIBLE
+      // Make clock, camera dot, and nav bar INVISIBLE (but preserve their layout space)
       ['.phone-camera-dot', '#phone-lock-header', '.phone-nav-bar'].forEach(sel => {
         const el = clone.querySelector(sel);
         if (el) {
@@ -2122,36 +2112,63 @@ class SchedullyApp {
         }
       });
 
-      // THE SOLUTION: Micro-adjust text size in the clone to cancel out the SVG kerning bug!
-      // This physically forces the SVG to fit the exact same number of letters as the live HTML preview.
-      // We must scale down the font size by exactly 5% relative to the dynamic inline styles applied to the cards.
+      // Micro-adjust text size in the clone to cancel out the SVG kerning bug!
+      // Mobile devices require a much more aggressive shrink factor due to how mobile OS fonts map to SVG <foreignObject>.
+      const isMobileExport = window.innerWidth <= 1280;
+      const shrinkFactor = isMobileExport ? 0.85 : 0.94;
+      const letterSpace = isMobileExport ? '-0.25px' : '-0.15px';
+      
       clone.querySelectorAll('.exact-card-code').forEach(el => {
         const currentFontSize = parseFloat(el.style.fontSize) || 10;
-        el.style.setProperty('font-size', (currentFontSize * 0.94) + 'px', 'important');
-        el.style.setProperty('letter-spacing', '-0.15px', 'important');
+        el.style.setProperty('font-size', (currentFontSize * shrinkFactor) + 'px', 'important');
+        el.style.setProperty('letter-spacing', letterSpace, 'important');
       });
       clone.querySelectorAll('.exact-card-type, .exact-card-room, .exact-card-lecturer, .exact-card-group, .exact-card-time').forEach(el => {
         const currentFontSize = parseFloat(el.style.fontSize) || 8.5;
-        el.style.setProperty('font-size', (currentFontSize * 0.94) + 'px', 'important');
-        el.style.setProperty('letter-spacing', '-0.15px', 'important');
+        el.style.setProperty('font-size', (currentFontSize * shrinkFactor) + 'px', 'important');
+        el.style.setProperty('letter-spacing', letterSpace, 'important');
       });
 
       stagingContainer.appendChild(clone);
 
       setTimeout(() => {
         const scale = 3;
+        const rect = originalCanvas.getBoundingClientRect();
+        
         window.domtoimage.toCanvas(clone, {
-          width: cssW * scale,
-          height: cssH * scale,
+          width: originalCanvas.offsetWidth * scale,
+          height: originalCanvas.offsetHeight * scale,
           style: {
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
-            width: `${cssW}px`,
-            height: `${cssH}px`
+            width: `${originalCanvas.offsetWidth}px`,
+            height: `${originalCanvas.offsetHeight}px`
           }
         }).then(canvas => {
           if (document.body.contains(stagingContainer)) document.body.removeChild(stagingContainer);
-          onComplete(canvas);
+          
+          // Step 2: Mathematically crop the black bezel from the resulting canvas
+          const computedStyle = window.getComputedStyle(originalCanvas);
+          const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
+          const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
+          const borderBottom = parseFloat(computedStyle.borderBottomWidth) || 0;
+          const borderRight = parseFloat(computedStyle.borderRightWidth) || 0;
+          
+          const finalW = canvas.width - ((borderLeft + borderRight) * scale);
+          const finalH = canvas.height - ((borderTop + borderBottom) * scale);
+          
+          const finalCanvas = document.createElement('canvas');
+          finalCanvas.width = finalW;
+          finalCanvas.height = finalH;
+          const ctx = finalCanvas.getContext('2d');
+          
+          ctx.drawImage(
+            canvas,
+            borderLeft * scale, borderTop * scale, finalW, finalH, // Source crop
+            0, 0, finalW, finalH // Destination
+          );
+          
+          onComplete(finalCanvas);
         }).catch(err => {
           if (document.body.contains(stagingContainer)) document.body.removeChild(stagingContainer);
           console.error('Wallpaper export failed:', err);
