@@ -133,6 +133,29 @@ class TimetableEngine {
     link.click();
     document.body.removeChild(link);
   }
+
+  exportToCSV(courses, filename = 'schedully_schedule.csv') {
+    let csvData = ['Course Code,Course Name,Day,Start Time,End Time,Location,Lecturer,Group'];
+    courses.forEach(c => {
+      const code = `"${(c.code || '').replace(/"/g, '""')}"`;
+      const title = `"${(c.title || '').replace(/"/g, '""')}"`;
+      const day = `"${(c.day || '').replace(/"/g, '""')}"`;
+      const startTime = `"${(c.startTime || '').replace(/"/g, '""')}"`;
+      const endTime = `"${(c.endTime || '').replace(/"/g, '""')}"`;
+      const location = `"${(c.room || c.location || '').replace(/"/g, '""')}"`;
+      const lecturer = `"${(c.lecturer || '').replace(/"/g, '""')}"`;
+      const group = `"${(c.group || '').replace(/"/g, '""')}"`;
+      csvData.push(`${code},${title},${day},${startTime},${endTime},${location},${lecturer},${group}`);
+    });
+
+    const blob = new Blob([csvData.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
 
 window.timetableEngine = new TimetableEngine();

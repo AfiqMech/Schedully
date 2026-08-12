@@ -1,63 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schedully | Class Schedule & Lock Screen Wallpaper Builder</title>
-  <meta name="description" content="Clean, sleek Google Material 3 Timetable Generator and Universal Smartphone & Tablet Lockscreen Wallpaper Builder.">
-  
-  <!-- Google Sans / Product Sans Font + Material Symbols -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
-  
-  <!-- html2canvas & jsPDF -->
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <link rel="stylesheet" href="styles.css?v=12">
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Schedully Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- html2canvas & jsPDF -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<style data-purpose="custom-fonts">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #FAFAFA;
+      font-weight: 500;
+    }
+  </style>
+<style data-purpose="custom-styles">
+    /* Hide scrollbar for cleaner look in sidebars if they scroll */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    
+    /* Device Preview specific styles */
+    .device-bezel {
+      border: 12px solid #111;
+      border-radius: 40px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      background-color: white;
+      position: relative;
+    }
+    .dynamic-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 30px;
+      background-color: black;
+      border-radius: 20px;
+      z-index: 10;
+    }
+    
+    /* Custom button shadows and colors */
+    .btn-blue {
+      background-color: #3B82F6;
+      color: white;
+      box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    }
+    .btn-blue:hover {
+      background-color: #2563EB;
+    }
+  </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <!-- Loading Screen -->
-  <div id="app-loading-screen" class="loading-screen">
-    <div class="loading-spinner"></div>
-    <h2 style="margin:0; font-family:var(--font-sans); color:var(--m3-sys-text-primary);">Loading Schedully...</h2>
-  </div>
+<body class="text-gray-800 h-screen overflow-hidden flex">
+<!-- BEGIN: Left Sidebar Navigation -->
+<button id="btn-expand-left-floating" class="hidden fixed top-5 left-5 z-40 flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-md border border-gray-200 rounded-full shadow-lg text-xs font-extrabold text-gray-800 hover:bg-gray-50 active:scale-95 transition-all">
+  <svg class="w-4 h-4 theme-primary-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+  <span>Menu</span>
+</button>
 
-  <main class="m3-main-layout">
-
-    <!-- 1. Left Clean Sidebar Panel -->
-    <aside class="m3-sidebar">
+<aside id="left-sidebar" class="w-80 m-3 rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] flex flex-col justify-between overflow-y-auto no-scrollbar p-6 z-20 shrink-0">
+<!-- Top Section: Logo and Nav Items -->
+<div>
+<!-- Logo & Collapse Button -->
+<div class="flex items-center justify-between mb-8">
+  <div class="flex items-center gap-3">
+    <div class="relative flex items-center justify-center shrink-0">
+      <!-- Glowing Ambient Blur Backing -->
+      <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/35 to-indigo-500/25 rounded-2xl blur-md opacity-90"></div>
       
-      <!-- Brand Header -->
-      <div class="m3-brand-sidebar">
-        <span class="material-symbols-outlined brand-icon">calendar_month</span>
-        <div>
-          <h1 class="brand-title">Schedully</h1>
-          <p class="brand-tagline">Make your Schedule</p>
-        </div>
+      <!-- Glassmorphic White Capsule Plate -->
+      <div class="relative p-1.5 bg-white/95 backdrop-blur-md rounded-2xl border border-white/90 shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
+        <img src="logo.jpg" alt="Schedully Logo" class="w-9 h-9 object-cover rounded-xl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="w-9 h-9 bg-blue-600 rounded-xl items-center justify-center text-white font-extrabold text-lg hidden">S</div>
       </div>
-
-      <!-- Expandable Theme & Colors Card -->
-      <section class="m3-card m3-card-elevated expandable-card">
-        <div class="card-expand-header" id="header-theme">
-          <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">palette</span>
-            <div>
-              <h2>Theme & Colors</h2>
-              <p class="subtext">System Color</p>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" id="btn-randomize-theme" class="m3-icon-button" style="background: transparent; border: 1px solid var(--m3-sys-color-outline); border-radius: 8px; padding: 4px; color: var(--m3-sys-color-primary);" title="Surprise Me! Randomize Theme">
-              <span class="material-symbols-outlined icon-sm">casino</span>
-            </button>
-            <span class="material-symbols-outlined expand-arrow">expand_more</span>
-          </div>
-        </div>
-
-        <div class="expandable-content hidden" id="content-theme">
+    </div>
+    <div>
+      <h1 class="font-extrabold text-xl leading-tight">Schedully</h1>
+      <p class="text-xs text-gray-500 font-semibold tracking-wider">MAKE YOUR SCHEDULE</p>
+    </div>
+  </div>
+  <button id="btn-toggle-left-sidebar" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-all" title="Collapse Left Sidebar">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 19l-7-7 7-7m8 14l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+  </button>
+</div>
+<!-- Navigation Menu -->
+<nav class="space-y-3">
+<a id="header-theme" class="card-expand-header flex items-center justify-between p-4 rounded-2xl transition-colors" href="#">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<div>
+<p class="font-bold text-sm">Theme &amp; Colors</p>
+<p class="text-xs font-medium mt-0.5">Customize your look</p>
+</div>
+</div>
+<svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<div class="expandable-content hidden" id="content-theme">
           <div class="theme-card-inner">
             <!-- Theme Mode -->
             <div class="theme-picker-section">
@@ -139,26 +186,44 @@
                 <button class="palette-dot dual-tone tone-ash" data-palette="ash" title="Cool Ash">
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
+                <button class="palette-dot dual-tone tone-violet" data-palette="violet" title="Electric Violet">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-teal" data-palette="teal" title="Cyber Teal">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-amber" data-palette="amber" title="Honey Amber">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-rose" data-palette="rose" title="Peony Rose">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-midnight" data-palette="midnight" title="Neon Midnight">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-espresso" data-palette="espresso" title="Dark Espresso">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-cyan" data-palette="cyan" title="Ice Cyan">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </section>
-
-      <!-- Expandable Timetable Layout Card -->
-      <section class="m3-card m3-card-elevated expandable-card">
-        <div class="card-expand-header" id="header-layout-options">
-          <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">display_settings</span>
-            <div>
-              <h2>Timetable Layout</h2>
-              <p class="subtext">Custom title, clock, background & font colors</p>
-            </div>
-          </div>
-          <span class="material-symbols-outlined expand-arrow">expand_more</span>
-        </div>
-
-        <div class="expandable-content hidden" id="content-layout-options">
+      
+<!-- Inactive Items -->
+<a id="header-layout-options" class="card-expand-header flex items-center justify-between" href="#">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<div>
+<p class="font-bold text-sm text-gray-800">Timetable Layout</p>
+<p class="text-xs text-gray-500 font-medium mt-0.5">Edit title, clock, fonts &amp; colors</p>
+</div>
+</div>
+<svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<div class="expandable-content hidden" id="content-layout-options">
           <div class="layout-card-inner margin-top-sm">
             
             <!-- Title Toggle & Title Name Edit -->
@@ -172,7 +237,7 @@
 
             <div class="opt-row">
               <span class="opt-label">Title Text</span>
-              <input type="text" id="input-title-text-sidebar" value="Untitled" class="m3-input opt-input" placeholder="e.g. Semester 1">
+              <input type="text" id="input-title-text-sidebar" value="Untitled" class="m3-input opt-input" placeholder="">
             </div>
 
             <!-- Days Display Toggles (Mon-Sun) -->
@@ -362,27 +427,24 @@
 
           </div>
         </div>
-      </section>
-
-      <!-- Expandable "Add A Course" Form Card -->
-      <section class="m3-card m3-card-elevated expandable-card">
-        <div class="card-expand-header" id="header-add-course">
-          <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">add_circle</span>
-            <div>
-              <h2>Add Class / Course</h2>
-              <p class="subtext">Add custom class slots & meeting times</p>
-            </div>
-          </div>
-          <span class="material-symbols-outlined expand-arrow">expand_more</span>
-        </div>
-
-        <div class="expandable-content hidden" id="content-add-course">
-          <form id="add-course-form" class="course-form-body margin-top-sm">
+      
+<a id="header-add-course" class="card-expand-header flex items-center justify-between" href="#">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<div>
+<p class="font-bold text-sm text-gray-800">Add Class / Course</p>
+<p class="text-xs text-gray-500 font-medium mt-0.5">Add classes, slots &amp; meeting times</p>
+</div>
+</div>
+<svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<div class="expandable-content hidden" id="content-add-course">
+          <div class="layout-card-inner">
+          <form id="add-course-form" class="course-form-body">
             <!-- Course Code -->
             <div class="form-row">
               <label for="input-course-code">Class / Course Name :</label>
-              <input type="text" id="input-course-code" placeholder="e.g. 5K4 or WIX1002" required class="m3-input">
+              <input type="text" id="input-course-code" placeholder="" required class="m3-input">
             </div>
 
             <!-- Display Time Toggle -->
@@ -441,7 +503,7 @@
 
               <!-- Start Time -->
               <div class="form-row">
-                <label for="input-start-time">start_time</label>
+                <label for="input-start-time">Start Time</label>
                 <select id="input-start-time" class="m3-input-time">
                   <option value="08:00">08:00 AM</option>
                   <option value="09:00" selected>09:00 AM</option>
@@ -457,7 +519,7 @@
 
               <!-- End Time -->
               <div class="form-row">
-                <label for="input-end-time">end_time</label>
+                <label for="input-end-time">End Time</label>
                 <select id="input-end-time" class="m3-input-time">
                   <option value="09:00">09:00 AM</option>
                   <option value="10:00">10:00 AM</option>
@@ -500,24 +562,23 @@
               <span class="material-symbols-outlined">add</span> Save to Timetable
             </button>
           </form>
+          </div><!-- end layout-card-inner -->
         </div>
-      </section>
-
-      <!-- Universal Schedule Importer Card (CSV, .ics, or Screenshot AI) -->
-      <section class="m3-card m3-card-elevated expandable-card">
-        <div class="card-expand-header" id="header-file-import">
-          <div class="header-left-title">
-            <span class="material-symbols-outlined icon-primary">cloud_upload</span>
-            <div>
-              <h2 class="m3-card-title">Schedule Importer</h2>
-              <p class="m3-card-subtitle">Import CSV, .ics, or Timetable Screenshot</p>
-            </div>
-          </div>
-          <span class="material-symbols-outlined expand-arrow">expand_more</span>
-        </div>
-        <div class="card-expand-content hidden" id="content-file-import" style="padding-top: 4px;">
+      
+<a id="header-file-import" class="card-expand-header flex items-center justify-between" href="#">
+<div class="flex items-center gap-3">
+<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<div>
+<p class="font-bold text-sm text-gray-800">Schedule Importer</p>
+<p class="text-xs text-gray-500 font-medium mt-0.5">Import CSV, .ics or screenshot</p>
+</div>
+</div>
+<svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<div class="card-expand-content hidden" id="content-file-import">
+          <div class="layout-card-inner">
           <label for="universal-file-input" class="m3-dropzone">
-            <span class="material-symbols-outlined dropzone-icon">cloud_upload</span>
+            <span class="material-symbols-outlined dropzone-icon">document_scanner</span>
             <span class="dropzone-title">Upload Timetable File or Image</span>
             <span class="dropzone-sub">Supports CSV, .ics, PNG, JPG, WebP</span>
           </label>
@@ -535,12 +596,329 @@
               <h4 id="scan-error-title" style="color: var(--m3-sys-color-error);">Import Failed</h4>
               <p id="scan-error-desc">The file or image could not be processed.</p>
             </div>
-          </div>
         </div>
-      </section>
+        </div><!-- end layout-card-inner -->
+</nav>
+</div>
+<!-- Bottom Section: Floating User Profile -->
+<div class="user-profile-wrapper">
+<!-- User Profile -->
+<div class="user-profile-card flex items-center justify-between cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="user-avatar-badge w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm">
+            U
+          </div>
+<div>
+<p class="font-bold text-sm">User</p>
+<p class="text-xs font-medium opacity-75">Offline</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- END: Left Sidebar Navigation -->
+<!-- BEGIN: Center Workspace -->
+<main class="flex-1 flex flex-col relative overflow-hidden bg-[#F6F8FB] dot-matrix-bg">
+<!-- Top Action Bar -->
+<header class="h-20 px-8 flex items-center justify-center border-b border-gray-100/80 bg-white/50 backdrop-blur-md z-10">
+  <div class="inline-flex items-center gap-2 p-1.5 bg-white/90 backdrop-blur-md border border-gray-200/90 rounded-full shadow-sm">
+    <button id="btn-export-ical" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
+      <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Calendar (.ics)</span>
+    </button>
+    <button id="btn-export-csv" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
+      <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Export CSV</span>
+    </button>
+    <button id="btn-download-hd" class="btn-theme-primary flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-md">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Download Image</span>
+    </button>
+    <button id="btn-save-pdf" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
+      <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Save as PDF</span>
+    </button>
+  </div>
+</header>
+<!-- Main Canvas Area (Phone Model Preview First) -->
+<div class="flex-1 flex flex-col items-center justify-start p-8 relative overflow-y-auto no-scrollbar pt-6">
+  <!-- Dynamic Studio Stage Ambient Backdrop -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none -z-20">
+    <!-- Multi-colored Pulsing Aurora Gradient Mesh Orbs -->
+    <div class="animate-aura absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-to-tr from-blue-400/30 via-indigo-300/25 to-purple-400/20 rounded-full blur-[110px]"></div>
+    <div class="animate-aura absolute top-1/4 left-1/3 w-[500px] h-[500px] bg-sky-300/30 rounded-full blur-[90px]" style="animation-delay: 2s;"></div>
+    <div class="animate-aura absolute bottom-1/4 right-1/3 w-[450px] h-[450px] bg-pink-300/20 rounded-full blur-[100px]" style="animation-delay: 4s;"></div>
 
-      <!-- Conflict / Clash Alert Banner -->
-      <div id="clash-alert" class="m3-alert-banner hidden">
+    <!-- Crisp Studio Dot Matrix & Grid Rays -->
+    <div class="absolute inset-0 opacity-[0.06]" style="background-image: radial-gradient(#2563EB 0.6px, transparent 0.6px); background-size: 20px 20px; mask-image: radial-gradient(circle at center, black 40%, transparent 85%);"></div>
+  </div>
+
+  <!-- Floating Glassmorphic Ambient Feature Badges Flanking the Phone Mockup -->
+  <div class="hidden xl:flex absolute left-8 top-1/3 animate-float items-center gap-2.5 px-4 py-2 bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-full shadow-lg text-xs font-extrabold text-slate-700 pointer-events-none z-10">
+    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+    <span>Live iPhone Lockscreen</span>
+  </div>
+
+  <div class="hidden xl:flex absolute right-8 top-1/2 animate-float-delayed items-center gap-2.5 px-4 py-2 bg-white/80 backdrop-blur-xl border border-gray-200/80 rounded-full shadow-lg text-xs font-extrabold text-slate-700 pointer-events-none z-10">
+    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    <span>4K HD Export Ready</span>
+  </div>
+
+  <!-- Phone Mockup Canvas (Top Priority) -->
+  <div class="m3-phone-wrapper" id="main-phone-wrapper">
+    <!-- Physical Side Buttons (Merged Volume Rocker + Power) -->
+    <div class="side-btn btn-vol-rocker"></div>
+    <div class="side-btn btn-power"></div>
+
+    <div id="phone-canvas" class="m3-phone-canvas canvas-phone">
+      
+      <!-- Camera Cutout -->
+      <div class="phone-camera-dot"></div>
+
+      <!-- Lock Screen Time & Date Header -->
+      <div id="phone-lock-header" class="phone-lock-header">
+        <span id="lock-date" class="lock-date">Wednesday, August 6</span>
+        <h2 id="lock-time" class="lock-time">09:41</h2>
+      </div>
+
+      <!-- Lockscreen Timetable Container -->
+      <div id="lock-timetable-container" class="m3-lock-timetable-container">
+        <div id="lock-grid-title" class="lock-grid-title-bar">
+          <span id="lock-title-text">Untitled</span>
+        </div>
+
+        <!-- Lockscreen Weekly Grid -->
+        <div id="universal-timetable-grid" class="m3-lock-grid-exact">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- Phone Navigation Bar Indicator -->
+      <div class="phone-nav-bar"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating Mobile-Friendly Controls Container -->
+<div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 z-30">
+  
+  <!-- Popover Card (Expands Upward when tapping Controls button) -->
+  <div id="canvas-controls-popover" class="hidden bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3.5 min-w-[320px] max-w-[92vw] transition-all">
+    <!-- Popover Header -->
+    <div class="flex items-center justify-between w-full border-b border-gray-100 pb-2.5 px-1">
+      <span id="stage-device-label" class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">LIVE PHONE LOCKSCREEN PREVIEW</span>
+      <span class="text-xs font-bold text-slate-400">Display Options</span>
+    </div>
+
+    <!-- Title Input -->
+    <div class="relative w-full">
+      <input class="w-full text-center py-2 px-4 bg-slate-50 border border-slate-200 rounded-full text-xs font-bold text-gray-800 focus:outline-none focus:border-blue-400 transition-all" type="text" id="input-title-text-stage" value="Untitled" placeholder="Timetable Title">
+      <div class="absolute right-3 top-2 p-0.5 text-gray-400">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536l12.232-12.232z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </div>
+    </div>
+
+    <!-- Device Type Toggles -->
+    <div class="flex p-0.5 bg-white border border-gray-200 rounded-full shadow-xs w-full justify-center capsule-group" id="device-type-toggles">
+      <button data-device="phone" class="capsule-btn active flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        Smartphone
+      </button>
+      <button data-device="tablet" class="capsule-btn flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        Tablet
+      </button>
+      <button data-device="paper" class="capsule-btn flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        Paper
+      </button>
+    </div>
+
+    <!-- Toggles Row -->
+    <div class="flex items-center justify-center gap-3 w-full">
+      <!-- Lock UI Toggle -->
+      <div class="pill-toggle-group" id="toggle-lock-ui">
+        <button type="button" class="pill-btn active" data-val="yes">UI ON</button>
+        <button type="button" class="pill-btn" data-val="no">UI OFF</button>
+      </div>
+      <!-- Show/Hide Timetable Grid Toggle -->
+      <div class="pill-toggle-group" id="toggle-show-table">
+        <button type="button" class="pill-btn active" data-val="yes">TABLE</button>
+        <button type="button" class="pill-btn" data-val="no">BG ONLY</button>
+      </div>
+      <!-- Canvas Badge Capsule -->
+      <div class="pill-toggle-group" style="background: #E8EEF5 !important; border-color: #CBD5E1 !important;">
+        <span class="pill-btn" style="color: #1E293B !important; font-weight: 800; pointer-events: none;">Canvas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Floating Capsule Pill Bar -->
+  <div id="bottom-floating-pill-bar" class="flex items-center gap-3 p-1.5 bg-white/90 backdrop-blur-md border border-gray-200/90 rounded-full shadow-xl">
+    
+    <!-- Capsule 1: Zoom & Randomize Controls -->
+    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5 gap-0.5">
+      <button id="btn-zoom-out" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom Out">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+      <span id="zoom-label-text" class="text-xs font-extrabold text-gray-800 px-1 w-10 text-center">100%</span>
+      <button id="btn-zoom-in" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom In">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+
+      <div class="w-[1px] h-4 bg-gray-200 mx-0.5 opacity-60"></div>
+
+      <button id="btn-randomize-theme" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Overall Theme Palette">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+
+      <button id="btn-randomize-course-colors" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Course Card Colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+    </div>
+
+    <!-- Capsule 2: Theme Toggle -->
+    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5">
+      <button id="btn-theme-toggle" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Toggle Light/Dark Theme">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+    </div>
+
+    <!-- Capsule 3: Expandable Controls Button -->
+    <button id="btn-toggle-canvas-popover" class="btn-theme-primary flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Controls</span>
+    </button>
+
+  </div>
+</div>
+</main>
+<!-- END: Center Workspace -->
+<!-- BEGIN: Right Sidebar Schedule List -->
+<button id="btn-expand-right-floating" class="hidden fixed top-5 right-5 z-40 flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-md border border-gray-200 rounded-full shadow-lg text-xs font-extrabold text-gray-800 hover:bg-gray-50 active:scale-95 transition-all">
+  <svg class="w-4 h-4 theme-primary-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+  <span>Schedule</span>
+</button>
+
+<aside id="right-sidebar" class="w-80 m-3 rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden z-20 shrink-0">
+<!-- Header -->
+<div class="p-6 border-b border-gray-100">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="p-1.5 theme-primary-light-bg theme-primary-text rounded-md">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h2 class="font-bold text-gray-800">Schedule List</h2>
+</div>
+<div class="flex items-center gap-2">
+  <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-1 rounded-full"><span id="slots-badge-count">0</span> Subjects</span>
+  <button id="btn-toggle-right-sidebar" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-all" title="Collapse Right Sidebar">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+  </button>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3">
+<button id="btn-clear-all" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-colors">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          <span>Clear All</span>
+</button>
+<button id="btn-schedule-settings-toggle" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors">
+<svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          <span>Settings</span>
+</button>
+</div>
+
+<!-- Expandable Quick Settings Panel -->
+<div id="schedule-quick-settings" class="layout-card-inner hidden mt-3 flex flex-col gap-3.5">
+  <div class="opt-row">
+    <span class="opt-label text-xs font-bold text-gray-800">Display Time</span>
+    <div class="pill-toggle-group" id="toggle-quick-time">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+
+  <div class="opt-row">
+    <span class="opt-label text-xs font-bold text-gray-800">Course Type</span>
+    <div class="pill-toggle-group" id="toggle-quick-type">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+
+  <div class="opt-row">
+    <span class="opt-label text-xs font-bold text-gray-800">Location</span>
+    <div class="pill-toggle-group" id="toggle-quick-room">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+
+  <div class="opt-row">
+    <span class="opt-label text-xs font-bold text-gray-800">Lecturer</span>
+    <div class="pill-toggle-group" id="toggle-quick-lecturer">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+
+  <div class="opt-row">
+    <span class="opt-label text-xs font-bold text-gray-800">Group</span>
+    <div class="pill-toggle-group" id="toggle-quick-group">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+
+  <div class="opt-row">
+    <div>
+      <span class="opt-label text-xs font-bold text-gray-800">Adaptive Color</span>
+      <p class="text-[10px] text-gray-500 font-medium mt-0.5">(Turn OFF to use custom/random colors)</p>
+    </div>
+    <div class="pill-toggle-group" id="toggle-quick-adaptive">
+      <button type="button" class="pill-btn active" data-val="yes">YES</button>
+      <button type="button" class="pill-btn" data-val="no">NO</button>
+    </div>
+  </div>
+</div>
+</div>
+<div id="empty-state-wrapper" class="flex-1 flex flex-col"><!-- Empty State Content -->
+<div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+<div class="relative mb-6">
+<!-- Decorative background blobs -->
+<div class="absolute -top-4 -left-4 w-16 h-16 theme-primary-light-bg rounded-full mix-blend-multiply filter blur-md opacity-60"></div>
+<div class="absolute -bottom-4 -right-4 w-16 h-16 theme-primary-light-bg rounded-full mix-blend-multiply filter blur-md opacity-40"></div>
+<!-- Calendar Icon -->
+<div class="relative bg-white p-4 rounded-2xl shadow-sm border border-gray-100 z-10 flex items-center justify-center">
+<svg class="w-12 h-12 theme-primary-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg>
+<div class="absolute -bottom-2 -right-2 theme-primary-bg text-white p-1 rounded-full border-2 border-white shadow-xs">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6v6m0 0v6m0-6h6m-6 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<h3 class="text-lg font-extrabold text-gray-800 mb-2">No classes loaded yet</h3>
+<p class="text-sm text-gray-500 font-medium leading-relaxed max-w-[220px]">
+        Fill out "Add A Course" or scan a timetable screenshot.
+      </p>
+</div>
+</div>
+<div id="course-search-container" class="hidden px-4 pt-4 pb-2">
+  <div class="relative flex items-center">
+    <svg class="absolute left-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+    </svg>
+    <input type="text" id="course-search-input" class="m3-input w-full" style="padding-left: 42px; padding-right: 36px; padding-top: 14px; padding-bottom: 14px; font-size: 14px;" placeholder="Search courses...">
+    <button id="clear-search-btn" class="hidden absolute right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full focus:outline-none">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+</div>
+<div id="added-classes-list" class="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col gap-3"></div>
+<div id="clash-alert" class="m3-alert-banner hidden">
         <span class="material-symbols-outlined alert-icon">warning</span>
         <div class="alert-info">
           <h4 id="clash-title">Schedule Conflict Detected</h4>
@@ -551,209 +929,7 @@
           <button id="btn-ignore-clash" class="m3-button m3-button-outlined" style="background: transparent; color: var(--m3-sys-color-on-surface); border-color: rgba(0,0,0,0.2); padding: 4px 8px; font-size: 11px;">Ignore</button>
         </div>
       </div>
-
-    </aside>
-
-    <!-- 2. Center Live Smartphone/Tablet Mockup Preview Stage -->
-    <section class="m3-preview-stage">
-      
-      <!-- 1. Top Export Action Buttons -->
-      <div class="m3-nav-actions margin-bottom-md">
-        <button id="btn-export-ical" class="m3-button m3-button-tonal">
-          <span class="material-symbols-outlined">event</span>
-          <span>Calendar (.ics)</span>
-        </button>
-
-        <button id="btn-download-hd" class="m3-button m3-button-filled">
-          <span class="material-symbols-outlined">download</span>
-          <span>Download Image</span>
-        </button>
-
-        <button id="btn-save-pdf" class="m3-button m3-button-tonal">
-          <span class="material-symbols-outlined">picture_as_pdf</span>
-          <span>Save as PDF</span>
-        </button>
-      </div>
-
-      <!-- 3. Clean Minimal Title Edit Input -->
-      <div class="clean-title-wrapper margin-bottom-md">
-        <input type="text" id="input-title-text-stage" value="Untitled" placeholder="Untitled" class="clean-title-input" title="Click to edit timetable title">
-      </div>
-
-      <!-- 4. Device Switcher Capsules (Smartphone & Tablet) -->
-      <div class="device-capsule-switcher margin-bottom-md">
-        <button class="capsule-btn active" data-device="phone">
-          <span class="material-symbols-outlined">smartphone</span>
-          <span>Smartphone</span>
-        </button>
-        <button class="capsule-btn" data-device="tablet">
-          <span class="material-symbols-outlined">tablet</span>
-          <span>Tablet</span>
-        </button>
-        <button class="capsule-btn" data-device="paper">
-          <span class="material-symbols-outlined">description</span>
-          <span>Paper</span>
-        </button>
-      </div>
-
-      <!-- 5. Live Preview Subtitle Label (Positioned directly above phone canvas) -->
-      <div class="stage-title-bar margin-bottom-xs" style="flex-wrap: wrap; gap: 8px;">
-        <span id="stage-device-label" style="flex: 1 1 100%;">LIVE PHONE LOCKSCREEN PREVIEW</span>
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- Show/Hide Lock UI Toggle -->
-            <div class="pill-toggle-group" id="toggle-lock-ui" style="padding: 2px;">
-              <button type="button" class="pill-btn active" data-val="yes" style="padding: 4px 10px; font-size: 10px;" title="Show Lock Screen UI">UI ON</button>
-              <button type="button" class="pill-btn" data-val="no" style="padding: 4px 10px; font-size: 10px;" title="Hide Lock Screen UI">UI OFF</button>
-            </div>
-            <!-- Show/Hide Timetable Grid Toggle -->
-            <div class="pill-toggle-group" id="toggle-show-table" style="padding: 2px;">
-              <button type="button" class="pill-btn active" data-val="yes" style="padding: 4px 10px; font-size: 10px;" title="Show Timetable">TABLE</button>
-              <button type="button" class="pill-btn" data-val="no" style="padding: 4px 10px; font-size: 10px;" title="Hide Timetable (Background Only)">BG ONLY</button>
-            </div>
-          </div>
-          <span class="m3-pill-badge">Canvas</span>
-        </div>
-      </div>
-
-      <!-- Phone/Tablet Lockscreen Preview Frame -->
-      <div class="m3-phone-wrapper">
-        <!-- Physical Side Buttons (Merged Volume Rocker + Power) -->
-        <div class="side-btn btn-vol-rocker"></div>
-        <div class="side-btn btn-power"></div>
-
-        <div id="phone-canvas" class="m3-phone-canvas canvas-phone">
-          
-          <!-- Camera Cutout -->
-          <div class="phone-camera-dot"></div>
-
-          <!-- Lock Screen Time & Date Header -->
-          <div id="phone-lock-header" class="phone-lock-header">
-            <span id="lock-date" class="lock-date">Wednesday, August 6</span>
-            <h2 id="lock-time" class="lock-time">09:41</h2>
-          </div>
-
-          <!-- Lockscreen Timetable Container -->
-          <div id="lock-timetable-container" class="m3-lock-timetable-container">
-            <div id="lock-grid-title" class="lock-grid-title-bar">
-              <span id="lock-title-text">Untitled</span>
-            </div>
-
-            <!-- Lockscreen Weekly Grid -->
-            <div id="universal-timetable-grid" class="m3-lock-grid-exact">
-              <!-- Dynamically populated by JS -->
-            </div>
-          </div>
-
-          <!-- Phone Navigation Bar Indicator -->
-          <div class="phone-nav-bar"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. Right Side Panel: Schedule List Management -->
-    <aside class="m3-right-sidebar">
-      <section class="m3-card m3-card-elevated">
-        <div class="m3-card-header" style="flex-direction: column; align-items: stretch; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--m3-sys-color-outline-variant);">
-          <!-- Top Row: Icon + Title + Badge -->
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="background: var(--m3-sys-color-primary-container); color: var(--m3-sys-color-on-primary-container); padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <span class="material-symbols-outlined icon-sm" style="font-size: 1.2rem;">format_list_bulleted</span>
-              </div>
-              <h2 style="font-size: 1.15rem; font-weight: 800; color: var(--m3-sys-color-on-surface); margin: 0; letter-spacing: -0.02em;">Schedule List</h2>
-            </div>
-            
-            <div style="background: var(--m3-sys-color-secondary-container); color: var(--m3-sys-color-on-secondary-container); font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--m3-sys-color-outline-variant);">
-              <span id="slots-badge-count">0</span> Subjects
-            </div>
-          </div>
-
-          <!-- Bottom Row: Actions only -->
-          <div style="display: flex; align-items: center; justify-content: flex-end; width: 100%;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <!-- Clear All Button -->
-              <button type="button" id="btn-clear-all" class="pill-btn" style="display: flex; align-items: center; gap: 4px; padding: 6px 14px; background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; font-weight: 700; font-size: 0.75rem; border-radius: 20px; cursor: pointer;" title="Clear All Classes">
-                <span class="material-symbols-outlined icon-xs" style="font-size: 16px;">delete_sweep</span>
-                <span>Clear All</span>
-              </button>
-
-              <!-- Randomize Colors Dice Button -->
-              <button type="button" id="btn-randomize-colors" class="pill-btn" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border-radius: 50%; font-weight: 600; cursor: pointer;" title="Randomize Card Colors">
-                <span class="material-symbols-outlined icon-xs" style="font-size: 16px;">casino</span>
-              </button>
-
-              <!-- Quick Display Settings Pill Button -->
-              <button type="button" id="btn-schedule-settings-toggle" class="pill-btn" style="display: flex; align-items: center; gap: 4px; padding: 6px 14px; font-weight: 700; font-size: 0.75rem; border-radius: 20px; cursor: pointer;">
-                <span class="material-symbols-outlined icon-xs" style="font-size: 16px;">tune</span>
-                <span>Settings</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Expandable Quick Settings Panel -->
-        <div id="schedule-quick-settings" class="hidden" style="background: var(--m3-sys-color-surface-variant); border: 1px solid var(--m3-sys-color-outline); border-radius: var(--m3-shape-m); padding: 12px; margin: 10px 0; display: flex; flex-direction: column; gap: 10px;">
-          <div class="opt-row">
-            <span class="opt-label" style="font-size: 12px;">Display Time</span>
-            <div class="pill-toggle-group" id="toggle-quick-time">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-
-          <div class="opt-row">
-            <span class="opt-label" style="font-size: 12px;">Course Type</span>
-            <div class="pill-toggle-group" id="toggle-quick-type">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-
-          <div class="opt-row">
-            <span class="opt-label" style="font-size: 12px;">Location</span>
-            <div class="pill-toggle-group" id="toggle-quick-room">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-
-          <div class="opt-row">
-            <span class="opt-label" style="font-size: 12px;">Lecturer</span>
-            <div class="pill-toggle-group" id="toggle-quick-lecturer">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-
-          <div class="opt-row">
-            <span class="opt-label" style="font-size: 12px;">Group</span>
-            <div class="pill-toggle-group" id="toggle-quick-group">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-
-          <div class="opt-row">
-            <div>
-              <span class="opt-label" style="font-size: 12px;">Adaptive Color</span>
-              <p class="subtext" style="font-size: 10px; margin-top: 1px;">(Turn OFF to use custom/random colors)</p>
-            </div>
-            <div class="pill-toggle-group" id="toggle-quick-adaptive">
-              <button type="button" class="pill-btn active" data-val="yes">YES</button>
-              <button type="button" class="pill-btn" data-val="no">NO</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="class-list-container" class="class-list-grid">
-          <!-- Dynamically populated by JS -->
-        </div>
-      </section>
-    </aside>
-
-  </main>
-
+</aside>
   <!-- OCC / Group Selector Modal for CSVs -->
   <div id="occ-modal" class="modal-overlay hidden">
     <div class="modal-card">
@@ -765,56 +941,21 @@
         <!-- Dynamically injected OCC selectors will appear here -->
       </div>
       <div class="modal-footer">
-        <button id="btn-occ-cancel" class="m3-button m3-button-tonal">Cancel</button>
-        <button id="btn-occ-confirm" class="m3-button m3-button-filled">Submit</button>
+        <button id="btn-occ-cancel" class="m3-button rounded-full px-5 py-2 text-xs font-bold bg-slate-200 text-slate-800">Cancel</button>
+        <button id="btn-occ-confirm" class="btn-theme-primary rounded-full px-6 py-2 text-xs font-extrabold text-white">Submit</button>
       </div>
     </div>
   </div>
 
-  <style>
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); z-index: 9999;
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(4px); transition: opacity 0.2s ease;
-    }
-    .modal-overlay.hidden { display: none; opacity: 0; }
-    .modal-card {
-      background: var(--m3-sys-color-surface);
-      border-radius: var(--m3-shape-l); padding: 24px;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-      width: 90%; max-width: 1200px; max-height: 90vh;
-      display: flex; flex-direction: column;
-    }
-    .modal-header h3 { margin: 0; color: var(--m3-sys-color-on-surface); font-size: 22px; }
-    .modal-body { margin-top: 16px; margin-bottom: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; flex-grow: 1; }
-    .occ-course-row { padding: 16px; background: var(--m3-sys-color-surface-variant); border-radius: var(--m3-shape-l); display: flex; align-items: flex-start; gap: 20px;}
-    .occ-course-info { min-width: 200px; max-width: 250px; flex-shrink: 0; }
-    .occ-course-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; color: var(--m3-sys-color-on-surface); line-height: 1.2; }
-    .occ-course-code { font-size: 13px; color: var(--m3-sys-color-on-surface-variant); font-weight: 600;}
-    
-    .occ-cards-container { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 8px; flex-grow: 1; }
-    .occ-cards-container::-webkit-scrollbar { height: 8px; }
-    .occ-cards-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
-    
-    .occ-card { 
-      min-width: 160px; background: var(--m3-sys-color-surface); border: 2px solid transparent; 
-      border-radius: var(--m3-shape-m); padding: 12px; cursor: pointer; transition: all 0.2s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 8px;
-    }
-    .occ-card:hover { border-color: rgba(var(--m3-sys-color-primary-rgb), 0.5); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .occ-card.selected { border-color: var(--m3-sys-color-primary); background: rgba(var(--m3-sys-color-primary-rgb), 0.05); }
-    
-    .occ-card-title { font-weight: 700; font-size: 15px; color: var(--m3-sys-color-primary); text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 8px;}
-    .occ-card-slot { font-size: 11px; text-align: center; line-height: 1.3; color: var(--m3-sys-color-on-surface); }
-    .occ-card-slot strong { display: block; font-weight: 600; margin-bottom: 2px; }
-    
-    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.08); }
-  </style>
+<script src="timetable_engine.js"></script>
 
-  <script src="timetable_engine.js?v=11"></script>
-  <script src="ocr_parser.js?v=14"></script>
-  <script src="ics_csv_parser_v3.js?v=13"></script>
-  <script src="app_v3.js?v=21"></script>
-</body>
-</html>
+
+
+
+
+
+<script src="timetable_engine.js"></script>
+<script src="ocr_parser.js"></script>
+<script src="ics_csv_parser_v3.js"></script>
+<script src="app_v3.js"></script>
+</body></html>
