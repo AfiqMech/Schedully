@@ -1552,6 +1552,18 @@ class SchedullyApp {
 
         // Auto-adapt grid & font scaling on device switch
         this.renderTimetableGrid();
+
+        // On mobile/tablet screens, set zoom to 1.0 (100%) and auto-center scroll
+        if (window.innerWidth < 1024) {
+          currentZoomScale = 1.0;
+          applyZoom();
+          const scrollArea = document.getElementById('canvas-scroll-area');
+          if (scrollArea) {
+            setTimeout(() => {
+              scrollArea.scrollLeft = Math.max(0, (scrollArea.scrollWidth - scrollArea.clientWidth) / 2);
+            }, 60);
+          }
+        }
       });
     });
 
