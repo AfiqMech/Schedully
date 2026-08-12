@@ -2115,6 +2115,53 @@ class SchedullyApp {
         pdf.save('schedully_wallpaper.pdf');
       });
     });
+
+    // ── Mobile Export Dropdown ──────────────────────────────────────────────
+    const mobileExportToggle = document.getElementById('btn-mobile-export-toggle');
+    const mobileExportDropdown = document.getElementById('mobile-export-dropdown');
+    const mobileExportChevron = document.getElementById('mobile-export-chevron');
+
+    const closeMobileDropdown = () => {
+      mobileExportDropdown?.classList.add('hidden');
+      mobileExportChevron?.classList.remove('mobile-export-chevron-open');
+    };
+
+    mobileExportToggle?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !mobileExportDropdown.classList.contains('hidden');
+      if (isOpen) {
+        closeMobileDropdown();
+      } else {
+        mobileExportDropdown.classList.remove('hidden');
+        mobileExportChevron?.classList.add('mobile-export-chevron-open');
+      }
+    });
+
+    // Close dropdown when tapping elsewhere
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#mobile-export-bar')) {
+        closeMobileDropdown();
+      }
+    });
+
+    // Proxy mobile buttons → desktop button click handlers
+    document.getElementById('btn-download-hd-mobile')?.addEventListener('click', () => {
+      closeMobileDropdown();
+      this.btnDownloadHD?.click();
+    });
+    document.getElementById('btn-export-ical-mobile')?.addEventListener('click', () => {
+      closeMobileDropdown();
+      this.btnExportICal?.click();
+    });
+    document.getElementById('btn-export-csv-mobile')?.addEventListener('click', () => {
+      closeMobileDropdown();
+      this.btnExportCSV?.click();
+    });
+    document.getElementById('btn-save-pdf-mobile')?.addEventListener('click', () => {
+      closeMobileDropdown();
+      this.btnSavePdf?.click();
+    });
+    // ────────────────────────────────────────────────────────────────────────
   }
   loadFromLocal() {
     try {

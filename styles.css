@@ -72,28 +72,127 @@
   display: none; /* Safari and Chrome */
 }
 
-@media (max-width: 1200px) {
-  .m3-main-layout {
-    grid-template-columns: 350px 1fr;
+/* ── Show/Hide helpers by breakpoint ── */
+/* Desktop bar: visible on ≥769px, hidden on mobile */
+.hidden-mobile { display: inline-flex; }
+.show-mobile-only { display: none !important; }
+
+@media (max-width: 768px) {
+  .hidden-mobile { display: none !important; }
+  .show-mobile-only { display: flex !important; }
+}
+
+/* Mobile Export Dropdown */
+.mobile-export-dropdown {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  animation: dropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}
+
+@keyframes dropdownIn {
+  from { opacity: 0; transform: translateX(-50%) scaleY(0.88) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) scaleY(1) translateY(0); }
+}
+
+.mobile-export-option {
+  border-radius: 16px;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.mobile-export-option:active {
+  transform: scale(0.97);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Dark mode mobile export dropdown */
+body.dark-mode .mobile-export-dropdown {
+  background: rgba(15, 23, 42, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-mode .mobile-export-option p {
+  color: var(--m3-sys-text-primary) !important;
+}
+body.dark-mode .mobile-export-option:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Mobile export chevron open state */
+.mobile-export-chevron-open {
+  transform: rotate(180deg) !important;
+}
+
+/* Mobile action bar header */
+@media (max-width: 768px) {
+  main > header {
+    padding: 10px 16px !important;
+    min-height: 58px !important;
+    height: auto !important;
   }
-  .m3-right-sidebar {
-    grid-column: span 2;
-    height: auto;
+  #mobile-export-bar {
+    justify-content: center;
+    width: 100%;
   }
 }
 
-@media (max-width: 900px) {
-  .m3-main-layout {
-    grid-template-columns: 1fr;
+/* ── Canvas scroll area: horizontal swipe on mobile/tablet ── */
+@media (max-width: 1024px) {
+  #canvas-scroll-area {
+    /* Allow horizontal overflow so wide models (tablet 920px, paper 720px) are scrollable */
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    /* Smooth momentum scrolling on iOS/mobile */
+    -webkit-overflow-scrolling: touch !important;
+    /* Snap to model center for a polished feel */
+    scroll-snap-type: x mandatory;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    /* Keep horizontal content from wrapping */
+    min-width: 100%;
+    /* Thin custom scrollbar — barely visible */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
   }
-  .m3-sidebar {
-    height: auto;
+
+  #canvas-scroll-area::-webkit-scrollbar {
+    height: 4px;
   }
-  .m3-right-sidebar {
-    grid-column: span 1;
-    height: auto;
+  #canvas-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+
+  /* The phone wrapper keeps its natural centering when narrower than viewport */
+  #main-phone-wrapper {
+    /* Use inline-block so it can be wider than container */
+    align-self: center;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+  }
+
+  /* Tablet canvas: always full natural width, scroll past edges */
+  .m3-phone-canvas.canvas-tablet {
+    scroll-snap-align: center;
+  }
+
+  /* Paper canvas: same */
+  .m3-phone-canvas.canvas-paper {
+    scroll-snap-align: center;
   }
 }
+
+/* On smartphone portrait — add subtle horizontal scroll hint padding */
+@media (max-width: 480px) {
+  #canvas-scroll-area {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
 
 /* Sidebar Brand Header */
 .m3-brand-sidebar {
