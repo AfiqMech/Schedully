@@ -942,13 +942,18 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: var(--m3-shape-m);
   background: var(--m3-sys-color-primary-container);
   color: var(--m3-sys-color-primary);
   font-size: 12px;
   font-weight: 600;
   margin-top: 12px;
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: normal;
+  overflow: visible;
+  min-height: max-content;
 }
 
 .spin-icon { animation: spin 1s infinite linear; }
@@ -1936,4 +1941,69 @@ textarea::placeholder,
   background-size: 24px 24px !important;
   background-position: 0 0 !important;
   transition: background-color 0.35s ease, background-image 0.35s ease;
+}
+
+/* ==========================================================================
+   Mobile (Vertical) & Tablet (Horizontal) Floating Layout Optimization
+   Sidebars float over workspace instead of squeezing the canvas/apps!
+   ========================================================================== */
+@media (max-width: 1024px) {
+  body {
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  #left-sidebar, #right-sidebar {
+    position: fixed !important;
+    top: 12px !important;
+    bottom: 12px !important;
+    height: calc(100vh - 24px) !important;
+    max-height: calc(100vh - 24px) !important;
+    z-index: 50 !important;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+  }
+
+  /* Dark mode support for floating sidebars */
+  body.dark-mode #left-sidebar,
+  body.dark-mode #right-sidebar {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  #left-sidebar {
+    left: 12px !important;
+    right: auto !important;
+    width: calc(100vw - 24px) !important;
+    max-width: 360px !important;
+  }
+
+  #right-sidebar {
+    right: 12px !important;
+    left: auto !important;
+    width: calc(100vw - 24px) !important;
+    max-width: 360px !important;
+  }
+
+  .sidebar-collapsed-left {
+    transform: translateX(-125%) scale(0.9) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  .sidebar-collapsed-right {
+    transform: translateX(125%) scale(0.9) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  main {
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 12px !important;
+    margin: 0 !important;
+    flex: 1 !important;
+  }
 }

@@ -824,8 +824,15 @@ class SchedullyApp {
       void content.offsetHeight;
 
       const targetHeight = content.scrollHeight;
-      content.style.maxHeight = (targetHeight + 20) + 'px';
+      content.style.maxHeight = (targetHeight + 40) + 'px';
       content.style.opacity = '1';
+
+      setTimeout(() => {
+        if (!content.classList.contains('hidden')) {
+          content.style.maxHeight = 'none';
+          content.style.overflow = 'visible';
+        }
+      }, 420);
     } else {
       header?.classList.remove('active');
 
@@ -1687,6 +1694,11 @@ class SchedullyApp {
       } else {
         leftSidebar.classList.remove('sidebar-collapsed-left');
         btnExpandLeftFloating?.classList.add('hidden');
+        // Auto-close right sidebar on mobile/tablet when opening left
+        if (window.innerWidth < 1024) {
+          rightSidebar.classList.add('sidebar-collapsed-right');
+          btnExpandRightFloating?.classList.remove('hidden');
+        }
       }
     };
 
@@ -1700,6 +1712,11 @@ class SchedullyApp {
       } else {
         rightSidebar.classList.remove('sidebar-collapsed-right');
         btnExpandRightFloating?.classList.add('hidden');
+        // Auto-close left sidebar on mobile/tablet when opening right
+        if (window.innerWidth < 1024) {
+          leftSidebar.classList.add('sidebar-collapsed-left');
+          btnExpandLeftFloating?.classList.remove('hidden');
+        }
       }
     };
 
@@ -1709,11 +1726,21 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
-    // Auto-collapse sidebars on small mobile viewports for maximum screen space
+    // Auto-collapse sidebars on mobile/tablet viewports for maximum screen space
     if (window.innerWidth < 1024) {
       toggleLeftSidebar(true);
       toggleRightSidebar(true);
     }
+
+    // Close open floating sidebars on mobile/tablet when user taps workspace canvas
+    document.querySelector('main')?.addEventListener('click', (e) => {
+      if (window.innerWidth < 1024) {
+        if (!e.target.closest('#btn-expand-left-floating, #btn-expand-right-floating')) {
+          toggleLeftSidebar(true);
+          toggleRightSidebar(true);
+        }
+      }
+    });
 
     // Add Course Form Submit
     this.addCourseForm.addEventListener('submit', (e) => {
