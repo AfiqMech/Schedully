@@ -1,7 +1,21 @@
-<!DOCTYPE html><html lang="en" style=""><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title>Schedully Dashboard</title>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+<title>Schedully</title>
+
+<!-- App Favicon & Home Screen Icons (Replaces Vercel default "V" logo) -->
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="shortcut icon" type="image/jpeg" href="logo.jpg">
+<link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F172A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Schedully">
+<meta name="application-name" content="Schedully">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <!-- html2canvas & jsPDF -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -1019,6 +1033,14 @@
 
 <script src="timetable_engine.js"></script>
 <script src="ocr_parser.js"></script>
-<script src="ics_csv_parser_v3.js"></script>
 <script src="app_v3.js"></script>
+
+<!-- Register PWA Service Worker for Native App & Standalone Mode -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((err) => console.log('SW reg error:', err));
+    });
+  }
+</script>
 </body></html>
