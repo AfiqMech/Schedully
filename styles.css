@@ -2211,12 +2211,13 @@ textarea::placeholder,
     overflow: hidden !important;
   }
 
-  /* Theme-adaptive sidebar backgrounds */
+  /* Theme-adaptive sidebar backgrounds & dominant front layer priority */
   #left-sidebar:not(.sidebar-collapsed-left),
   #right-sidebar:not(.sidebar-collapsed-right) {
     background: rgba(255, 255, 255, 0.97) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
+    z-index: 10001 !important;
   }
 
   /* Position the floating trigger buttons clearly */

@@ -1718,8 +1718,36 @@ class SchedullyApp {
       btn.style.display = 'none';
     };
 
-    const mobileExportBar = document.getElementById('mobile-export-bar');
-    const mobileExportDropdown = document.getElementById('mobile-export-dropdown');
+    const syncMobileTopBarState = () => {
+      if (!isMobile()) return;
+      const leftCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
+      const rightCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
+      const mobileExportBar = document.getElementById('mobile-export-bar');
+      const mobileDropdown = document.getElementById('mobile-export-dropdown');
+      const mobileChevron = document.getElementById('mobile-export-chevron');
+
+      // If EITHER sidebar is open, hide ALL 3 floating top buttons (Menu, Export, Schedule)
+      if (!leftCollapsed || !rightCollapsed) {
+        hideFloatingBtn(btnExpandLeftFloating);
+        hideFloatingBtn(btnExpandRightFloating);
+        if (mobileExportBar) {
+          mobileExportBar.style.display = 'none';
+        }
+        if (mobileDropdown) {
+          mobileDropdown.classList.add('hidden');
+        }
+        if (mobileChevron) {
+          mobileChevron.classList.remove('mobile-export-chevron-open');
+        }
+      } else {
+        // Both sidebars are closed: restore all 3 floating top buttons
+        showFloatingBtn(btnExpandLeftFloating);
+        showFloatingBtn(btnExpandRightFloating);
+        if (mobileExportBar) {
+          mobileExportBar.style.display = 'flex';
+        }
+      }
+    };
 
     const toggleLeftSidebar = (collapse) => {
       const isCurrentlyCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
@@ -1727,22 +1755,14 @@ class SchedullyApp {
       
       if (shouldCollapse) {
         leftSidebar.classList.add('sidebar-collapsed-left');
-        showFloatingBtn(btnExpandLeftFloating);
-        // Restore Export button if right sidebar is also collapsed
-        if (rightSidebar.classList.contains('sidebar-collapsed-right')) {
-          showFloatingBtn(mobileExportBar);
-        }
       } else {
         leftSidebar.classList.remove('sidebar-collapsed-left');
-        hideFloatingBtn(btnExpandLeftFloating);
-        hideFloatingBtn(mobileExportBar);
-        mobileExportDropdown?.classList.add('hidden');
         // Auto-close right sidebar on mobile/tablet when opening left
         if (isMobile()) {
           rightSidebar.classList.add('sidebar-collapsed-right');
-          hideFloatingBtn(btnExpandRightFloating);
         }
       }
+      syncMobileTopBarState();
     };
 
     const toggleRightSidebar = (collapse) => {
@@ -1751,22 +1771,14 @@ class SchedullyApp {
       
       if (shouldCollapse) {
         rightSidebar.classList.add('sidebar-collapsed-right');
-        showFloatingBtn(btnExpandRightFloating);
-        // Restore Export button if left sidebar is also collapsed
-        if (leftSidebar.classList.contains('sidebar-collapsed-left')) {
-          showFloatingBtn(mobileExportBar);
-        }
       } else {
         rightSidebar.classList.remove('sidebar-collapsed-right');
-        hideFloatingBtn(btnExpandRightFloating);
-        hideFloatingBtn(mobileExportBar);
-        mobileExportDropdown?.classList.add('hidden');
         // Auto-close left sidebar on mobile/tablet when opening right
         if (isMobile()) {
           leftSidebar.classList.add('sidebar-collapsed-left');
-          hideFloatingBtn(btnExpandLeftFloating);
         }
       }
+      syncMobileTopBarState();
     };
 
     btnToggleLeft?.addEventListener('click', () => toggleLeftSidebar(true));
@@ -1775,103 +1787,24 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
-    // ── IMMERSIVE TOUCH SWIPE GESTURES FOR SIDEBARS ──
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let swipeTarget = null; // 'left-sidebar', 'right-sidebar', 'edge-left', 'edge-right'
-
-    // 1. Swipe Left on Left Sidebar to Close
-    leftSidebar?.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        swipeTarget = 'left-sidebar';
-      }
-    }, { passive: true });
-
-    leftSidebar?.addEventListener('touchend', (e) => {
-      if (swipeTarget === 'left-sidebar' && e.changedTouches.length === 1) {
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        // Swipe Left (deltaX < -50) to close Left Sidebar
-        if (deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          toggleLeftSidebar(true);
-        }
-      }
-      swipeTarget = null;
-    }, { passive: true });
-
-    // 2. Swipe Right on Right Sidebar to Close
-    rightSidebar?.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        swipeTarget = 'right-sidebar';
-      }
-    }, { passive: true });
-
-    rightSidebar?.addEventListener('touchend', (e) => {
-      if (swipeTarget === 'right-sidebar' && e.changedTouches.length === 1) {
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        // Swipe Right (deltaX > 50) to close Right Sidebar
-        if (deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          toggleRightSidebar(true);
-        }
-      }
-      swipeTarget = null;
-    }, { passive: true });
-
-    // 3. Edge Swipe Gestures (Swipe Right from Left Edge to Open Menu, Swipe Left from Right Edge to Open Schedule)
-    document.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1 && window.innerWidth <= 1024) {
-        const x = e.touches[0].clientX;
-        if (x <= 30 && leftSidebar?.classList.contains('sidebar-collapsed-left')) {
-          touchStartX = x;
-          touchStartY = e.touches[0].clientY;
-          swipeTarget = 'edge-left';
-        } else if (x >= window.innerWidth - 30 && rightSidebar?.classList.contains('sidebar-collapsed-right')) {
-          touchStartX = x;
-          touchStartY = e.touches[0].clientY;
-          swipeTarget = 'edge-right';
-        }
-      }
-    }, { passive: true });
-
-    document.addEventListener('touchend', (e) => {
-      if (e.changedTouches.length === 1 && swipeTarget) {
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
-        const deltaY = e.changedTouches[0].clientY - touchStartY;
-        if (swipeTarget === 'edge-left' && deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          toggleLeftSidebar(false);
-        } else if (swipeTarget === 'edge-right' && deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          toggleRightSidebar(false);
-        }
-      }
-      swipeTarget = null;
-    }, { passive: true });
-
-    // Auto-collapse sidebars on mobile/tablet viewports for maximum screen space
+    // Initial state on mobile
     if (isMobile()) {
-      toggleLeftSidebar(true);
-      toggleRightSidebar(true);
-      showFloatingBtn(btnExpandLeftFloating);
-      showFloatingBtn(btnExpandRightFloating);
-      showFloatingBtn(mobileExportBar);
+      leftSidebar.classList.add('sidebar-collapsed-left');
+      rightSidebar.classList.add('sidebar-collapsed-right');
+      syncMobileTopBarState();
     }
 
     // Re-check on resize (desktop <-> mobile transition)
     window.addEventListener('resize', () => {
       if (!isMobile()) {
-        // On desktop: restore normal state if both were collapsed
         const leftCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
         const rightCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
         if (leftCollapsed) hideFloatingBtn(btnExpandLeftFloating);
         if (rightCollapsed) hideFloatingBtn(btnExpandRightFloating);
+        const mobileExportBar = document.getElementById('mobile-export-bar');
+        if (mobileExportBar) mobileExportBar.style.display = '';
       } else {
-        // Went back to mobile: ensure both buttons are shown
-        showFloatingBtn(btnExpandLeftFloating);
-        showFloatingBtn(btnExpandRightFloating);
+        syncMobileTopBarState();
       }
     });
 
