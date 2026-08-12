@@ -88,7 +88,6 @@
   /* ── 3 FLOATING PILL BUTTONS AT TOP OF MOBILE SCREEN ── */
   /* Left: Menu Floating Button */
   #btn-expand-left-floating {
-    display: flex !important;
     position: fixed !important;
     top: 16px !important;
     left: 16px !important;
@@ -110,7 +109,6 @@
 
   /* Right: Schedule Floating Button */
   #btn-expand-right-floating {
-    display: flex !important;
     position: fixed !important;
     top: 16px !important;
     right: 16px !important;
@@ -168,16 +166,14 @@ body.dark-mode .mobile-export-option:hover {
 }
 
 
-/* ── PERFORMANCE OPTIMIZATION FOR MOBILE (60 FPS, NO LAG, NO GLITCHING) ── */
+/* ── PERFORMANCE OPTIMIZATION FOR MOBILE (60 FPS, ZERO LAG, ZERO GLITCHING) ── */
 @media (max-width: 1024px) {
-  /* Disable heavy continuous GPU blur animations on mobile to stop lag & color glitching */
+  /* Completely remove GPU blur rendering on mobile to stop lag & color glitching */
   .animate-aura {
-    animation: none !important;
-    filter: blur(50px) !important;
-    opacity: 0.25 !important;
+    display: none !important;
   }
 
-  /* Simplify backdrop filters on floating containers for smooth rendering */
+  /* Solid lightweight backgrounds for mobile containers to guarantee 60 FPS */
   #left-sidebar, #right-sidebar {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -238,26 +234,27 @@ body.dark-mode .mobile-export-option:hover {
     width: 720px !important;
   }
 
-  /* Bottom floating pill bar: ALWAYS strictly 1 horizontal row pill (Image 1 layout, never wraps!) */
+  /* Bottom floating pill bar: ALWAYS strictly 1 horizontal row pill (Image 1 layout, NEVER wraps!) */
   #bottom-floating-pill-bar {
-    display: flex !important;
+    display: inline-flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 9999px !important;
-    padding: 5px 12px !important;
-    gap: 6px !important;
-    max-width: calc(100vw - 16px) !important;
+    padding: 4px 10px !important;
+    gap: 4px !important;
+    max-width: min(calc(100vw - 16px), 480px) !important;
+    white-space: nowrap !important;
     overflow-x: auto !important;
     scrollbar-width: none !important;
     z-index: 9999 !important;
-    white-space: nowrap !important;
   }
   #bottom-floating-pill-bar::-webkit-scrollbar {
     display: none !important;
   }
-  #bottom-floating-pill-bar > * {
+  #bottom-floating-pill-bar > div,
+  #bottom-floating-pill-bar > button {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
   }

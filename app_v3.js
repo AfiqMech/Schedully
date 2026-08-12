@@ -1712,10 +1712,8 @@ class SchedullyApp {
 
     const hideFloatingBtn = (btn) => {
       if (!btn) return;
-      // On mobile, always keep both buttons visible
-      if (isMobile()) return;
       btn.classList.add('hidden');
-      btn.style.display = '';
+      btn.style.display = 'none';
     };
 
     const toggleLeftSidebar = (collapse) => {
