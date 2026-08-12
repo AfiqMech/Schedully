@@ -756,7 +756,7 @@ class SchedullyApp {
     });
 
     // ── Aurora orbs ───────────────────────────────────────────────
-    if (window.innerWidth >= 1024) {
+    if (window.innerWidth > 1280) {
       document.querySelectorAll('.animate-aura').forEach((orb, i) => {
         orb.style.background = i === 0
           ? `radial-gradient(circle, ${primary}35, ${container}25, transparent)`
@@ -1705,7 +1705,7 @@ class SchedullyApp {
     const btnToggleRight = document.getElementById('btn-toggle-right-sidebar');
     const btnExpandRightFloating = document.getElementById('btn-expand-right-floating');
 
-    const isMobile = () => window.innerWidth < 1024;
+    const isMobile = () => window.innerWidth <= 1280;
 
     const showFloatingBtn = (btn) => {
       if (!btn) return;

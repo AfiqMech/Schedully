@@ -72,11 +72,11 @@
   display: none; /* Safari and Chrome */
 }
 
-/* ── Show/Hide helpers by breakpoint (Synchronized to ≤1024px mobile threshold) ── */
+/* ── Show/Hide helpers by breakpoint (Synchronized to ≤1280px mobile/tablet threshold) ── */
 .hidden-mobile { display: inline-flex; }
 .show-mobile-only { display: none !important; }
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .hidden-mobile { display: none !important; }
   .show-mobile-only { display: flex !important; }
 
@@ -129,6 +129,10 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12) !important;
     width: 260px !important;
     max-width: calc(100vw - 32px) !important;
+    max-height: calc(100dvh - 84px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin;
     animation: dropdownIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     transform-origin: top center;
   }
@@ -166,14 +170,14 @@ body.dark-mode .mobile-export-option:hover {
 }
 
 
-/* ── PERFORMANCE OPTIMIZATION FOR MOBILE (60 FPS, ZERO LAG, ZERO GLITCHING) ── */
-@media (max-width: 1024px) {
-  /* Completely remove GPU blur rendering on mobile to stop lag & color glitching */
+/* ── PERFORMANCE OPTIMIZATION FOR MOBILE & TABLET (60 FPS, ZERO LAG, ZERO GLITCHING) ── */
+@media (max-width: 1280px) {
+  /* Completely remove GPU blur rendering on mobile & tablet to stop lag & color glitching */
   .animate-aura {
     display: none !important;
   }
 
-  /* Solid lightweight backgrounds for mobile containers to guarantee 60 FPS */
+  /* Solid lightweight backgrounds for mobile & tablet containers to guarantee 60 FPS */
   #left-sidebar, #right-sidebar {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -182,7 +186,7 @@ body.dark-mode .mobile-export-option:hover {
 
 
 /* ── ADAPTIVE CANVAS HORIZONTAL SWIPING (TABLET 920px, PAPER 720px, PHONE 380px) ── */
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   #canvas-scroll-area {
     width: 100% !important;
     max-width: 100vw !important;
@@ -2119,7 +2123,7 @@ textarea::placeholder,
    ========================================================================== */
 
 /* ── Tablet + Mobile shared: sidebars become floating overlays ── */
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
 
   /* Body stays as a flex row but sidebars get pulled out of flow */
   body {
@@ -2243,7 +2247,7 @@ textarea::placeholder,
 }
 
 /* ── Dark mode sidebar overlay & floating elements ── */
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   body.dark-mode #left-sidebar:not(.sidebar-collapsed-left),
   body.dark-mode #right-sidebar:not(.sidebar-collapsed-right) {
     background: rgba(15, 23, 42, 0.97) !important;

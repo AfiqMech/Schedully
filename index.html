@@ -76,8 +76,8 @@
     <svg id="mobile-export-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
   </button>
 
-  <!-- Dropdown card: expands downward from the button -->
-  <div id="mobile-export-dropdown" class="mobile-export-dropdown hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 rounded-3xl shadow-2xl z-50 overflow-hidden">
+  <!-- Dropdown card: expands downward from the button, vertically scrollable in landscape -->
+  <div id="mobile-export-dropdown" class="mobile-export-dropdown hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 rounded-3xl shadow-2xl z-50 overflow-y-auto">
     <div class="p-2 flex flex-col gap-1">
       <!-- Download Image -->
       <button id="btn-download-hd-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left" style="background: var(--m3-sys-color-primary-container);">
