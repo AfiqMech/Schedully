@@ -18,7 +18,7 @@
 <meta name="application-name" content="Schedully">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <!-- html2canvas & jsPDF -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 <style data-purpose="custom-fonts">
@@ -660,7 +660,7 @@
             <span class="dropzone-title">Upload Timetable File or Image</span>
             <span class="dropzone-sub">Supports CSV, .ics, PNG, JPG, WebP</span>
           </label>
-          <input type="file" id="universal-file-input" accept=".csv, .ics, text/csv, text/calendar, image/*" class="hidden">
+          <input type="file" id="universal-file-input" accept=".csv,.ics,text/csv,text/calendar,text/plain,application/ics,image/*,*/*" class="hidden">
 
           <div id="ocr-loading-bar" class="m3-loading-banner hidden">
             <span class="material-symbols-outlined spin-icon">sync</span>
@@ -1025,14 +1025,8 @@
   </div>
 
 <script src="timetable_engine.js"></script>
-
-
-
-
-
-
-<script src="timetable_engine.js"></script>
 <script src="ocr_parser.js"></script>
+<script src="ics_csv_parser_v3.js"></script>
 <script src="app_v3.js"></script>
 
 <!-- Register PWA Service Worker for Native App & Standalone Mode -->

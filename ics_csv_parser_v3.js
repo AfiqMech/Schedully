@@ -5,7 +5,9 @@ class ScheduleParser {
    * @returns {Array} List of course objects
    */
   static parseICS(content) {
-    const lines = content.split(/\r?\n/);
+    // Unfold multi-line iCal properties (lines starting with space/tab continue previous line)
+    const unfoldedContent = content.replace(/\r?\n[ \t]/g, '');
+    const lines = unfoldedContent.split(/\r?\n/);
     const events = [];
     let currentEvent = null;
 
@@ -16,11 +18,33 @@ class ScheduleParser {
       return line.substring(idx + 1).trim();
     };
 
-    // Helper to convert iCal Date string (e.g. 20260810T090000Z or 20260810T090000) to HH:MM
+    // Helper to convert iCal Date string (e.g. 20260810T090000 or 20260810T010000Z) to local HH:MM
     const parseTime = (dateStr) => {
       if (!dateStr) return '';
-      const timePart = dateStr.includes('T') ? dateStr.split('T')[1] : dateStr;
-      if (timePart.length >= 4) {
+      let rawVal = dateStr.includes(':') ? dateStr.split(':').pop().trim() : dateStr.trim();
+
+      // Dynamic UTC conversion if timestamp explicitly ends in 'Z' (RFC 5545 UTC)
+      if (rawVal.endsWith('Z') && rawVal.includes('T')) {
+        const parts = rawVal.split('T');
+        const dStr = parts[0];
+        const tStr = parts[1].replace('Z', '');
+        if (dStr.length === 8 && tStr.length >= 4) {
+          const y = parseInt(dStr.substring(0, 4));
+          const m = parseInt(dStr.substring(4, 6)) - 1;
+          const d = parseInt(dStr.substring(6, 8));
+          const hh = parseInt(tStr.substring(0, 2));
+          const mm = parseInt(tStr.substring(2, 4));
+          
+          const utcDate = new Date(Date.UTC(y, m, d, hh, mm));
+          const localH = String(utcDate.getHours()).padStart(2, '0');
+          const localM = String(utcDate.getMinutes()).padStart(2, '0');
+          return `${localH}:${localM}`;
+        }
+      }
+
+      // Direct local time parsing (reads exact timestamp from file)
+      const timePart = rawVal.includes('T') ? rawVal.split('T')[1] : rawVal;
+      if (timePart && timePart.length >= 4) {
         return `${timePart.substring(0, 2)}:${timePart.substring(2, 4)}`;
       }
       return '';
@@ -29,8 +53,25 @@ class ScheduleParser {
     // Helper to extract Day of Week from iCal Date string
     const getDayFromDateStr = (dateStr) => {
       if (!dateStr) return null;
-      let datePart = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
-      if (datePart.includes(':')) datePart = datePart.split(':').pop();
+      let rawVal = dateStr.includes(':') ? dateStr.split(':').pop().trim() : dateStr.trim();
+
+      if (rawVal.endsWith('Z') && rawVal.includes('T')) {
+        const parts = rawVal.split('T');
+        const dStr = parts[0];
+        const tStr = parts[1].replace('Z', '');
+        if (dStr.length === 8 && tStr.length >= 4) {
+          const y = parseInt(dStr.substring(0, 4));
+          const m = parseInt(dStr.substring(4, 6)) - 1;
+          const d = parseInt(dStr.substring(6, 8));
+          const hh = parseInt(tStr.substring(0, 2));
+          const mm = parseInt(tStr.substring(2, 4));
+          const utcDate = new Date(Date.UTC(y, m, d, hh, mm));
+          const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return days[utcDate.getDay()];
+        }
+      }
+
+      let datePart = rawVal.includes('T') ? rawVal.split('T')[0] : rawVal;
       if (datePart.length >= 8) {
         const y = parseInt(datePart.substring(0, 4));
         const m = parseInt(datePart.substring(4, 6)) - 1;
@@ -50,29 +91,30 @@ class ScheduleParser {
       const dayMap = {
         'MO': 'Mon', 'TU': 'Tue', 'WE': 'Wed', 'TH': 'Thu', 'FR': 'Fri', 'SA': 'Sat', 'SU': 'Sun'
       };
-      const byDayMatch = rruleStr.match(/BYDAY=([A-Z]{2})/);
-      if (byDayMatch && dayMap[byDayMatch[1]]) {
-        return dayMap[byDayMatch[1]];
+      const byDayMatch = rruleStr.match(/BYDAY=([A-Z]{2})/i);
+      if (byDayMatch && dayMap[byDayMatch[1].toUpperCase()]) {
+        return dayMap[byDayMatch[1].toUpperCase()];
       }
       return null;
     };
 
-    // Basic state machine parser
+    // State machine parser with case-insensitive tag matching
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      if (line.startsWith('BEGIN:VEVENT')) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const upperLine = line.toUpperCase();
+
+      if (upperLine.startsWith('BEGIN:VEVENT')) {
         currentEvent = {
           code: '', title: '', day: 'Mon', startTime: '', endTime: '', type: 'Lecture', room: '', lecturer: '', group: ''
         };
-      } else if (line.startsWith('END:VEVENT') && currentEvent) {
-        // Attempt to clean up summary into Code and Title if it looks like "CODE - TITLE"
+      } else if (upperLine.startsWith('END:VEVENT') && currentEvent) {
         if (currentEvent.title) {
           const split = currentEvent.title.split(' - ');
           if (split.length > 1) {
             currentEvent.code = split[0].trim();
             currentEvent.title = split.slice(1).join(' - ').trim();
           } else {
-            // Default to taking first word as code if uppercase
             const words = currentEvent.title.split(' ');
             if (words[0] && words[0] === words[0].toUpperCase() && /[0-9]/.test(words[0])) {
                currentEvent.code = words[0];
@@ -84,24 +126,31 @@ class ScheduleParser {
           currentEvent.code = 'COURSE';
         }
         
-        events.push(currentEvent);
+        if (currentEvent.startTime && currentEvent.endTime) {
+          events.push(currentEvent);
+        } else if (currentEvent.startTime) {
+          const [sh, sm] = currentEvent.startTime.split(':').map(Number);
+          const eh = (sh + 1) % 24;
+          currentEvent.endTime = `${String(eh).padStart(2, '0')}:${String(sm || 0).padStart(2, '0')}`;
+          events.push(currentEvent);
+        }
         currentEvent = null;
       } else if (currentEvent) {
-        if (line.startsWith('SUMMARY')) {
+        if (upperLine.startsWith('SUMMARY')) {
           currentEvent.title = getValue(line);
-        } else if (line.startsWith('LOCATION')) {
+        } else if (upperLine.startsWith('LOCATION')) {
           currentEvent.room = getValue(line);
-        } else if (line.startsWith('DTSTART')) {
+        } else if (upperLine.startsWith('DTSTART')) {
           const val = getValue(line);
           currentEvent.startTime = parseTime(val);
           const parsedDay = getDayFromDateStr(val);
           if (parsedDay) currentEvent.day = parsedDay;
-        } else if (line.startsWith('DTEND')) {
+        } else if (upperLine.startsWith('DTEND')) {
           currentEvent.endTime = parseTime(getValue(line));
-        } else if (line.startsWith('RRULE')) {
+        } else if (upperLine.startsWith('RRULE')) {
           const rruleDay = parseDay(getValue(line));
           if (rruleDay) currentEvent.day = rruleDay;
-        } else if (line.startsWith('DESCRIPTION')) {
+        } else if (upperLine.startsWith('DESCRIPTION')) {
           const desc = getValue(line);
           const descLower = desc.toLowerCase();
           if (descLower.includes('lecturer:') || descLower.includes('prof')) {

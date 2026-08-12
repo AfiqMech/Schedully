@@ -1929,23 +1929,36 @@ class SchedullyApp {
             }
           } else {
             // Run CSV or ICS File Parser
+            if (!window.ScheduleParser) {
+              alert("Schedule parser module is loading. Please select your file again.");
+              return;
+            }
             const reader = new FileReader();
             reader.onload = (evt) => {
-              const content = evt.target.result;
+              const content = evt.target.result || '';
               try {
                 let parsedEvents = [];
-                if (fileName.endsWith('.ics') || content.includes('BEGIN:VEVENT')) {
+                const upperContent = content.toUpperCase();
+                const isICS = fileName.endsWith('.ics') || upperContent.includes('BEGIN:VCALENDAR') || upperContent.includes('BEGIN:VEVENT');
+
+                if (isICS) {
                    parsedEvents = window.ScheduleParser.parseICS(content);
-                   if (parsedEvents.length === 0) alert("No classes found in this ICS file.");
+                   if (parsedEvents.length === 0) {
+                     alert("No classes found in this ICS file.");
+                     return;
+                   }
                    this.importClassesDirectly(parsedEvents);
                 } else {
                    parsedEvents = window.ScheduleParser.parseCSV(content);
-                   if (parsedEvents.length === 0) alert("No readable classes found in CSV.");
+                   if (parsedEvents.length === 0) {
+                     alert("No readable classes found in CSV.");
+                     return;
+                   }
                    this.handleCSVImportWithOCC(parsedEvents);
                 }
               } catch (err) {
                 console.error("File parsing error:", err);
-                alert("CRITICAL ERROR parsing file: " + err.message);
+                alert("Could not parse schedule file: " + (err.message || 'Check file format'));
               }
             };
             reader.readAsText(file);
@@ -2075,102 +2088,124 @@ class SchedullyApp {
       alert("📊 Exported CSV File!");
     });
 
-    // Shared wallpaper export helper — exact 1:1 WYSIWYG layout capture
+    // Wallpaper export — Using dom-to-image-more
     const exportWallpaper = (onComplete) => {
       if (this.classes.length === 0) {
-        alert("⚠️ Your schedule is empty! Fill out the Add A Course form or scan an image first.");
+        alert("⚠️ Your schedule is empty! Please add courses first.");
         return;
       }
 
-      const phoneCanvasEl = document.getElementById('phone-canvas');
-      const clockHeader = phoneCanvasEl.querySelector('.phone-lock-header');
-      const cameraDot = phoneCanvasEl.querySelector('.phone-camera-dot');
-      const navBar = phoneCanvasEl.querySelector('.phone-nav-bar');
+      const originalCanvas = document.getElementById('phone-canvas');
+      const cssW = originalCanvas.clientWidth;
+      const cssH = originalCanvas.clientHeight;
 
-      // 1. Hide mock icons cleanly without altering layout
-      if (clockHeader) clockHeader.style.visibility = 'hidden';
-      if (cameraDot) cameraDot.style.visibility = 'hidden';
-      if (navBar) navBar.style.visibility = 'hidden';
+      const stagingContainer = document.createElement('div');
+      stagingContainer.style.cssText = `
+        position: absolute;
+        top: -9999px; left: -9999px;
+        width: ${cssW}px; height: ${cssH}px;
+        z-index: -9999;
+        zoom: 1; transform: none;
+      `;
+      document.body.appendChild(stagingContainer);
 
-      // 2. Temporarily strip visual frame elements and disable global zoom
-      phoneCanvasEl.style.setProperty('border-color', 'transparent', 'important');
-      phoneCanvasEl.style.setProperty('border-radius', '0px', 'important');
-      phoneCanvasEl.style.setProperty('box-shadow', 'none', 'important');
+      const clone = originalCanvas.cloneNode(true);
       
-      const originalZoom = document.body.style.zoom;
-      document.body.style.zoom = '1';
+      // Remove the black bezel from the clone
+      clone.style.setProperty('width', cssW + 'px', 'important');
+      clone.style.setProperty('height', cssH + 'px', 'important');
+      clone.style.setProperty('border', 'none', 'important');
+      clone.style.setProperty('border-radius', '0', 'important');
+      clone.style.setProperty('box-shadow', 'none', 'important');
+      clone.style.setProperty('margin', '0', 'important');
       
-      const phoneWrapper = document.getElementById('main-phone-wrapper');
-      const originalWrapperZoom = phoneWrapper ? phoneWrapper.style.zoom : '';
-      if (phoneWrapper) phoneWrapper.style.zoom = '1';
-
-      // 3. Capture using html2canvas.
-      html2canvas(phoneCanvasEl, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-        scrollY: -window.scrollY,
-        scrollX: 0,
-        letterRendering: true
-      }).then(canvas => {
-        // 4. Restore everything
-        document.body.style.zoom = originalZoom || '';
-        if (phoneWrapper) phoneWrapper.style.zoom = originalWrapperZoom;
-        if (clockHeader) clockHeader.style.visibility = 'visible';
-        if (cameraDot) cameraDot.style.visibility = 'visible';
-        if (navBar) navBar.style.visibility = 'visible';
-        phoneCanvasEl.style.removeProperty('border-color');
-        phoneCanvasEl.style.removeProperty('border-radius');
-        phoneCanvasEl.style.removeProperty('box-shadow');
-
-        onComplete(canvas);
-      }).catch(err => {
-        console.error("Export Error: ", err);
-        alert("Failed to export image. Check console for details.");
-        
-        // Restore on error as well
-        document.body.style.zoom = originalZoom || '';
-        const phoneWrapper = document.getElementById('main-phone-wrapper');
-        if (phoneWrapper && typeof originalWrapperZoom !== 'undefined') phoneWrapper.style.zoom = originalWrapperZoom;
-        if (clockHeader) clockHeader.style.visibility = 'visible';
-        if (cameraDot) cameraDot.style.visibility = 'visible';
-        if (navBar) navBar.style.visibility = 'visible';
-        phoneCanvasEl.style.removeProperty('border-color');
-        phoneCanvasEl.style.removeProperty('border-radius');
-        phoneCanvasEl.style.removeProperty('box-shadow');
+      // Make clock, camera dot, and nav bar INVISIBLE
+      ['.phone-camera-dot', '#phone-lock-header', '.phone-nav-bar'].forEach(sel => {
+        const el = clone.querySelector(sel);
+        if (el) {
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('opacity', '0', 'important');
+        }
       });
+
+      // THE SOLUTION: Micro-adjust text size in the clone to cancel out the SVG kerning bug!
+      // This physically forces the SVG to fit the exact same number of letters as the live HTML preview.
+      clone.querySelectorAll('.exact-grid-cell-slot p').forEach(el => {
+        el.style.setProperty('font-size', '9.4px', 'important');
+        el.style.setProperty('letter-spacing', '-0.15px', 'important');
+      });
+      clone.querySelectorAll('.exact-grid-cell-slot span').forEach(el => {
+        el.style.setProperty('font-size', '8.1px', 'important');
+        el.style.setProperty('letter-spacing', '-0.15px', 'important');
+      });
+
+      stagingContainer.appendChild(clone);
+
+      setTimeout(() => {
+        const scale = 3;
+        window.domtoimage.toCanvas(clone, {
+          width: cssW * scale,
+          height: cssH * scale,
+          style: {
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
+            width: `${cssW}px`,
+            height: `${cssH}px`
+          }
+        }).then(canvas => {
+          if (document.body.contains(stagingContainer)) document.body.removeChild(stagingContainer);
+          onComplete(canvas);
+        }).catch(err => {
+          if (document.body.contains(stagingContainer)) document.body.removeChild(stagingContainer);
+          console.error('Wallpaper export failed:', err);
+          alert('Export failed. Please try again.');
+        });
+      }, 150);
     };
 
-    // Download Image Button — Pure clean wallpaper PNG export
+
+    // Download Image Button — Pure clean wallpaper PNG export (Mobile & Desktop)
     this.btnDownloadHD.addEventListener('click', () => {
       exportWallpaper((canvas) => {
-        const link = document.createElement('a');
-        link.download = 'schedully_wallpaper.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+        canvas.toBlob((blob) => {
+          if (blob && window.timetableEngine?.downloadOrShareFile) {
+            window.timetableEngine.downloadOrShareFile(blob, 'schedully_wallpaper.png', 'image/png');
+          } else {
+            const link = document.createElement('a');
+            link.download = 'schedully_wallpaper.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+          }
+        }, 'image/png');
       });
     });
 
-    // Save As PDF Button — Pure clean wallpaper PDF export
+    // Save As PDF Button — Pure clean wallpaper PDF export (Mobile & Desktop)
     this.btnSavePdf.addEventListener('click', () => {
       exportWallpaper((canvas) => {
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
+        
+        // Create PDF with EXACT dimensions of the exported image to prevent white A4 margins
         const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4'
+          orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
         });
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pageWidth - 20;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        const yPos = Math.max(10, (pageHeight - imgHeight) / 2);
-
-        pdf.addImage(imgData, 'PNG', 10, yPos, imgWidth, imgHeight);
-        pdf.save('schedully_wallpaper.pdf');
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        
+        try {
+          const pdfArrayBuffer = pdf.output('arraybuffer');
+          const pdfBlob = new Blob([pdfArrayBuffer], { type: 'application/pdf' });
+          if (window.timetableEngine?.downloadOrShareFile) {
+            window.timetableEngine.downloadOrShareFile(pdfBlob, 'schedully_wallpaper.pdf', 'application/pdf');
+          } else {
+            pdf.save('schedully_wallpaper.pdf');
+          }
+        } catch (pdfErr) {
+          pdf.save('schedully_wallpaper.pdf');
+        }
       });
     });
 
@@ -2643,18 +2678,18 @@ class SchedullyApp {
           const heightAdaptiveFont = Math.min(16, Math.max(6, Math.floor(cardHeightPx / (lineCount * 1.3))));
           const effectiveMaxFont = Math.min(maxAdaptiveFont, heightAdaptiveFont);
 
-          const codeFontSize = Math.min(this.gridFontSizeVal || 8.5, effectiveMaxFont);
-          const timeFontSize = Math.max(4.5, codeFontSize - 1.2);
+          const codeFontSize = Math.max(8.0, Math.min(this.gridFontSizeVal || 9, effectiveMaxFont));
+          const detailFontSize = Math.max(7.0, codeFontSize - 1.0);
 
           const cardContentHTML = isShortCard ? `
-            <div class="exact-card-code" style="font-size: ${Math.max(6.5, codeFontSize)}px; font-weight: 700; line-height: 1;">${matched.code}</div>
+            <div class="exact-card-code" style="font-size: ${codeFontSize}px; font-weight: 800; line-height: 1.1; color: inherit;">${matched.code}</div>
           ` : `
-            <div class="exact-card-code" style="font-size: ${codeFontSize}px; font-weight: 700;">${matched.code}</div>
-            ${this.globalCourseType && matched.type ? `<div class="exact-card-type" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; font-style: italic; opacity: 0.9;">${matched.type}</div>` : ''}
-            ${this.globalCourseRoom && matched.room ? `<div class="exact-card-room" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.room}</div>` : ''}
-            ${this.globalCourseLecturer && matched.lecturer ? `<div class="exact-card-lecturer" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.lecturer}</div>` : ''}
-            ${this.globalCourseGroup && matched.group ? `<div class="exact-card-group" style="font-size: ${Math.max(4.5, codeFontSize - 1.2)}px; opacity: 0.95;">${matched.group}</div>` : ''}
-            ${this.globalCardTimes && matched.displayTime !== false ? `<div class="exact-card-time" style="font-size: ${timeFontSize}px; margin-top: 1px; opacity: 0.9;">${formatStart}</div>` : ''}
+            <div class="exact-card-code" style="font-size: ${codeFontSize}px; font-weight: 800; line-height: 1.15; color: inherit;">${matched.code}</div>
+            ${this.globalCourseType && matched.type ? `<div class="exact-card-type" style="font-size: ${detailFontSize}px; font-style: italic; font-weight: 600; line-height: 1.15; opacity: 1; color: inherit;">${matched.type}</div>` : ''}
+            ${this.globalCourseRoom && matched.room ? `<div class="exact-card-room" style="font-size: ${detailFontSize}px; font-weight: 600; line-height: 1.15; opacity: 1; color: inherit;">${matched.room}</div>` : ''}
+            ${this.globalCourseLecturer && matched.lecturer ? `<div class="exact-card-lecturer" style="font-size: ${detailFontSize}px; font-weight: 600; line-height: 1.15; opacity: 1; color: inherit;">${matched.lecturer}</div>` : ''}
+            ${this.globalCourseGroup && matched.group ? `<div class="exact-card-group" style="font-size: ${detailFontSize}px; font-weight: 600; line-height: 1.15; opacity: 1; color: inherit;">${matched.group}</div>` : ''}
+            ${this.globalCardTimes && matched.displayTime !== false ? `<div class="exact-card-time" style="font-size: ${detailFontSize}px; font-weight: 600; line-height: 1.15; opacity: 1; color: inherit;">${formatStart}</div>` : ''}
           `;
 
           const cardElement = document.createElement('div');
@@ -2669,6 +2704,13 @@ class SchedullyApp {
             height: ${cardHeightPx}px;
             z-index: 5;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2px 3px;
+            overflow: hidden;
           `;
           cardElement.innerHTML = cardContentHTML;
           slotCell.appendChild(cardElement);
