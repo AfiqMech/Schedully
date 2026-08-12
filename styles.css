@@ -2219,12 +2219,6 @@ textarea::placeholder,
     -webkit-backdrop-filter: blur(24px) !important;
   }
 
-  /* Floating trigger buttons always visible and never hidden by default on mobile */
-  #btn-expand-left-floating,
-  #btn-expand-right-floating {
-    display: flex !important;
-  }
-
   /* Position the floating trigger buttons clearly */
   #btn-expand-left-floating {
     top: 16px !important;
@@ -2236,21 +2230,57 @@ textarea::placeholder,
     right: 16px !important;
   }
 
-  /* Bottom floating pill bar: ALWAYS strictly 1 horizontal row pill (Image 1 layout, never wraps!) */
+  /* Bottom floating pill bar: ALWAYS strictly 1 horizontal row pill (Image 1 layout, NEVER wraps!) */
   #bottom-floating-pill-bar {
-    display: flex !important;
+    display: inline-flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 9999px !important;
-    padding: 5px 12px !important;
-    gap: 6px !important;
-    max-width: calc(100vw - 16px) !important;
+    padding: 4px 10px !important;
+    gap: 4px !important;
+    max-width: min(calc(100vw - 16px), 480px) !important;
+    white-space: nowrap !important;
     overflow-x: auto !important;
     scrollbar-width: none !important;
     z-index: 9999 !important;
-    white-space: nowrap !important;
+  }
+}
+
+/* ── STRICT COMPACT SINGLE-ROW BOTTOM PILL BAR FOR PHONES (IMAGE 1 LAYOUT) ── */
+@media (max-width: 768px) {
+  #bottom-floating-pill-bar {
+    padding: 4px 8px !important;
+    gap: 4px !important;
+    max-width: calc(100vw - 12px) !important;
+  }
+
+  #bottom-floating-pill-bar > div {
+    padding: 2px 4px !important;
+    gap: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #bottom-floating-pill-bar button {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  #zoom-label-text {
+    width: 34px !important;
+    font-size: 10px !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btn-toggle-canvas-popover {
+    width: auto !important;
+    padding: 4px 12px !important;
+    font-size: 11px !important;
+    flex-shrink: 0 !important;
   }
 }
 

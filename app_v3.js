@@ -755,12 +755,14 @@ class SchedullyApp {
     });
 
     // ── Aurora orbs ───────────────────────────────────────────────
-    document.querySelectorAll('.animate-aura').forEach((orb, i) => {
-      orb.style.background = i === 0
-        ? `radial-gradient(circle, ${primary}35, ${container}25, transparent)`
-        : i === 1 ? `radial-gradient(circle, ${primary}20, transparent)`
-        : `radial-gradient(circle, ${container}30, transparent)`;
-    });
+    if (window.innerWidth >= 1024) {
+      document.querySelectorAll('.animate-aura').forEach((orb, i) => {
+        orb.style.background = i === 0
+          ? `radial-gradient(circle, ${primary}35, ${container}25, transparent)`
+          : i === 1 ? `radial-gradient(circle, ${primary}20, transparent)`
+          : `radial-gradient(circle, ${container}30, transparent)`;
+      });
+    }
 
     // ── Logo glow backing ─────────────────────────────────────────
     const logoBacking = document.querySelector('[class*="from-blue-500"]');
@@ -1716,6 +1718,9 @@ class SchedullyApp {
       btn.style.display = 'none';
     };
 
+    const mobileExportBar = document.getElementById('mobile-export-bar');
+    const mobileExportDropdown = document.getElementById('mobile-export-dropdown');
+
     const toggleLeftSidebar = (collapse) => {
       const isCurrentlyCollapsed = leftSidebar.classList.contains('sidebar-collapsed-left');
       const shouldCollapse = collapse !== undefined ? collapse : !isCurrentlyCollapsed;
@@ -1723,13 +1728,19 @@ class SchedullyApp {
       if (shouldCollapse) {
         leftSidebar.classList.add('sidebar-collapsed-left');
         showFloatingBtn(btnExpandLeftFloating);
+        // Restore Export button if right sidebar is also collapsed
+        if (rightSidebar.classList.contains('sidebar-collapsed-right')) {
+          showFloatingBtn(mobileExportBar);
+        }
       } else {
         leftSidebar.classList.remove('sidebar-collapsed-left');
         hideFloatingBtn(btnExpandLeftFloating);
+        hideFloatingBtn(mobileExportBar);
+        mobileExportDropdown?.classList.add('hidden');
         // Auto-close right sidebar on mobile/tablet when opening left
         if (isMobile()) {
           rightSidebar.classList.add('sidebar-collapsed-right');
-          showFloatingBtn(btnExpandRightFloating);
+          hideFloatingBtn(btnExpandRightFloating);
         }
       }
     };
@@ -1741,13 +1752,19 @@ class SchedullyApp {
       if (shouldCollapse) {
         rightSidebar.classList.add('sidebar-collapsed-right');
         showFloatingBtn(btnExpandRightFloating);
+        // Restore Export button if left sidebar is also collapsed
+        if (leftSidebar.classList.contains('sidebar-collapsed-left')) {
+          showFloatingBtn(mobileExportBar);
+        }
       } else {
         rightSidebar.classList.remove('sidebar-collapsed-right');
         hideFloatingBtn(btnExpandRightFloating);
+        hideFloatingBtn(mobileExportBar);
+        mobileExportDropdown?.classList.add('hidden');
         // Auto-close left sidebar on mobile/tablet when opening right
         if (isMobile()) {
           leftSidebar.classList.add('sidebar-collapsed-left');
-          showFloatingBtn(btnExpandLeftFloating);
+          hideFloatingBtn(btnExpandLeftFloating);
         }
       }
     };
@@ -1758,13 +1775,89 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
+    // ── IMMERSIVE TOUCH SWIPE GESTURES FOR SIDEBARS ──
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let swipeTarget = null; // 'left-sidebar', 'right-sidebar', 'edge-left', 'edge-right'
+
+    // 1. Swipe Left on Left Sidebar to Close
+    leftSidebar?.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        swipeTarget = 'left-sidebar';
+      }
+    }, { passive: true });
+
+    leftSidebar?.addEventListener('touchend', (e) => {
+      if (swipeTarget === 'left-sidebar' && e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        // Swipe Left (deltaX < -50) to close Left Sidebar
+        if (deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          toggleLeftSidebar(true);
+        }
+      }
+      swipeTarget = null;
+    }, { passive: true });
+
+    // 2. Swipe Right on Right Sidebar to Close
+    rightSidebar?.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        swipeTarget = 'right-sidebar';
+      }
+    }, { passive: true });
+
+    rightSidebar?.addEventListener('touchend', (e) => {
+      if (swipeTarget === 'right-sidebar' && e.changedTouches.length === 1) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        // Swipe Right (deltaX > 50) to close Right Sidebar
+        if (deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          toggleRightSidebar(true);
+        }
+      }
+      swipeTarget = null;
+    }, { passive: true });
+
+    // 3. Edge Swipe Gestures (Swipe Right from Left Edge to Open Menu, Swipe Left from Right Edge to Open Schedule)
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1 && window.innerWidth <= 1024) {
+        const x = e.touches[0].clientX;
+        if (x <= 30 && leftSidebar?.classList.contains('sidebar-collapsed-left')) {
+          touchStartX = x;
+          touchStartY = e.touches[0].clientY;
+          swipeTarget = 'edge-left';
+        } else if (x >= window.innerWidth - 30 && rightSidebar?.classList.contains('sidebar-collapsed-right')) {
+          touchStartX = x;
+          touchStartY = e.touches[0].clientY;
+          swipeTarget = 'edge-right';
+        }
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1 && swipeTarget) {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        if (swipeTarget === 'edge-left' && deltaX > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          toggleLeftSidebar(false);
+        } else if (swipeTarget === 'edge-right' && deltaX < -50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+          toggleRightSidebar(false);
+        }
+      }
+      swipeTarget = null;
+    }, { passive: true });
+
     // Auto-collapse sidebars on mobile/tablet viewports for maximum screen space
-    // On mobile both floating buttons always stay visible
     if (isMobile()) {
       toggleLeftSidebar(true);
       toggleRightSidebar(true);
       showFloatingBtn(btnExpandLeftFloating);
       showFloatingBtn(btnExpandRightFloating);
+      showFloatingBtn(mobileExportBar);
     }
 
     // Re-check on resize (desktop <-> mobile transition)
