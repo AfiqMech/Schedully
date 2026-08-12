@@ -1807,10 +1807,19 @@ class SchedullyApp {
     btnToggleRight?.addEventListener('click', () => toggleRightSidebar(true));
     btnExpandRightFloating?.addEventListener('click', () => toggleRightSidebar(false));
 
-    // Initial state check
+    // Initial sidebar state on web app load:
+    // Mobile & Tablet (<=1280px): BOTH Menu and Schedule start COLLAPSED (not expanded)
+    // Desktop (>1280px): BOTH Menu and Schedule start EXPANDED by default
+    if (isMobile()) {
+      leftSidebar?.classList.add('sidebar-collapsed-left');
+      rightSidebar?.classList.add('sidebar-collapsed-right');
+    } else {
+      leftSidebar?.classList.remove('sidebar-collapsed-left');
+      rightSidebar?.classList.remove('sidebar-collapsed-right');
+    }
     syncFloatingButtonsState();
 
-    // Re-check on resize
+    // Re-check on window resize
     window.addEventListener('resize', () => {
       syncFloatingButtonsState();
     });
