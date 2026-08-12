@@ -2070,34 +2070,24 @@ class SchedullyApp {
 
     // iCal Export Button
     this.btnExportICal?.addEventListener('click', () => {
-      if (this.classes.length === 0) {
-        alert("⚠️ Your schedule is empty! Fill out the Add A Course form or scan an image first.");
-        return;
-      }
       window.timetableEngine.exportToICal(this.classes, `schedully_schedule.ics`);
       alert("📅 Exported .ics Calendar File! Open this file to import into Google Calendar or Apple Calendar.");
     });
 
     // CSV Export Button
     this.btnExportCSV?.addEventListener('click', () => {
-      if (this.classes.length === 0) {
-        alert("⚠️ Your schedule is empty! Fill out the Add A Course form or scan an image first.");
-        return;
-      }
       window.timetableEngine.exportToCSV(this.classes, `schedully_schedule.csv`);
       alert("📊 Exported CSV File!");
     });
 
     // Wallpaper export — Using dom-to-image-more
     const exportWallpaper = (onComplete) => {
-      if (this.classes.length === 0) {
-        alert("⚠️ Your schedule is empty! Please add courses first.");
-        return;
-      }
-
       const originalCanvas = document.getElementById('phone-canvas');
-      const cssW = originalCanvas.clientWidth;
-      const cssH = originalCanvas.clientHeight;
+      
+      // Use scrollWidth/scrollHeight to guarantee we capture the entire timetable,
+      // even if the grid rows expand past the 760px boundary on mobile due to font scaling.
+      const cssW = Math.max(originalCanvas.clientWidth, originalCanvas.scrollWidth);
+      const cssH = Math.max(originalCanvas.clientHeight, originalCanvas.scrollHeight);
 
       const stagingContainer = document.createElement('div');
       stagingContainer.style.cssText = `
@@ -2119,6 +2109,10 @@ class SchedullyApp {
       clone.style.setProperty('box-shadow', 'none', 'important');
       clone.style.setProperty('margin', '0', 'important');
       
+      // CRITICAL FIX: WebKit (Safari on Mobile) has a rendering bug where `overflow: hidden` combined
+      // with `transform: scale()` inside an SVG completely shifts the layout and chops off the right side.
+      clone.style.setProperty('overflow', 'visible', 'important');
+      
       // Make clock, camera dot, and nav bar INVISIBLE
       ['.phone-camera-dot', '#phone-lock-header', '.phone-nav-bar'].forEach(sel => {
         const el = clone.querySelector(sel);
@@ -2130,12 +2124,15 @@ class SchedullyApp {
 
       // THE SOLUTION: Micro-adjust text size in the clone to cancel out the SVG kerning bug!
       // This physically forces the SVG to fit the exact same number of letters as the live HTML preview.
-      clone.querySelectorAll('.exact-grid-cell-slot p').forEach(el => {
-        el.style.setProperty('font-size', '9.4px', 'important');
+      // We must scale down the font size by exactly 5% relative to the dynamic inline styles applied to the cards.
+      clone.querySelectorAll('.exact-card-code').forEach(el => {
+        const currentFontSize = parseFloat(el.style.fontSize) || 10;
+        el.style.setProperty('font-size', (currentFontSize * 0.94) + 'px', 'important');
         el.style.setProperty('letter-spacing', '-0.15px', 'important');
       });
-      clone.querySelectorAll('.exact-grid-cell-slot span').forEach(el => {
-        el.style.setProperty('font-size', '8.1px', 'important');
+      clone.querySelectorAll('.exact-card-type, .exact-card-room, .exact-card-lecturer, .exact-card-group, .exact-card-time').forEach(el => {
+        const currentFontSize = parseFloat(el.style.fontSize) || 8.5;
+        el.style.setProperty('font-size', (currentFontSize * 0.94) + 'px', 'important');
         el.style.setProperty('letter-spacing', '-0.15px', 'important');
       });
 
