@@ -31,7 +31,7 @@ class OCRTimetableParser {
       const response = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ base64Data, mimeType })
+        body: JSON.stringify({ base64Data, mimeType, apiKey })
       });
       
       const rawText = await response.text();

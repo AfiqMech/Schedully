@@ -1571,37 +1571,43 @@ class SchedullyApp {
     const btnThemeToggle = document.getElementById('btn-theme-toggle');
     const mainPhoneWrapper = document.getElementById('main-phone-wrapper');
     
-    let currentZoomScale = 0.6;
+    // Default zoom scale: 1.0 (100%) on mobile for 1:1 scale & smooth horizontal swiping, 0.85 (85%) on desktop
+    let currentZoomScale = window.innerWidth < 1024 ? 1.0 : 0.85;
     
-    if (btnZoomIn && btnZoomOut && zoomLabel && mainPhoneWrapper) {
-      const applyZoom = () => {
-        mainPhoneWrapper.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), zoom 0.2s ease';
-        mainPhoneWrapper.style.transformOrigin = 'top center';
-        
-        if ('zoom' in mainPhoneWrapper.style && !window.navigator.userAgent.includes('Firefox')) {
-          mainPhoneWrapper.style.zoom = currentZoomScale;
-          mainPhoneWrapper.style.transform = 'none';
-        } else {
-          mainPhoneWrapper.style.transform = `scale(${currentZoomScale})`;
-        }
-        
-        const displayPercent = Math.round(currentZoomScale * (100 / 0.6));
-        zoomLabel.innerText = `${displayPercent}%`;
-      };
+    const applyZoom = () => {
+      if (!mainPhoneWrapper || !zoomLabel) return;
+      mainPhoneWrapper.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), zoom 0.2s ease';
+      mainPhoneWrapper.style.transformOrigin = 'top center';
+      
+      if (currentZoomScale === 1.0) {
+        mainPhoneWrapper.style.zoom = '';
+        mainPhoneWrapper.style.transform = 'none';
+      } else if ('zoom' in mainPhoneWrapper.style && !window.navigator.userAgent.includes('Firefox')) {
+        mainPhoneWrapper.style.zoom = currentZoomScale;
+        mainPhoneWrapper.style.transform = 'none';
+      } else {
+        mainPhoneWrapper.style.transform = `scale(${currentZoomScale})`;
+      }
+      
+      const displayPercent = Math.round(currentZoomScale * 100);
+      zoomLabel.innerText = `${displayPercent}%`;
+    };
+    this.applyCanvasZoom = applyZoom;
 
+    if (btnZoomIn && btnZoomOut && zoomLabel && mainPhoneWrapper) {
       // Set initial zoom on page load
       applyZoom();
 
       btnZoomIn.addEventListener('click', () => {
-        if (currentZoomScale < 1.2) {
-          currentZoomScale = Math.min(1.2, currentZoomScale + 0.15);
+        if (currentZoomScale < 1.5) {
+          currentZoomScale = Math.min(1.5, Math.round((currentZoomScale + 0.15) * 100) / 100);
           applyZoom();
         }
       });
 
       btnZoomOut.addEventListener('click', () => {
-        if (currentZoomScale > 0.3) {
-          currentZoomScale = Math.max(0.3, currentZoomScale - 0.15);
+        if (currentZoomScale > 0.4) {
+          currentZoomScale = Math.max(0.4, Math.round((currentZoomScale - 0.15) * 100) / 100);
           applyZoom();
         }
       });

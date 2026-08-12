@@ -17,19 +17,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { base64Data, mimeType } = req.body || {};
+    const { base64Data, mimeType, apiKey: clientApiKey } = req.body || {};
 
     if (!base64Data) {
       return res.status(400).json({ error: 'Missing image data' });
     }
 
-    const apiKey = (process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
+    const apiKey = (clientApiKey || process.env.GEMINI_API_KEY || '').trim().replace(/^["']|["']$/g, '');
     if (!apiKey) {
-      return res.status(500).json({ error: 'Server key not configured. Please set GEMINI_API_KEY in Vercel Environment Variables.' });
+      return res.status(500).json({ error: 'Gemini API Key not configured. Please set GEMINI_API_KEY in Vercel Environment Variables or enter your API key in settings.' });
     }
 
     // 1. DYNAMICALLY DISCOVER SUPPORTED MODELS
-    let targetModelName = 'gemini-3.5-flash';
+    let targetModelName = 'gemini-1.5-flash';
     try {
       const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`, {
         method: 'GET',
@@ -42,13 +42,11 @@ export default async function handler(req, res) {
           m.supportedGenerationMethods.includes('generateContent') &&
           m.name.includes('gemini')
         );
-        // Prioritize Pro models for maximum accuracy and spatial grid reasoning
-        let bestModel = validModels.find(m => m.name.includes('3.5-pro'));
+        // Prioritize Pro/Flash models for maximum accuracy and spatial grid reasoning
+        let bestModel = validModels.find(m => m.name.includes('1.5-flash'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('2.0-flash'));
         if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-pro'));
-        if (!bestModel) bestModel = validModels.find(m => m.name.includes('3.5-flash'));
-        if (!bestModel) bestModel = validModels.find(m => m.name.includes('3.0-flash'));
-        if (!bestModel) bestModel = validModels.find(m => m.name.includes('1.5-flash'));
-        if (!bestModel) bestModel = validModels.reverse().find(m => m.name.includes('pro'));
+        if (!bestModel) bestModel = validModels.find(m => m.name.includes('flash'));
         if (!bestModel && validModels.length > 0) bestModel = validModels[0];
         if (bestModel) targetModelName = bestModel.name.replace('models/', '');
       }
@@ -56,10 +54,46 @@ export default async function handler(req, res) {
       console.warn("Failed to list models, using fallback", e);
     }
 
+    const promptText = `CRITICAL SYSTEM COMMAND:
+First, translate the image text into English if needed ("translate the image"), and then extract the timetable into a clean structured table ("can you extract this out the timetable into table"). Finally, convert all class slots into a valid JSON list of course objects.
+
+UNIVERSAL GLOBAL TIMETABLE ENGINE RULES:
+
+1. RTL & SCRIPT DIRECTION HANDLING (Arabic, Hebrew, Persian):
+   - In Arabic/RTL timetables, the columns often read Right-to-Left (RTL). Recognize that the first day column (e.g. الأحد / Sunday or الإثنين / Monday) may be on the far RIGHT side.
+   - Translate Arabic days: الأحد -> Sun, الإثنين -> Mon, الثلاثاء -> Tue, الأربعاء -> Wed, الخميس -> Thu, الجمعة -> Fri, السبت -> Sat.
+   - Translate Arabic periods: الحصة الأولى -> 08:00-08:45, الحصة الثانية -> 08:45-09:30, etc.
+
+2. EAST ASIAN & INTERNATIONAL LANGUAGES (Japanese, Chinese, Korean, German, Spanish, French, Russian, etc.):
+   - Japanese days: 月/月曜 -> Mon, 火/火曜 -> Tue, 水/水曜 -> Wed, 木/木曜 -> Thu, 金/金曜 -> Fri, 土/土曜 -> Sat, 日/日曜 -> Sun
+   - Chinese days: 星期一/周一/週一 -> Mon, 星期二/周二 -> Tue, 星期三/周三 -> Wed, 星期四/周四 -> Thu, 星期五/周五 -> Fri, 星期六/周六 -> Sat, 星期日/周日 -> Sun
+   - Korean days: 월/월요일 -> Mon, 화/화요일 -> Tue, 수/수요일 -> Wed, 목/목요일 -> Thu, 금/금요일 -> Fri, 토/토요일 -> Sat, 일/일요일 -> Sun
+   - German days: Mo/Montag -> Mon, Di/Dienstag -> Tue, Mi/Mittwoch -> Wed, Do/Donnerstag -> Thu, Fr/Freitag -> Fri, Sa/Samstag -> Sat, So/Sonntag -> Sun
+   - Spanish/French/Italian days: Lunes/Lundi -> Mon, Martes/Mardi -> Tue, Miércoles/Mercredi -> Wed, Jueves/Jeudi -> Thu, Viernes/Vendredi -> Fri, Sábado/Samedi -> Sat, Domingo/Dimanche -> Sun
+   - Malay/Indonesian days: Isnin/Senin -> Mon, Selasa -> Tue, Rabu -> Wed, Khamis/Kamis -> Thu, Jumaat/Jumat -> Fri, Sabtu -> Sat, Ahad/Minggu -> Sun
+
+3. TIME CALCULATION:
+   - Convert all times to 24-hour HH:MM strings (e.g. 08:45, 13:25).
+   - If a row lists only a start time (e.g., 08:45), its "endTime" is the start time of the next row (e.g., 09:35).
+
+4. FIELD EXTRACTION FOR JSON:
+   - "title": Include subject name in full. (e.g., "الرياضيات", "算数", "日本語", "Mathematik", "ELA", "Math", "PE / Dance").
+   - "code": Clean 2-8 uppercase Latin shorthand code (e.g. "الرياضيات" -> "MATH", "算数" -> "MATH", "日本語" -> "JAP-101", "Mathematik" -> "MATH").
+   - "day": 3-letter English day ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun").
+   - "startTime": 24h format HH:MM (e.g. "08:45").
+   - "endTime": 24h format HH:MM (e.g. "09:35").
+   - "type": "Class", "Lecture", "Lab", "Tutorial", "Activity", "Recess", or "Lunch".
+   - "room": Room / Venue if stated (or "").
+   - "lecturer": Instructor / Teacher if stated (or "").
+   - "group": Class section / group if stated (or "").
+
+OUTPUT REQUIREMENTS:
+Output ONLY a valid JSON array of objects. Do NOT wrap in markdown or include conversational text.`;
+
     const payload = {
       contents: [{
         parts: [
-          { text: "CRITICAL TASK: Perform an EXHAUSTIVE extraction of ALL course class slots in this timetable screenshot. Do NOT stop after extracting one day or column. You MUST systematically scan every column and row across ALL days (Mon, Tue, Wed, Thu, Fri, Sat, Sun).\n\nKey instructions:\n1. Identify layout orientation (Days on top horizontal header or left vertical column).\n2. Scan EVERY day column (Monday through Sunday). If a subject repeats on multiple days (e.g., Lecture on Monday and Tutorial on Wednesday), create SEPARATE entry objects for each class session.\n3. Calculate start time and end time accurately (24-hour format HH:MM) based on spanning grid width/height.\n4. Translate local day names (Isnin -> Mon, Selasa -> Tue, Rabu -> Wed, Khamis -> Thu, Jumaat -> Fri, Sabtu -> Sat, Ahad -> Sun).\n5. Extract keys: \"code\" (Course Code / Subject Code), \"title\" (Full Name), \"day\" (3-letter Mon-Sun), \"startTime\" (HH:MM 24h), \"endTime\" (HH:MM 24h), \"type\" (Lecture/Lab/Tutorial), \"room\" (Venue/Room), \"lecturer\" (Instructor name), \"group\" (Section/Occ/Group).\n6. Output ONLY a valid JSON array of objects." },
+          { text: promptText },
           { inline_data: { mime_type: mimeType || 'image/png', data: base64Data } }
         ]
       }],

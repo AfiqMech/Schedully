@@ -642,52 +642,63 @@
     </button>
   </div>
 
-  <!-- MOBILE: compact Export dropdown (visible only on mobile ≤768px) -->
-  <div id="mobile-export-bar" class="show-mobile-only relative flex items-center gap-2">
+  <!-- MOBILE: single centered Export button with dropdown (visible only on mobile ≤768px) -->
+  <div id="mobile-export-bar" class="show-mobile-only relative">
 
-    <!-- Primary Download button (always visible) -->
-    <button id="btn-download-hd-mobile" class="btn-theme-primary mobile-export-btn-primary flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-full text-sm font-extrabold active:scale-95 transition-all shadow-lg">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Download</span>
-    </button>
-
-    <!-- Export dropdown trigger -->
-    <button id="btn-mobile-export-toggle" class="flex items-center gap-1.5 px-4 py-2.5 bg-white/90 backdrop-blur-md border border-gray-200 rounded-full text-xs font-extrabold text-gray-700 shadow-sm active:scale-95 transition-all">
-      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+    <!-- Single Export trigger button -->
+    <button id="btn-mobile-export-toggle" class="flex items-center gap-2 px-5 py-2.5 btn-theme-primary bg-blue-600 text-white rounded-full text-sm font-extrabold active:scale-95 transition-all shadow-lg">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
       <span>Export</span>
-      <svg id="mobile-export-chevron" class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+      <svg id="mobile-export-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
     </button>
 
-    <!-- Dropdown card -->
-    <div id="mobile-export-dropdown" class="mobile-export-dropdown hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-white/97 backdrop-blur-xl border border-gray-100 rounded-3xl shadow-2xl z-50 overflow-hidden">
+    <!-- Dropdown card: expands downward from the button -->
+    <div id="mobile-export-dropdown" class="mobile-export-dropdown hidden absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 rounded-3xl shadow-2xl z-50 overflow-hidden">
       <div class="p-2 flex flex-col gap-1">
+
+        <!-- Download Image (primary action, highlighted) -->
+        <button id="btn-download-hd-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left" style="background: var(--m3-sys-color-primary-container);">
+          <span class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: var(--m3-sys-color-primary);">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          </span>
+          <div>
+            <p class="font-extrabold text-sm" style="color: var(--m3-sys-color-primary);">Download Image</p>
+            <p class="text-xs font-medium opacity-70" style="color: var(--m3-sys-color-primary);">Save as wallpaper PNG</p>
+          </div>
+        </button>
+
+        <!-- Divider -->
+        <div style="height:1px; background: var(--m3-sys-color-outline); opacity:0.3; margin: 2px 8px;"></div>
+
         <!-- Calendar ICS -->
-        <button id="btn-export-ical-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-all text-left">
+        <button id="btn-export-ical-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left">
           <span class="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           </span>
           <div>
-            <p class="font-extrabold text-gray-800">Calendar (.ics)</p>
+            <p class="font-extrabold text-sm text-gray-800">Calendar (.ics)</p>
             <p class="text-xs text-gray-400 font-medium">Sync to Google / Apple</p>
           </div>
         </button>
+
         <!-- CSV Export -->
-        <button id="btn-export-csv-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-all text-left">
+        <button id="btn-export-csv-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left">
           <span class="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           </span>
           <div>
-            <p class="font-extrabold text-gray-800">Export CSV</p>
+            <p class="font-extrabold text-sm text-gray-800">Export CSV</p>
             <p class="text-xs text-gray-400 font-medium">Spreadsheet format</p>
           </div>
         </button>
+
         <!-- Save PDF -->
-        <button id="btn-save-pdf-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-sm font-bold text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-all text-left">
+        <button id="btn-save-pdf-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left">
           <span class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           </span>
           <div>
-            <p class="font-extrabold text-gray-800">Save as PDF</p>
+            <p class="font-extrabold text-sm text-gray-800">Save as PDF</p>
             <p class="text-xs text-gray-400 font-medium">Print-ready document</p>
           </div>
         </button>
