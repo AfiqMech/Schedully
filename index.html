@@ -67,8 +67,9 @@
   <span>Menu</span>
 </button>
 
-<aside id="left-sidebar" class="w-80 m-3 rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] flex flex-col justify-between overflow-y-auto no-scrollbar p-6 z-20 shrink-0">
-<!-- Top Section: Logo and Nav Items -->
+<aside id="left-sidebar" class="w-80 m-3 rounded-3xl bg-white/90 backdrop-blur-xl border border-gray-200/80 shadow-[0_10px_35px_rgba(0,0,0,0.06)] flex flex-col overflow-hidden p-6 z-20 shrink-0">
+<!-- Top Scrollable Section: Logo and Nav Items -->
+<div class="flex-1 overflow-y-auto no-scrollbar pr-1 flex flex-col justify-between">
 <div>
 <!-- Logo & Collapse Button -->
 <div class="flex items-center justify-between mb-8">
@@ -138,16 +139,20 @@
                 <button class="palette-dot dual-tone tone-blush" data-palette="blush" title="Rose Blush">
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
-
-                <button class="palette-dot dual-tone tone-sky" data-palette="sky" title="Midnight Sky">
-                  <span class="tone-top"></span><span class="tone-bottom"></span>
-                </button>
-
                 <button class="palette-dot dual-tone tone-matcha" data-palette="matcha" title="Matcha Green">
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
-
                 <button class="palette-dot dual-tone tone-mocha" data-palette="mocha" title="Mocha Brown">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-sand" data-palette="sand" title="Desert Sand">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+                <button class="palette-dot dual-tone tone-plum" data-palette="plum" title="Muted Plum">
+                  <span class="tone-top"></span><span class="tone-bottom"></span>
+                </button>
+
+                <button class="palette-dot dual-tone tone-sky" data-palette="sky" title="Midnight Sky">
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
 
@@ -166,12 +171,6 @@
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
                 <button class="palette-dot dual-tone tone-forest" data-palette="forest" title="Pine Forest">
-                  <span class="tone-top"></span><span class="tone-bottom"></span>
-                </button>
-                <button class="palette-dot dual-tone tone-sand" data-palette="sand" title="Desert Sand">
-                  <span class="tone-top"></span><span class="tone-bottom"></span>
-                </button>
-                <button class="palette-dot dual-tone tone-plum" data-palette="plum" title="Muted Plum">
                   <span class="tone-top"></span><span class="tone-bottom"></span>
                 </button>
                 <button class="palette-dot dual-tone tone-cherry" data-palette="cherry" title="Dark Cherry">
@@ -254,12 +253,6 @@
               </div>
             </div>
 
-            <!-- Grid Dimensions & Typography -->
-
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Grid Width</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-width-dec" class="stepper-btn">-</button>
                 <input type="number" id="grid-width-val" class="stepper-input" value="100" min="50" max="100">
                 <button type="button" id="btn-width-inc" class="stepper-btn">+</button>
               </div>
@@ -753,46 +746,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Bottom Floating Capsule Pill Bar -->
-  <div id="bottom-floating-pill-bar" class="flex items-center gap-3 p-1.5 bg-white/90 backdrop-blur-md border border-gray-200/90 rounded-full shadow-xl">
-    
-    <!-- Capsule 1: Zoom & Randomize Controls -->
-    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5 gap-0.5">
-      <button id="btn-zoom-out" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom Out">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </button>
-      <span id="zoom-label-text" class="text-xs font-extrabold text-gray-800 px-1 w-10 text-center">100%</span>
-      <button id="btn-zoom-in" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom In">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </button>
-
-      <div class="w-[1px] h-4 bg-gray-200 mx-0.5 opacity-60"></div>
-
-      <button id="btn-randomize-theme" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Overall Theme Palette">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </button>
-
-      <button id="btn-randomize-course-colors" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Course Card Colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </button>
-    </div>
-
-    <!-- Capsule 2: Theme Toggle -->
-    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5">
-      <button id="btn-theme-toggle" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Toggle Light/Dark Theme">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      </button>
-    </div>
-
-    <!-- Capsule 3: Expandable Controls Button -->
-    <button id="btn-toggle-canvas-popover" class="btn-theme-primary flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-sm">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Controls</span>
-    </button>
-
-  </div>
-</div>
 </main>
 <!-- END: Center Workspace -->
 <!-- BEGIN: Right Sidebar Schedule List -->
@@ -947,12 +900,44 @@
     </div>
   </div>
 
-<script src="timetable_engine.js"></script>
+  <!-- Bottom Floating Capsule Pill Bar -->
+  <div id="bottom-floating-pill-bar" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 p-1.5 bg-white/90 backdrop-blur-md border border-gray-200/90 rounded-full shadow-xl">
+    
+    <!-- Capsule 1: Zoom & Randomize Controls -->
+    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5 gap-0.5">
+      <button id="btn-zoom-out" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom Out">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 12H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+      <span id="zoom-label-text" class="text-xs font-extrabold text-gray-800 px-1 w-10 text-center">100%</span>
+      <button id="btn-zoom-in" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Zoom In">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
 
+      <div class="w-[1px] h-4 bg-gray-200 mx-0.5 opacity-60"></div>
 
+      <button id="btn-randomize-theme" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Overall Theme Palette">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
 
+      <button id="btn-randomize-course-colors" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Randomize Course Card Colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+    </div>
 
+    <!-- Capsule 2: Theme Toggle -->
+    <div class="flex items-center bg-white border border-gray-200 rounded-full shadow-xs p-0.5">
+      <button id="btn-theme-toggle" class="w-7 h-7 flex items-center justify-center text-gray-700 adaptive-icon-btn rounded-full transition-colors" title="Toggle Light/Dark Theme">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      </button>
+    </div>
 
+    <!-- Capsule 3: Expandable Controls Button -->
+    <button id="btn-toggle-canvas-popover" class="btn-theme-primary flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+      <span>Controls</span>
+    </button>
+
+  </div>
 
 <script src="timetable_engine.js"></script>
 <script src="ocr_parser.js"></script>
