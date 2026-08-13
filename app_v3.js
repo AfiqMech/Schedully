@@ -1670,9 +1670,19 @@ class SchedullyApp {
       } else {
         mainPhoneWrapper.style.transform = `scale(${currentZoomScale})`;
       }
-      
       const displayPercent = Math.round(currentZoomScale * 100);
       zoomLabel.innerText = `${displayPercent}%`;
+
+      const scrollArea = document.getElementById('canvas-scroll-area');
+      if (scrollArea) {
+        if (currentZoomScale < 1.0) {
+          scrollArea.classList.remove('justify-start');
+          scrollArea.classList.add('justify-center');
+        } else {
+          scrollArea.classList.remove('justify-center');
+          scrollArea.classList.add('justify-start');
+        }
+      }
     };
     this.applyCanvasZoom = applyZoom;
 
