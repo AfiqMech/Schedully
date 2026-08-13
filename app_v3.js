@@ -163,6 +163,8 @@ class SchedullyApp {
 
     // Layout Customization State
     this.showTitle = true;
+    this.cardCornerStyle = 'rounded';
+    this.cardCornerRadiusVal = 8;
     this.timetableTitleText = 'Untitled';
     this.newCourseDisplayTime = true;
     this.globalCardTimes = true;
@@ -986,6 +988,50 @@ class SchedullyApp {
       });
     });
 
+    // Card Corners Toggle
+    document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.cardCornerStyle = btn.getAttribute('data-val');
+        
+        const rowCornerRadius = document.getElementById('row-corner-radius');
+        if (this.cardCornerStyle === 'sharp') {
+          if (rowCornerRadius) rowCornerRadius.style.display = 'none';
+        } else {
+          if (rowCornerRadius) rowCornerRadius.style.display = 'flex';
+        }
+        this.renderTimetableGrid();
+      });
+    });
+
+    // Card Corner Radius Steppers
+    const btnRadiusDec = document.getElementById('btn-radius-dec');
+    const btnRadiusInc = document.getElementById('btn-radius-inc');
+    const gridRadiusValEl = document.getElementById('grid-radius-val');
+
+    gridRadiusValEl?.addEventListener('input', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        this.cardCornerRadiusVal = Math.min(24, Math.max(2, val));
+        this.renderTimetableGrid();
+      }
+    });
+    if (btnRadiusDec && gridRadiusValEl) {
+      btnRadiusDec.addEventListener('click', () => {
+        this.cardCornerRadiusVal = Math.max(2, this.cardCornerRadiusVal - 1);
+        gridRadiusValEl.value = this.cardCornerRadiusVal;
+        this.renderTimetableGrid();
+      });
+    }
+    if (btnRadiusInc && gridRadiusValEl) {
+      btnRadiusInc.addEventListener('click', () => {
+        this.cardCornerRadiusVal = Math.min(24, this.cardCornerRadiusVal + 1);
+        gridRadiusValEl.value = this.cardCornerRadiusVal;
+        this.renderTimetableGrid();
+      });
+    }
+
     // SCHEDULE LIST QUICK SETTINGS TOGGLE DRAWER
     const btnScheduleSettings = document.getElementById('btn-schedule-settings-toggle');
     const quickSettingsPanel = document.getElementById('schedule-quick-settings');
@@ -1461,6 +1507,14 @@ class SchedullyApp {
       document.querySelector('.m3-right-sidebar')?.style.removeProperty('--m3-card-text-color');
 
       document.querySelectorAll('#toggle-title .pill-btn')[0].click();
+      document.querySelectorAll('#toggle-card-corners .pill-btn')[0].click();
+      
+      const gridRadiusValEl = document.getElementById('grid-radius-val');
+      if (gridRadiusValEl) {
+        gridRadiusValEl.value = 8;
+        this.cardCornerRadiusVal = 8;
+      }
+      
       document.querySelectorAll('#toggle-display-time .pill-btn')[0].click();
       document.querySelectorAll('#toggle-clock-type .pill-btn')[0].click();
 
@@ -2553,6 +2607,8 @@ class SchedullyApp {
       timetableContainer.style.transform = 'none';
       timetableContainer.style.marginTop = `${this.gridYPosVal || 0}px`;
       timetableContainer.style.transition = 'margin-top 0.15s ease, width 0.15s ease, background-color 0.3s ease, border-color 0.3s ease';
+        timetableContainer.style.borderRadius = this.cardCornerStyle === 'sharp' ? '0px' : this.cardCornerRadiusVal + 'px';
+        timetableContainer.style.overflow = 'hidden';
     }
 
     const timeSlots = [];
@@ -2729,6 +2785,7 @@ class SchedullyApp {
             text-align: center;
             padding: 2px 3px;
             overflow: hidden;
+            border-radius: ${this.cardCornerStyle === 'sharp' ? '0px' : this.cardCornerRadiusVal + 'px'};
           `;
           cardElement.innerHTML = cardContentHTML;
           slotCell.appendChild(cardElement);

@@ -362,6 +362,25 @@
               </div>
             </div>
 
+            <!-- Card Corners -->
+            <div class="opt-row margin-top-xs">
+              <span class="opt-label">Card Corners</span>
+              <div class="pill-toggle-group" id="toggle-card-corners">
+                <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
+                <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
+              </div>
+            </div>
+
+            <!-- Corner Radius (only visible if ROUNDED) -->
+            <div class="opt-row margin-top-xs" id="row-corner-radius">
+              <span class="opt-label">Corner Radius</span>
+              <div class="stepper-control">
+                <button type="button" id="btn-radius-dec" class="stepper-btn">-</button>
+                <input type="number" id="grid-radius-val" class="stepper-input" value="8" min="2" max="24">
+                <button type="button" id="btn-radius-inc" class="stepper-btn">+</button>
+              </div>
+            </div>
+
             <!-- Y Position Offset -->
             <div class="opt-row margin-top-xs">
               <span class="opt-label">Y Position</span>
