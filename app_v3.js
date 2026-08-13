@@ -1659,7 +1659,7 @@ class SchedullyApp {
     const applyZoom = () => {
       if (!mainPhoneWrapper || !zoomLabel) return;
       mainPhoneWrapper.style.transition = 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), zoom 0.2s ease';
-      mainPhoneWrapper.style.transformOrigin = 'top center';
+      mainPhoneWrapper.style.transformOrigin = 'center center';
       
       if (currentZoomScale === 1.0) {
         mainPhoneWrapper.style.zoom = '';

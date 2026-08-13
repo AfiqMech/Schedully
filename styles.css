@@ -1384,6 +1384,7 @@ textarea::placeholder,
 .m3-phone-wrapper {
   position: relative;
   perspective: 1000px;
+  margin: auto;
 }
 
 /* Side Buttons Styling (Right Side: Volume Top, Power Bottom) */
