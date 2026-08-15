@@ -3341,7 +3341,6 @@ class SchedullyApp {
         });
       }
       this.applyThemeEngine();
-      this.applyThemeEngine();
 
       // 3. Grid Dimensions & Position
       if (settings.gridWidthVal) {
@@ -3444,7 +3443,7 @@ class SchedullyApp {
   initPresets() {
     if (!this.presets) {
       this.presets = {
-        default: { name: 'Default', classes: this.classes || [], settings: this.getPresetSettings() }
+        default: { name: 'Default', classes: this.classes || [], settings: this.getPresetSettings(), wallpaper: null, wallpaperSwatches: null }
       };
       this.activePresetKey = 'default';
     }
@@ -3467,7 +3466,9 @@ class SchedullyApp {
           this.applyPresetSettings(this.presets[active].settings);
         }
         if (this.presets[active].wallpaper) {
-          this.applyWallpaper(this.presets[active].wallpaper, true);
+          this.applyWallpaper(this.presets[active].wallpaper, true, true);
+        } else {
+          this.removeWallpaper(true);
         }
       }
     } catch (e) {}
