@@ -1789,8 +1789,8 @@ textarea::placeholder,
   display: flex;
   flex-direction: column;
   gap: 10px;
-  max-height: 620px;
-  overflow-y: auto;
+  max-height: none;
+  overflow-y: visible;
   margin-top: 10px;
   padding-right: 2px;
 }
@@ -1883,7 +1883,7 @@ textarea::placeholder,
 .class-card-editor {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   padding-top: 10px;
   border-top: 1px solid var(--m3-sys-color-outline);
   width: 100%;
@@ -1901,20 +1901,19 @@ textarea::placeholder,
   font-size: 11px;
   font-weight: 700;
   color: var(--m3-card-text-color, var(--m3-sys-text-primary));
-  min-width: 85px;
+  min-width: 80px;
   flex-shrink: 0;
 }
 
 .editor-row input, .editor-row select {
   width: 100%;
-  max-width: 160px;
   box-sizing: border-box;
   color: var(--m3-card-text-color, var(--m3-sys-text-primary)) !important;
   background: var(--m3-sys-color-surface-variant);
   border: 1px solid var(--m3-sys-color-outline);
   border-radius: 8px;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 5px 8px;
+  font-size: 11.5px;
   font-family: var(--font-sans);
   outline: none;
   transition: color 0.2s ease, background-color 0.2s ease;
@@ -1933,8 +1932,9 @@ textarea::placeholder,
 .editor-row-stack {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
+  margin-top: 2px;
 }
 
 .editor-row-stack label {
@@ -1947,6 +1947,7 @@ textarea::placeholder,
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .mini-swatch {
@@ -2565,15 +2566,13 @@ body.dark-mode #user-status-text {
 }
 
 #phone-canvas.has-photo-wallpaper .m3-lock-timetable-container {
-  backdrop-filter: blur(16px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-  background: rgba(255, 255, 255, 0.72) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: var(--m3-grid-surface-bg, rgba(255, 255, 255, 0.92)) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16) !important;
 }
 
 body.dark-mode #phone-canvas.has-photo-wallpaper .m3-lock-timetable-container {
-  background: rgba(15, 23, 42, 0.76) !important;
+  background: var(--m3-grid-surface-bg, rgba(15, 23, 42, 0.9)) !important;
   border-color: rgba(255, 255, 255, 0.18) !important;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
 }
@@ -2801,11 +2800,50 @@ body.dark-mode #btn-occ-cancel {
   padding: 0;
   margin: 0;
 }
-.swatch-custom, .font-swatch-custom, .mini-grid-custom, .mini-font-custom {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
+/* ── Centered Custom Color Picker Modal Styling ── */
+#custom-color-modal .modal-card {
+  max-width: 440px !important;
+  border-radius: 28px !important;
+  background: var(--m3-sys-color-surface, #FFFFFF);
+  box-shadow: 0 25px 65px -12px rgba(0, 0, 0, 0.35);
 }
+
+.color-modal-dot {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  cursor: pointer;
+  border: 1.5px solid rgba(0,0,0,0.08) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.color-modal-dot:hover {
+  transform: scale(1.15) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+body.dark-mode #custom-color-modal .modal-card {
+  background: #1E293B !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+}
+body.dark-mode #custom-color-modal #modal-color-preview {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+body.dark-mode #custom-color-modal #modal-color-hex-input {
+  background: #0F172A !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #F8FAFC !important;
+}
+body.dark-mode #custom-color-modal .bg-gray-50 {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode #btn-cancel-custom-color {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #E2E8F0 !important;
+}
+
 
 
 

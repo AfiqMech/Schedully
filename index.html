@@ -1189,6 +1189,59 @@
     </div>
   </div>
 
+  <!-- Custom Centered Color Picker Modal -->
+  <div id="custom-color-modal" class="modal-overlay hidden">
+    <div class="modal-card max-w-md w-full p-6">
+      <div class="modal-header flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 id="custom-color-modal-title" class="text-base font-extrabold text-gray-900">Custom Color Picker</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Select a curated shade or enter a custom hex</p>
+        </div>
+        <button id="btn-close-color-modal" type="button" class="p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Live Preview & Hex Input -->
+      <div class="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-2xl border border-gray-200/80">
+        <div id="modal-color-preview" class="w-12 h-12 rounded-xl shadow-inner border border-black/10 flex items-center justify-center font-bold text-xs transition-colors shrink-0" style="background-color: #2563EB; color: #FFFFFF;">
+          Abc
+        </div>
+        <div class="flex-1 min-w-0">
+          <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">HEX CODE</label>
+          <div class="flex items-center gap-2">
+            <span class="text-gray-400 font-bold text-sm">#</span>
+            <input type="text" id="modal-color-hex-input" class="w-full bg-white border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-bold uppercase tracking-wider focus:ring-2 focus:ring-blue-500 focus:outline-none" value="2563EB" maxlength="6" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Curated Swatch Palette Categories -->
+      <div class="mt-4 flex flex-col gap-3">
+        <div>
+          <span class="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2 block">Vibrant & Classic</span>
+          <div class="grid grid-cols-8 gap-2" id="palette-grid-vibrant"></div>
+        </div>
+
+        <div>
+          <span class="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2 block">Pastel & Soft</span>
+          <div class="grid grid-cols-8 gap-2" id="palette-grid-pastel"></div>
+        </div>
+
+        <div>
+          <span class="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2 block">Earthy & Deep Slate</span>
+          <div class="grid grid-cols-8 gap-2" id="palette-grid-earthy"></div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
+        <button id="btn-cancel-custom-color" type="button" class="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition-all">Cancel</button>
+        <button id="btn-apply-custom-color" type="button" class="btn-theme-primary px-5 py-2 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition-all active:scale-95">Apply Color</button>
+      </div>
+    </div>
+  </div>
+
 <script src="timetable_engine.js"></script>
 <script src="ocr_parser.js"></script>
 <script src="ics_csv_parser_v3.js"></script>

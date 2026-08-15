@@ -1320,10 +1320,110 @@ class SchedullyApp {
     img.src = dataUrl;
   }
 
+  setupCustomColorModalEngine() {
+    const modal = document.getElementById('custom-color-modal');
+    const preview = document.getElementById('modal-color-preview');
+    const hexInput = document.getElementById('modal-color-hex-input');
+    const btnClose = document.getElementById('btn-close-color-modal');
+    const btnCancel = document.getElementById('btn-cancel-custom-color');
+    const btnApply = document.getElementById('btn-apply-custom-color');
+    const titleEl = document.getElementById('custom-color-modal-title');
+
+    const vibrantGrid = document.getElementById('palette-grid-vibrant');
+    const pastelGrid = document.getElementById('palette-grid-pastel');
+    const earthyGrid = document.getElementById('palette-grid-earthy');
+
+    const VIBRANT_SHADES = [
+      '#2563EB', '#3B82F6', '#60A5FA', '#0284C7', '#0EA5E9', '#06B6D4', '#10B981', '#059669',
+      '#F59E0B', '#D97706', '#EA580C', '#E11D48', '#F43F5E', '#E11D48', '#9333EA', '#7C3AED'
+    ];
+
+    const PASTEL_SHADES = [
+      '#BFDBFE', '#BAE6FD', '#A5F3FC', '#A7F3D0', '#BBF7D0', '#FDE68A', '#FED7AA', '#FECDD3',
+      '#FBCFE8', '#DDD6FE', '#E0E7FF', '#C7D2FE', '#E2E8F0', '#F1F5F9', '#CBD5E1', '#94A3B8'
+    ];
+
+    const EARTHY_SHADES = [
+      '#1E293B', '#0F172A', '#334155', '#475569', '#3F3F46', '#27272A', '#18181B', '#3E2723',
+      '#4E342E', '#5D4037', '#6D4C41', '#795548', '#8D6E63', '#A1887F', '#BCAAA4', '#D7CCC8'
+    ];
+
+    let activeColorCallback = null;
+    let currentColor = '#2563EB';
+
+    const updatePreview = (hex) => {
+      let cleanHex = hex.replace('#', '').trim();
+      if (cleanHex.length === 3) cleanHex = cleanHex.split('').map(x => x + x).join('');
+      if (cleanHex.length !== 6) return;
+      const formattedHex = '#' + cleanHex.toUpperCase();
+      currentColor = formattedHex;
+      if (preview) {
+        preview.style.backgroundColor = formattedHex;
+        preview.style.color = this.getContrastColor(formattedHex);
+      }
+      if (hexInput && hexInput.value.toUpperCase() !== cleanHex.toUpperCase()) {
+        hexInput.value = cleanHex.toUpperCase();
+      }
+
+      // Highlight active dot
+      modal?.querySelectorAll('.color-modal-dot').forEach(dot => {
+        dot.classList.toggle('ring-2', dot.getAttribute('data-hex').toUpperCase() === formattedHex);
+        dot.classList.toggle('ring-blue-500', dot.getAttribute('data-hex').toUpperCase() === formattedHex);
+      });
+    };
+
+    const renderDots = (grid, colors) => {
+      if (!grid) return;
+      grid.innerHTML = '';
+      colors.forEach(hex => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'color-modal-dot w-7 h-7 rounded-lg border border-black/10 transition-all hover:scale-110 active:scale-95 shadow-xs';
+        dot.style.backgroundColor = hex;
+        dot.setAttribute('data-hex', hex);
+        dot.addEventListener('click', () => updatePreview(hex));
+        grid.appendChild(dot);
+      });
+    };
+
+    renderDots(vibrantGrid, VIBRANT_SHADES);
+    renderDots(pastelGrid, PASTEL_SHADES);
+    renderDots(earthyGrid, EARTHY_SHADES);
+
+    hexInput?.addEventListener('input', (e) => {
+      updatePreview(e.target.value);
+    });
+
+    const closeModal = () => {
+      modal?.classList.add('hidden');
+      activeColorCallback = null;
+    };
+
+    btnClose?.addEventListener('click', closeModal);
+    btnCancel?.addEventListener('click', closeModal);
+
+    btnApply?.addEventListener('click', () => {
+      if (typeof activeColorCallback === 'function') {
+        activeColorCallback(currentColor);
+      }
+      closeModal();
+    });
+
+    // Public method to open color modal anywhere in the app
+    this.openCustomColorPicker = (initialHex, title, onApply) => {
+      currentColor = initialHex || '#2563EB';
+      activeColorCallback = onApply;
+      if (titleEl && title) titleEl.innerText = title;
+      updatePreview(currentColor);
+      modal?.classList.remove('hidden');
+    };
+  }
+
   bindEvents() {
     this.setupFirebaseIntegration();
     this.setupWallpaperEngine();
     this.setupFontFamilyEngine();
+    this.setupCustomColorModalEngine();
 
     if (this.courseSearchInput) {
       this.courseSearchInput.addEventListener('input', (e) => {
@@ -1870,7 +1970,7 @@ class SchedullyApp {
       }
     });
 
-    // Grid Surface Colour Swatches (Targets timetable cell slot cells only)
+    // Grid Surface Colour Swatches
     document.querySelectorAll('#grid-surface-picker .color-swatch-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#grid-surface-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
@@ -1878,11 +1978,20 @@ class SchedullyApp {
         const colorVal = btn.getAttribute('data-surface');
         this.userHasPickedSurfaceColor = true;
         document.documentElement.style.setProperty('--m3-grid-surface-bg', colorVal);
+        this._stagePending();
       });
     });
-    document.getElementById('custom-surface-color')?.addEventListener('input', (e) => {
-      this.userHasPickedSurfaceColor = true;
-      document.documentElement.style.setProperty('--m3-grid-surface-bg', e.target.value);
+    document.querySelector('#grid-surface-picker .color-custom-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentVal = getComputedStyle(document.documentElement).getPropertyValue('--m3-grid-surface-bg').trim() || '#FFFFFF';
+      this.openCustomColorPicker(currentVal, 'Grid Surface Colour', (pickedColor) => {
+        document.querySelectorAll('#grid-surface-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
+        this.userHasPickedSurfaceColor = true;
+        document.documentElement.style.setProperty('--m3-grid-surface-bg', pickedColor);
+        const btn = document.querySelector('#grid-surface-picker .color-custom-btn');
+        if (btn) btn.style.background = pickedColor;
+        this._stagePending();
+      });
     });
 
     // Background Colour Swatches with Auto-Contrast Clock Handler
@@ -1894,20 +2003,32 @@ class SchedullyApp {
         this.userHasPickedBgColor = true;
         this.phoneCanvas.style.backgroundColor = colorVal;
         this.updateClockContrast(colorVal);
+        this._stagePending();
       });
     });
 
-    this.customBgColorInput.addEventListener('input', (e) => {
-      this.userHasPickedBgColor = true;
-      this.phoneCanvas.style.backgroundColor = e.target.value;
-      this.updateClockContrast(e.target.value);
+    document.querySelector('#bg-color-picker .color-custom-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentVal = this.phoneCanvas.style.backgroundColor || '#0F121A';
+      this.openCustomColorPicker(currentVal, 'Canvas Background Colour', (pickedColor) => {
+        document.querySelectorAll('#bg-color-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
+        this.userHasPickedBgColor = true;
+        this.phoneCanvas.style.backgroundColor = pickedColor;
+        this.updateClockContrast(pickedColor);
+        const btn = document.querySelector('#bg-color-picker .color-custom-btn');
+        if (btn) btn.style.background = pickedColor;
+        this._stagePending();
+      });
     });
 
     // Course Font Color Picker (new course only)
     document.querySelectorAll('#course-font-color-picker .font-swatch-sq').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.id === 'btn-course-font-custom') {
-          document.getElementById('course-font-custom').click();
+          this.openCustomColorPicker(this.newCourseFontColor || '#FFFFFF', 'New Course Font Color', (pickedColor) => {
+            this.newCourseFontColor = pickedColor;
+            btn.style.background = pickedColor;
+          });
           return;
         }
         document.querySelectorAll('#course-font-color-picker .font-swatch-sq').forEach(b => b.classList.remove('active'));
@@ -1915,17 +2036,16 @@ class SchedullyApp {
         this.newCourseFontColor = btn.getAttribute('data-coursefont');
       });
     });
-    document.getElementById('course-font-custom')?.addEventListener('input', (e) => {
-      this.newCourseFontColor = e.target.value;
-      document.getElementById('btn-course-font-custom').style.background = e.target.value;
-    });
 
     // Course Grid Color Custom Picker (new course only)
-    document.getElementById('course-grid-custom')?.addEventListener('input', (e) => {
-      document.querySelectorAll('#course-grid-color-picker .swatch-dot').forEach(d => d.classList.remove('active'));
-      this.selectedColor = e.target.value;
-      const btn = document.getElementById('btn-course-grid-custom');
-      if (btn) btn.style.background = e.target.value;
+    document.getElementById('btn-course-grid-custom')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.openCustomColorPicker(this.selectedColor || '#2563EB', 'New Course Slot Color', (pickedColor) => {
+        document.querySelectorAll('#course-grid-color-picker .swatch-dot').forEach(d => d.classList.remove('active'));
+        this.selectedColor = pickedColor;
+        const btn = document.getElementById('btn-course-grid-custom');
+        if (btn) btn.style.background = pickedColor;
+      });
     });
 
     // Header Colour Swatches
@@ -1936,12 +2056,21 @@ class SchedullyApp {
         const colorVal = btn.getAttribute('data-header');
         this.userHasPickedHeaderColor = true;
         this.applyHeaderColor(colorVal);
+        this._stagePending();
       });
     });
 
-    this.customHeaderColorInput.addEventListener('input', (e) => {
-      this.userHasPickedHeaderColor = true;
-      this.applyHeaderColor(e.target.value);
+    document.querySelector('#header-color-picker .color-custom-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentVal = getComputedStyle(document.documentElement).getPropertyValue('--m3-header-custom-bg').trim() || '#181C28';
+      this.openCustomColorPicker(currentVal, 'Timetable Header Colour', (pickedColor) => {
+        document.querySelectorAll('#header-color-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
+        this.userHasPickedHeaderColor = true;
+        this.applyHeaderColor(pickedColor);
+        const btn = document.querySelector('#header-color-picker .color-custom-btn');
+        if (btn) btn.style.background = pickedColor;
+        this._stagePending();
+      });
     });
 
     // Font Colour Swatches Event Handler
@@ -1951,11 +2080,20 @@ class SchedullyApp {
         btn.classList.add('active');
         const colorVal = btn.getAttribute('data-font');
         this.applyFontColor(colorVal);
+        this._stagePending();
       });
     });
 
-    this.customFontColorInput.addEventListener('input', (e) => {
-      this.applyFontColor(e.target.value);
+    document.querySelector('#font-color-picker .color-custom-btn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const currentVal = getComputedStyle(document.documentElement).getPropertyValue('--m3-font-custom-color').trim() || '#0F172A';
+      this.openCustomColorPicker(currentVal, 'Timetable Text Font Colour', (pickedColor) => {
+        document.querySelectorAll('#font-color-picker .color-swatch-btn').forEach(b => b.classList.remove('active'));
+        this.applyFontColor(pickedColor);
+        const btn = document.querySelector('#font-color-picker .color-custom-btn');
+        if (btn) btn.style.background = pickedColor;
+        this._stagePending();
+      });
     });
 
     // Reset Layout Button
@@ -4313,32 +4451,37 @@ class SchedullyApp {
         });
       });
 
-      // In-line Custom Colour Picker (Grid Color)
-      card.querySelector('.mini-grid-color-input')?.addEventListener('input', (e) => {
-        card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
-        const pickedColor = e.target.value;
-        c.customColor = pickedColor;
-        c.isManualCustomColor = true;
-        const btn = card.querySelector('.mini-grid-custom');
-        if (btn) btn.style.background = pickedColor;
-        // Apply same color to all slots of this course code
-        this.classes.forEach(cls => {
-          if (cls.code === c.code) {
-            cls.customColor = pickedColor;
-            cls.isManualCustomColor = true;
-          }
+      // In-line Custom Colour Picker (Opens Centered Color Modal)
+      card.querySelector('.mini-grid-custom')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.openCustomColorPicker(c.customColor || '#2563EB', `Customize Color: ${c.code}`, (pickedColor) => {
+          card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
+          c.customColor = pickedColor;
+          c.isManualCustomColor = true;
+          const btn = card.querySelector('.mini-grid-custom');
+          if (btn) btn.style.background = pickedColor;
+          // Apply same color to all slots of this course code
+          this.classes.forEach(cls => {
+            if (cls.code === c.code) {
+              cls.customColor = pickedColor;
+              cls.isManualCustomColor = true;
+            }
+          });
+          this.renderTimetableGrid();
+          this._stagePending();
         });
-        this.renderTimetableGrid();
-        this._stagePending();
       });
 
-      // In-line Font Colour Swatch Picker
-      card.querySelectorAll('.mini-font-swatch').forEach(btn => {
-        btn.addEventListener('click', () => {
+      // In-line Font Colour Custom Picker (Opens Centered Color Modal)
+      card.querySelector('.mini-font-custom')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.openCustomColorPicker(c.fontColor || '#FFFFFF', `Card Font Color: ${c.code}`, (pickedFont) => {
           card.querySelectorAll('.mini-font-swatch').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const pickedFont = btn.getAttribute('data-fonthex');
           c.fontColor = pickedFont;
+          const btn = card.querySelector('.mini-font-custom');
+          if (btn) btn.style.background = pickedFont;
           this.classes.forEach(cls => {
             if (cls.code === c.code) {
               cls.fontColor = pickedFont;
@@ -4347,19 +4490,6 @@ class SchedullyApp {
           this.renderTimetableGrid();
           this._stagePending();
         });
-      });
-
-      // In-line Font Colour Custom Picker
-      card.querySelector('.mini-font-color-input')?.addEventListener('input', (e) => {
-        const pickedFont = e.target.value;
-        c.fontColor = pickedFont;
-        this.classes.forEach(cls => {
-          if (cls.code === c.code) {
-            cls.fontColor = pickedFont;
-          }
-        });
-        this.renderTimetableGrid();
-        this._stagePending();
       });
 
       // Sleek Trash Can Delete Button Event
