@@ -639,15 +639,15 @@ body.dark-mode .mobile-export-option:hover {
   position: sticky;
   bottom: 0;
   margin-top: auto;
-  padding: 10px 0 2px 0 !important;
-  background: var(--m3-sys-color-surface, #FFFFFF) !important;
+  padding: 8px 0 2px 0 !important;
+  background: transparent !important;
   z-index: 10;
   width: 100% !important;
   box-sizing: border-box !important;
 }
 
 body.dark-mode .sidebar-bottom-container {
-  background: var(--m3-sys-color-surface, #1E293B) !important;
+  background: transparent !important;
 }
 
 .user-profile-wrapper {
@@ -724,18 +724,23 @@ body:not(.dark-mode) .btn-adaptive-auth .auth-icon-circle {
 
 .btn-globe-language,
 .btn-coffee-support {
-  width: 40px !important;
-  min-width: 40px !important;
-  max-width: 40px !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  max-height: 40px !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
   flex-shrink: 0 !important;
-  border-radius: 14px !important;
+  border-radius: 50% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* EXPANDABLE AUTH & PROFILE POPOVER MENUS */
@@ -780,58 +785,44 @@ body.dark-mode .language-modal-card {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
 }
 
-/* Globe Language Selector Button */
+/* Pure Floating Globe Language Selector Icon */
 .btn-globe-language {
-  background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
-  border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
-  color: var(--m3-sys-text-primary, #0F172A) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  color: #64748B !important;
 }
 
 .btn-globe-language:hover {
-  border-color: var(--m3-sys-color-primary, #2563EB) !important;
   color: var(--m3-sys-color-primary, #2563EB) !important;
-  background-color: #EFF6FF !important;
-  transform: translateY(-1px);
+  background-color: rgba(37, 99, 235, 0.08) !important;
+  transform: translateY(-1px) scale(1.08);
 }
 
 body.dark-mode .btn-globe-language {
-  background-color: var(--m3-sys-color-surface, #1E293B) !important;
-  border-color: var(--m3-sys-color-outline, rgba(255, 255, 255, 0.15)) !important;
-  color: var(--m3-sys-text-primary, #F8FAFC) !important;
+  color: #CBD5E1 !important;
 }
 
 body.dark-mode .btn-globe-language:hover {
-  border-color: var(--m3-sys-color-primary, #3B82F6) !important;
   color: var(--m3-sys-color-primary, #3B82F6) !important;
-  background-color: rgba(59, 130, 246, 0.15) !important;
+  background-color: rgba(59, 130, 246, 0.16) !important;
 }
 
-/* Buy Me a Coffee Support Button */
+/* Pure Floating Buy Me a Coffee Support Icon */
 .btn-coffee-support {
-  background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
-  border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
   color: #D97706 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .btn-coffee-support:hover {
-  border-color: #F59E0B !important;
   color: #B45309 !important;
-  background-color: #FFFBEB !important;
-  transform: translateY(-1px);
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  transform: translateY(-1px) scale(1.08);
 }
 
 body.dark-mode .btn-coffee-support {
-  background-color: var(--m3-sys-color-surface, #1E293B) !important;
-  border-color: var(--m3-sys-color-outline, rgba(255, 255, 255, 0.15)) !important;
   color: #FBBF24 !important;
 }
 
 body.dark-mode .btn-coffee-support:hover {
-  border-color: #F59E0B !important;
   color: #FDE68A !important;
-  background-color: rgba(245, 158, 11, 0.18) !important;
+  background-color: rgba(245, 158, 11, 0.2) !important;
 }
 
 /* Modal Overlays: Ensure Globe Language and Coffee Modals are always on top on Mobile and Desktop */
