@@ -77,15 +77,14 @@ class SchedullyFirebaseService {
         this.db = firebase.database();
       }
 
-      this.auth.onAuthStateChanged((user) => {
+      this.auth.onAuthStateChanged(async (user) => {
         this.currentUser = user;
         if (this.onUserChangedCallback) {
           this.onUserChangedCallback(user);
         }
         if (user) {
-          this._startListening(user.uid);
-        } else {
-          this._stopListening();
+          // Fetch cloud data ONLY ONCE upon login
+          await this.fetchUserData();
         }
       });
     } catch (err) {
@@ -93,34 +92,20 @@ class SchedullyFirebaseService {
     }
   }
 
-  // Start real-time listener — receives saves from other devices.
-  // Fires once immediately with current cloud data (for load-on-login),
-  // then continues listening for future saves from other devices.
-  _startListening(userId) {
-    if (!this.db) return;
-    this._stopListening(); // clean up any old listener first
-
-    const userRef = this.db.ref('users/' + userId);
-    const handler = (snapshot) => {
-      // Ignore our own save echo
-      if (this._isSaving) return;
+  // Fetch data ON DEMAND (only on login, page refresh, or manual pull-to-refresh)
+  // NO continuous listening, so devices will NEVER hijack or overwrite each other live!
+  async fetchUserData() {
+    if (!this.db || !this.currentUser) return null;
+    try {
+      const snapshot = await this.db.ref('users/' + this.currentUser.uid).once('value');
       const data = snapshot.val();
       if (data && this.onDataSyncedCallback) {
         this.onDataSyncedCallback(data);
       }
-    };
-
-    userRef.on('value', handler, (err) => {
-      console.warn("Firebase listener error:", err);
-    });
-
-    this._activeListener = { ref: userRef, handler };
-  }
-
-  _stopListening() {
-    if (this._activeListener) {
-      this._activeListener.ref.off('value', this._activeListener.handler);
-      this._activeListener = null;
+      return data;
+    } catch (err) {
+      console.warn("Error fetching user cloud data:", err);
+      return null;
     }
   }
 
@@ -138,7 +123,6 @@ class SchedullyFirebaseService {
 
   async logout() {
     if (!this.auth) return;
-    this._stopListening();
     try {
       await this.auth.signOut();
       this.currentUser = null;

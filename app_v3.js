@@ -2976,9 +2976,26 @@ class SchedullyApp {
       });
     }
 
-    // Wire up the manual Save to Cloud button (desktop)
+    const btnSyncCloud = document.getElementById('btn-sync-from-cloud');
+
+    // Wire up the manual Save to Cloud button
     if (btnSaveCloud) {
       btnSaveCloud.addEventListener('click', () => this.saveToCloud());
+    }
+
+    // Wire up the manual Sync from Cloud button
+    if (btnSyncCloud) {
+      btnSyncCloud.addEventListener('click', async () => {
+        if (!window.schedullyFirebase?.currentUser) {
+          alert("Please log in first to sync from cloud.");
+          return;
+        }
+        btnSyncCloud.classList.add('animate-spin');
+        await window.schedullyFirebase.fetchUserData();
+        setTimeout(() => {
+          btnSyncCloud.classList.remove('animate-spin');
+        }, 600);
+      });
     }
 
     // Listen for Auth state updates
@@ -2997,13 +3014,15 @@ class SchedullyApp {
             }
             if (loggedOutState) loggedOutState.classList.add('hidden');
             if (loggedInState) loggedInState.classList.remove('hidden');
-            // Show the Save button when logged in
+            // Show the Save and Sync buttons when logged in
             if (btnSaveCloud) btnSaveCloud.style.display = 'flex';
+            if (btnSyncCloud) btnSyncCloud.style.display = 'flex';
           } else {
             if (loggedOutState) loggedOutState.classList.remove('hidden');
             if (loggedInState) loggedInState.classList.add('hidden');
-            // Hide the Save button when logged out
+            // Hide the Save and Sync buttons when logged out
             if (btnSaveCloud) btnSaveCloud.style.display = 'none';
+            if (btnSyncCloud) btnSyncCloud.style.display = 'none';
             document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
           }
         };
