@@ -2027,7 +2027,7 @@ class SchedullyApp {
     // Dynamic Swatch Palette Buttons
     document.querySelectorAll('.palette-dot').forEach(dot => {
       dot.addEventListener('click', () => {
-        if (localStorage.getItem('schedully_wallpaper_data')) return;
+        if (this.phoneCanvas?.classList.contains('has-photo-wallpaper')) return;
         document.querySelectorAll('.palette-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
         this.currentPalette = dot.getAttribute('data-palette');
@@ -2039,7 +2039,7 @@ class SchedullyApp {
     // System Theme Randomizer (Surprise Me)
     document.getElementById('btn-randomize-theme')?.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent the expand/collapse card header event
-      if (localStorage.getItem('schedully_wallpaper_data')) return;
+      if (this.phoneCanvas?.classList.contains('has-photo-wallpaper')) return;
       const modeDots = Array.from(document.querySelectorAll('.theme-mode-dot'));
       const paletteDots = Array.from(document.querySelectorAll('.palette-dot'));
       
@@ -2216,7 +2216,7 @@ class SchedullyApp {
 
     // Randomize Theme Palette Button (Bottom Pill Bar)
     document.getElementById('btn-randomize-theme')?.addEventListener('click', () => {
-      if (localStorage.getItem('schedully_wallpaper_data')) return;
+      if (this.phoneCanvas?.classList.contains('has-photo-wallpaper')) return;
       const paletteKeys = Object.keys(THEME_PALETTES.light);
       const available = paletteKeys.filter(k => k !== this.currentPalette);
       const randomPalette = available[Math.floor(Math.random() * available.length)];
@@ -2227,7 +2227,7 @@ class SchedullyApp {
 
     // Randomize Course Card Colors Button (Bottom Pill Bar)
     document.getElementById('btn-randomize-course-colors')?.addEventListener('click', () => {
-      if (localStorage.getItem('schedully_wallpaper_data')) return;
+      if (this.phoneCanvas?.classList.contains('has-photo-wallpaper')) return;
       const paletteColors = [
         '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#1D4ED8',
         '#D97706', '#F59E0B', '#FBBF24', '#B45309', '#7C3AED',
@@ -2943,9 +2943,14 @@ class SchedullyApp {
               }
               if (this.presets[data.activePreset].wallpaper) {
                 this.applyWallpaper(this.presets[data.activePreset].wallpaper, true);
+              } else {
+                this.removeWallpaper();
               }
             } else if (data.settings) {
               this.applyPresetSettings(data.settings);
+              if (!data.wallpaper) {
+                this.removeWallpaper();
+              }
             }
 
             // 2. Restore Schedule Classes
