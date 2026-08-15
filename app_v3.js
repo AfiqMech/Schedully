@@ -2956,26 +2956,29 @@ class SchedullyApp {
     if (btnLogout) {
       btnLogout.addEventListener('click', async () => {
         await window.schedullyFirebase?.logout();
-        // Hide both desktop & mobile Save buttons on logout
         if (btnSaveCloud) btnSaveCloud.style.display = 'none';
-        mobileSaveWrapper?.classList.add('hidden');
         document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-        document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
+
+        // Reset in-memory state and reload offline storage so previous user's data does not linger
+        localStorage.removeItem('schedully_presets');
+        localStorage.removeItem('schedully_active_preset');
+        localStorage.removeItem('schedully_classes');
+        localStorage.removeItem('schedully_wallpaper_data');
+
+        this.classes = [];
+        this.presets = {
+          default: { name: 'Default', classes: [], settings: this.getPresetSettings(), wallpaper: null, wallpaperSwatches: null }
+        };
+        this.activePresetKey = 'default';
+        this.removeWallpaper();
+        this.updatePresetSelectDropdown();
+        this.renderAll();
       });
     }
 
     // Wire up the manual Save to Cloud button (desktop)
     if (btnSaveCloud) {
       btnSaveCloud.addEventListener('click', () => this.saveToCloud());
-    }
-
-    // Wire up the manual Save to Cloud button (mobile dropdown)
-    if (btnSaveCloudMobile) {
-      btnSaveCloudMobile.addEventListener('click', () => {
-        // Close the mobile dropdown first
-        document.getElementById('mobile-export-dropdown')?.classList.add('hidden');
-        this.saveToCloud();
-      });
     }
 
     // Listen for Auth state updates
@@ -2994,19 +2997,14 @@ class SchedullyApp {
             }
             if (loggedOutState) loggedOutState.classList.add('hidden');
             if (loggedInState) loggedInState.classList.remove('hidden');
-            // Show the Save button (desktop) when logged in
+            // Show the Save button when logged in
             if (btnSaveCloud) btnSaveCloud.style.display = 'flex';
-            // Show Save to Cloud option in mobile dropdown
-            mobileSaveWrapper?.classList.remove('hidden');
           } else {
             if (loggedOutState) loggedOutState.classList.remove('hidden');
             if (loggedInState) loggedInState.classList.add('hidden');
-            // Hide the Save button (desktop) when logged out
+            // Hide the Save button when logged out
             if (btnSaveCloud) btnSaveCloud.style.display = 'none';
-            // Hide mobile save option
-            mobileSaveWrapper?.classList.add('hidden');
             document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-            document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
           }
         };
 
@@ -3097,7 +3095,6 @@ class SchedullyApp {
           }
         };
 
-
         if (window.schedullyFirebase.currentUser) {
           window.schedullyFirebase.onUserChangedCallback(window.schedullyFirebase.currentUser);
         }
@@ -3166,6 +3163,7 @@ class SchedullyApp {
           d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
         });
       }
+      this.applyThemeEngine();
       this.applyThemeEngine();
 
       // 3. Grid Dimensions & Position
@@ -3483,12 +3481,12 @@ class SchedullyApp {
     // Desktop
     document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
     const label = document.getElementById('btn-save-cloud-label');
-    if (label) label.textContent = 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ Saved';
+    if (label) label.textContent = 'Saved!';
     setTimeout(() => { if (label) label.textContent = 'Save'; }, 2000);
     // Mobile
     document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
     const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = 'ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“ Saved!';
+    if (mobileLabel) mobileLabel.textContent = 'Saved!';
     setTimeout(() => { if (mobileLabel) mobileLabel.textContent = 'Save to Cloud'; }, 2000);
   }
 
@@ -3513,11 +3511,11 @@ class SchedullyApp {
     const btn = document.getElementById('btn-save-to-cloud');
     const label = document.getElementById('btn-save-cloud-label');
     if (btn) btn.disabled = true;
-    if (label) label.textContent = 'SavingÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦';
+    if (label) label.textContent = 'Saving...';
 
     // Update mobile button UI
     const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = 'SavingÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦';
+    if (mobileLabel) mobileLabel.textContent = 'Saving...';
 
     const ok = await window.schedullyFirebase.saveUserData({
       classes: this.classes,

@@ -68,6 +68,10 @@ class SchedullyFirebaseService {
 
       this.auth = firebase.auth();
       this.provider = new firebase.auth.GoogleAuthProvider();
+      // Prompt account selector every time so switching accounts is seamless
+      this.provider.setCustomParameters({
+        prompt: 'select_account'
+      });
 
       if (firebase.database) {
         this.db = firebase.database();
