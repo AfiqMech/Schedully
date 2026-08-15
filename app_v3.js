@@ -859,6 +859,8 @@ class SchedullyApp {
   }
 
   bindEvents() {
+    this.setupFirebaseIntegration();
+
     if (this.courseSearchInput) {
       this.courseSearchInput.addEventListener('input', (e) => {
         this.searchQuery = e.target.value.toLowerCase().trim();
@@ -2350,9 +2352,84 @@ class SchedullyApp {
     }
   }
 
+  setupFirebaseIntegration() {
+    const btnLogin = document.getElementById('btn-google-login');
+    const btnLogout = document.getElementById('btn-google-logout');
+
+    const loggedOutState = document.getElementById('user-logged-out-state');
+    const loggedInState = document.getElementById('user-logged-in-state');
+
+    const avatarBadge = document.getElementById('user-avatar-badge');
+    const displayNameEl = document.getElementById('user-display-name');
+    const statusTextEl = document.getElementById('user-status-text');
+
+    if (btnLogin) {
+      btnLogin.addEventListener('click', async () => {
+        if (!window.schedullyFirebase?.auth) {
+          alert("Firebase is not initialized yet. Please check your config.");
+          return;
+        }
+        try {
+          await window.schedullyFirebase.loginWithGoogle();
+        } catch (err) {
+          alert('Google Login error: ' + (err.message || err));
+        }
+      });
+    }
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        await window.schedullyFirebase?.logout();
+      });
+    }
+
+    // Listen for Auth state updates
+    const initAuthListener = () => {
+      if (window.schedullyFirebase) {
+        window.schedullyFirebase.onUserChangedCallback = (user) => {
+          if (user) {
+            if (displayNameEl) displayNameEl.innerText = user.displayName || 'User';
+            if (statusTextEl) statusTextEl.innerText = user.email || 'Online';
+            if (avatarBadge) {
+              if (user.photoURL) {
+                avatarBadge.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover" alt="User Avatar" />`;
+              } else {
+                avatarBadge.innerText = (user.displayName || 'U').charAt(0).toUpperCase();
+              }
+            }
+            if (loggedOutState) loggedOutState.classList.add('hidden');
+            if (loggedInState) loggedInState.classList.remove('hidden');
+          } else {
+            if (loggedOutState) loggedOutState.classList.remove('hidden');
+            if (loggedInState) loggedInState.classList.add('hidden');
+          }
+        };
+
+        // Sync Cloud Database changes
+        window.schedullyFirebase.onDataSyncedCallback = (remoteClasses) => {
+          if (Array.isArray(remoteClasses) && remoteClasses.length > 0) {
+            this.classes = remoteClasses;
+            this.renderAll();
+          }
+        };
+
+        if (window.schedullyFirebase.currentUser) {
+          window.schedullyFirebase.onUserChangedCallback(window.schedullyFirebase.currentUser);
+        }
+      } else {
+        setTimeout(initAuthListener, 300);
+      }
+    };
+
+    initAuthListener();
+  }
+
   saveToLocal() {
     try {
       localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
+      if (window.schedullyFirebase) {
+        window.schedullyFirebase.saveUserSchedule({ classes: this.classes });
+      }
     } catch (e) {
       console.warn("Could not save classes to local storage", e);
     }
