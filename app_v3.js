@@ -2087,20 +2087,23 @@ class SchedullyApp {
         this.phoneCanvas.classList.add('device-switching');
         setTimeout(() => this.phoneCanvas.classList.remove('device-switching'), 450);
 
+        const hasWallpaper = !!localStorage.getItem('schedully_wallpaper_data');
+        const wallpaperClass = hasWallpaper ? ' has-photo-wallpaper' : '';
+
         if (device === 'tablet') {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-tablet device-switching';
+          this.phoneCanvas.className = `m3-phone-canvas canvas-tablet device-switching${wallpaperClass}`;
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE TABLET LOCKSCREEN PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '920px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper tablet-mode';
           if (lockUIToggle) lockUIToggle.style.display = 'flex';
         } else if (device === 'paper') {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-paper device-switching';
+          this.phoneCanvas.className = `m3-phone-canvas canvas-paper device-switching${wallpaperClass}`;
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE PAPER PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '720px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper paper-mode';
           if (lockUIToggle) lockUIToggle.style.display = 'none';
         } else {
-          this.phoneCanvas.className = 'm3-phone-canvas canvas-phone device-switching';
+          this.phoneCanvas.className = `m3-phone-canvas canvas-phone device-switching${wallpaperClass}`;
           if (this.stageDeviceLabel) this.stageDeviceLabel.innerText = 'LIVE PHONE LOCKSCREEN PREVIEW';
           if (this.stageTitleBar) this.stageTitleBar.style.maxWidth = '380px';
           document.querySelector('.m3-phone-wrapper').className = 'm3-phone-wrapper';
@@ -4295,20 +4298,38 @@ class SchedullyApp {
         btn.addEventListener('click', () => {
           card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          c.customColor = btn.getAttribute('data-hex');
+          const pickedColor = btn.getAttribute('data-hex');
+          c.customColor = pickedColor;
           c.isManualCustomColor = true;
+          // Apply same color to all slots of this course code
+          this.classes.forEach(cls => {
+            if (cls.code === c.code) {
+              cls.customColor = pickedColor;
+              cls.isManualCustomColor = true;
+            }
+          });
           this.renderTimetableGrid();
+          this._stagePending();
         });
       });
 
       // In-line Custom Colour Picker (Grid Color)
       card.querySelector('.mini-grid-color-input')?.addEventListener('input', (e) => {
         card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
-        c.customColor = e.target.value;
+        const pickedColor = e.target.value;
+        c.customColor = pickedColor;
         c.isManualCustomColor = true;
         const btn = card.querySelector('.mini-grid-custom');
-        if (btn) btn.style.background = e.target.value;
+        if (btn) btn.style.background = pickedColor;
+        // Apply same color to all slots of this course code
+        this.classes.forEach(cls => {
+          if (cls.code === c.code) {
+            cls.customColor = pickedColor;
+            cls.isManualCustomColor = true;
+          }
+        });
         this.renderTimetableGrid();
+        this._stagePending();
       });
 
       // In-line Font Colour Swatch Picker
@@ -4316,15 +4337,29 @@ class SchedullyApp {
         btn.addEventListener('click', () => {
           card.querySelectorAll('.mini-font-swatch').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          c.fontColor = btn.getAttribute('data-fonthex');
+          const pickedFont = btn.getAttribute('data-fonthex');
+          c.fontColor = pickedFont;
+          this.classes.forEach(cls => {
+            if (cls.code === c.code) {
+              cls.fontColor = pickedFont;
+            }
+          });
           this.renderTimetableGrid();
+          this._stagePending();
         });
       });
 
       // In-line Font Colour Custom Picker
       card.querySelector('.mini-font-color-input')?.addEventListener('input', (e) => {
-        c.fontColor = e.target.value;
+        const pickedFont = e.target.value;
+        c.fontColor = pickedFont;
+        this.classes.forEach(cls => {
+          if (cls.code === c.code) {
+            cls.fontColor = pickedFont;
+          }
+        });
         this.renderTimetableGrid();
+        this._stagePending();
       });
 
       // Sleek Trash Can Delete Button Event
