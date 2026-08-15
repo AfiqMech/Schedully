@@ -3081,8 +3081,10 @@ class SchedullyApp {
             // Restore schedule classes
             if (Array.isArray(data.classes)) {
               this.classes = data.classes;
-              this.renderAll();
+            } else if (data.activePreset && this.presets[data.activePreset] && Array.isArray(this.presets[data.activePreset].classes)) {
+              this.classes = this.presets[data.activePreset].classes;
             }
+            this.renderAll();
 
             // Cache cloud data into localStorage so offline refresh preserves progress
             localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
@@ -4062,7 +4064,7 @@ class SchedullyApp {
         <div class="class-card-header">
           <div class="item-info">
             <h4>${c.code}</h4>
-            <p class="item-subtext">${c.type ? `${c.type} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})</p>
+            <p class="item-subtext">${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})</p>
           </div>
           <div class="class-card-actions">
             <span class="material-symbols-outlined class-expand-arrow">expand_more</span>
