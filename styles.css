@@ -2732,6 +2732,7 @@ body.dark-mode #bottom-floating-pill-bar button:not(.btn-theme-primary) {
     top: 12px !important;
     right: 12px !important;
   }
+}
 
 /* Dark Mode support for revamped OCC Group selector modal */
 body.dark-mode .modal-card {
@@ -2843,6 +2844,104 @@ body.dark-mode #btn-cancel-custom-color {
   background: rgba(255, 255, 255, 0.08) !important;
   color: #E2E8F0 !important;
 }
+
+/* ── 3-Dot Preset Action Dropdown & Dark Mode Styling ── */
+#preset-action-dropdown {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 14px 35px -4px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08) !important;
+}
+
+.preset-menu-item {
+  color: #1E293B !important;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.preset-menu-item:hover {
+  background-color: #EFF6FF !important;
+  color: #2563EB !important;
+}
+
+.preset-menu-reset {
+  color: #D97706 !important;
+}
+
+.preset-menu-reset:hover {
+  background-color: #FFFBEB !important;
+  color: #B45309 !important;
+}
+
+.preset-menu-delete {
+  color: #EF4444 !important;
+}
+
+.preset-menu-delete:hover {
+  background-color: #FEF2F2 !important;
+  color: #DC2626 !important;
+}
+
+.preset-menu-divider {
+  background-color: #E2E8F0 !important;
+}
+
+#btn-preset-menu-trigger {
+  color: var(--m3-sys-color-on-surface-variant, #64748B);
+}
+
+#btn-preset-menu-trigger:hover {
+  background-color: var(--m3-sys-color-surface-variant, #F1F5F9);
+  color: var(--m3-sys-color-on-surface, #0F172A);
+}
+
+/* Dark Mode Overrides */
+body.dark-mode #preset-action-dropdown {
+  background: #1E293B !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-mode .preset-menu-item {
+  color: #F1F5F9 !important;
+}
+
+body.dark-mode .preset-menu-item:hover {
+  background-color: rgba(37, 99, 235, 0.22) !important;
+  color: #93C5FD !important;
+}
+
+body.dark-mode .preset-menu-reset {
+  color: #FBBF24 !important;
+}
+
+body.dark-mode .preset-menu-reset:hover {
+  background-color: rgba(245, 158, 11, 0.2) !important;
+  color: #FDE68A !important;
+}
+
+body.dark-mode .preset-menu-delete {
+  color: #F87171 !important;
+}
+
+body.dark-mode .preset-menu-delete:hover {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: #FCA5A5 !important;
+}
+
+body.dark-mode .preset-menu-divider {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode #btn-preset-menu-trigger {
+  color: #94A3B8 !important;
+}
+
+body.dark-mode #btn-preset-menu-trigger:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #F8FAFC !important;
+}
+
+
+
 
 
 

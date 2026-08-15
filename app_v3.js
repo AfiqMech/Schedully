@@ -3515,8 +3515,30 @@ class SchedullyApp {
       });
     }
 
-    if (btnEdit) {
-      btnEdit.addEventListener('click', () => {
+    // 3-Dot Preset Actions Dropdown Menu
+    const btnMenuTrigger = document.getElementById('btn-preset-menu-trigger');
+    const menuDropdown = document.getElementById('preset-action-dropdown');
+    const menuBtnAdd = document.getElementById('menu-btn-add-preset');
+    const menuBtnRename = document.getElementById('menu-btn-rename-preset');
+    const menuBtnReset = document.getElementById('menu-btn-reset-preset');
+    const menuBtnDelete = document.getElementById('menu-btn-delete-preset');
+
+    if (btnMenuTrigger && menuDropdown) {
+      btnMenuTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#preset-action-dropdown') && !e.target.closest('#btn-preset-menu-trigger')) {
+          menuDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    if (menuBtnRename) {
+      menuBtnRename.addEventListener('click', () => {
+        menuDropdown?.classList.add('hidden');
         const currentName = this.presets[this.activePresetKey]?.name || 'Default';
         const newName = prompt("Edit preset name (e.g. Semester 1, Exam Timetable):", currentName);
         if (newName && newName.trim().length > 0) {
@@ -3527,11 +3549,12 @@ class SchedullyApp {
       });
     }
 
-    if (btnAdd) {
-      btnAdd.addEventListener('click', () => {
+    if (menuBtnAdd) {
+      menuBtnAdd.addEventListener('click', () => {
+        menuDropdown?.classList.add('hidden');
         const name = prompt("Enter a name for your new schedule preset (e.g. Semester 2, Exam Schedule):");
         if (name && name.trim().length > 0) {
-          // 1. Save current preset
+          // 1. Save current preset snapshot
           if (this.activePresetKey && this.presets[this.activePresetKey]) {
             this.presets[this.activePresetKey].classes = this.classes;
             this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
@@ -3584,12 +3607,99 @@ class SchedullyApp {
         }
       });
     }
+
+    // Reset Active Preset
+    if (menuBtnReset) {
+      menuBtnReset.addEventListener('click', () => {
+        menuDropdown?.classList.add('hidden');
+        const presetName = this.presets[this.activePresetKey]?.name || 'Active Preset';
+        if (confirm(`Reset preset "${presetName}"? This will clear all classes, wallpaper, and restore default styling.`)) {
+          this.classes = [];
+          this.removeWallpaper();
+          this.phoneCanvas.style.backgroundColor = '';
+          this.applyHeaderColor('');
+          this.applyFontColor('');
+          
+          const freshSettings = {
+            cardCornerStyle: 'rounded',
+            cardCornerRadiusVal: 8,
+            currentMode: 'light',
+            currentPalette: 'nord',
+            gridWidthVal: 100,
+            gridHeightVal: 49,
+            gridYPosVal: 0,
+            fontSizeVal: 9,
+            clockFormat: '12-hour',
+            bgBlurEnabled: false,
+            bgBlurIntensity: 10,
+            fontFamily: 'default',
+            timetableOpacity: 100,
+            showTitle: true,
+            titleText: 'Untitled',
+            activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            gridStartHour: 8,
+            gridEndHour: 20
+          };
+          this.applyPresetSettings(freshSettings);
+
+          if (this.presets[this.activePresetKey]) {
+            this.presets[this.activePresetKey].classes = [];
+            this.presets[this.activePresetKey].wallpaper = null;
+            this.presets[this.activePresetKey].wallpaperSwatches = null;
+            this.presets[this.activePresetKey].settings = freshSettings;
+          }
+
+          this._stagePending();
+          this.renderAll();
+        }
+      });
+    }
+
+    // Delete Active Preset
+    if (menuBtnDelete) {
+      menuBtnDelete.addEventListener('click', () => {
+        menuDropdown?.classList.add('hidden');
+        if (this.activePresetKey === 'default') {
+          alert('The "Default" preset cannot be deleted. You can use "Reset Schedule" instead to start fresh.');
+          return;
+        }
+
+        const presetName = this.presets[this.activePresetKey]?.name || 'this preset';
+        if (confirm(`Are you sure you want to delete "${presetName}"?`)) {
+          delete this.presets[this.activePresetKey];
+          
+          // Switch back to default
+          this.activePresetKey = 'default';
+          if (!this.presets['default']) {
+            this.presets['default'] = {
+              name: 'Default',
+              classes: [],
+              wallpaper: null,
+              settings: this.getPresetSettings()
+            };
+          }
+
+          this.classes = this.presets['default'].classes || [];
+          if (this.presets['default'].settings) {
+            this.applyPresetSettings(this.presets['default'].settings);
+          }
+          if (this.presets['default'].wallpaper) {
+            this.applyWallpaper(this.presets['default'].wallpaper, true);
+          } else {
+            this.removeWallpaper();
+          }
+
+          this.updatePresetSelectDropdown();
+          this._stagePending();
+          this.renderAll();
+        }
+      });
+    }
   }
 
   // Called on every change ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â keeps changes in memory only. NO localStorage write.
   // The Save button is the only thing that actually persists data.
   _stagePending() {
-    // Update the in-memory preset snapshot so the UI state is always current
     if (!this.presets) this.presets = {};
     if (!this.activePresetKey) this.activePresetKey = 'default';
     const currentSettings = this.getPresetSettings();
@@ -3601,8 +3711,27 @@ class SchedullyApp {
       wallpaperSwatches: this.wallpaperSwatches || null,
       settings: currentSettings
     };
-    // Show the unsaved dot so user knows they have pending changes
+
+    // Instant local storage write so current browser session never loses data
+    try {
+      localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
+      localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
+      localStorage.setItem('schedully_active_preset', this.activePresetKey);
+    } catch (e) {
+      console.warn("Could not save to local storage", e);
+    }
+
+    // Show the amber unsaved dot while actively modifying
     this.markUnsaved();
+
+    // ── Smart Debounced Cloud Auto-Save (3-Second Inactivity Timer) ──
+    // Resets timer on every keystroke/color pick. Only saves once user stops for 3 seconds!
+    if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
+    this._autoSaveTimer = setTimeout(() => {
+      if (window.schedullyFirebase?.currentUser && this._hasUnsavedCloudChanges) {
+        this.saveToCloud();
+      }
+    }, 3000);
   }
 
   // Writes in-memory state to localStorage AND Firebase.
