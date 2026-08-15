@@ -997,8 +997,11 @@ class SchedullyApp {
     const btnRandCourse = document.getElementById('btn-randomize-course-colors');
     const btnRandSchedule = document.getElementById('btn-randomize-colors');
 
+    const quickAdaptiveRow = document.getElementById('toggle-quick-adaptive')?.closest('.opt-row');
+
     if (isActive) {
       paletteRow?.classList.add('disabled-by-wallpaper');
+      quickAdaptiveRow?.classList.add('disabled-by-wallpaper');
       badge?.classList.remove('hidden');
 
       [btnRandTheme, btnRandCourse, btnRandSchedule].forEach(btn => {
@@ -1010,6 +1013,7 @@ class SchedullyApp {
       });
     } else {
       paletteRow?.classList.remove('disabled-by-wallpaper');
+      quickAdaptiveRow?.classList.remove('disabled-by-wallpaper');
       badge?.classList.add('hidden');
 
       [btnRandTheme, btnRandCourse, btnRandSchedule].forEach(btn => {
