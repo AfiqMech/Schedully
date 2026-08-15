@@ -145,9 +145,26 @@
           <p class="text-xs text-gray-400 font-medium">Print-ready document</p>
         </div>
       </button>
+
+      <!-- Save to Cloud (only shown when logged in) -->
+      <div id="mobile-save-cloud-wrapper" class="hidden">
+        <div style="height:1px; background: var(--m3-sys-color-outline); opacity:0.3; margin: 2px 8px;"></div>
+        <button id="btn-save-to-cloud-mobile" class="mobile-export-option flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-left bg-blue-50">
+          <span class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 relative">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            <!-- Unsaved dot on icon -->
+            <span id="mobile-unsaved-dot" class="hidden absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-amber-400 border-2 border-white"></span>
+          </span>
+          <div>
+            <p id="mobile-save-cloud-label" class="font-extrabold text-sm text-blue-700">Save to Cloud</p>
+            <p class="text-xs text-blue-400 font-medium">Back up your preset</p>
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 </div>
+
 
 
 

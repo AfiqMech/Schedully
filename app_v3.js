@@ -2874,6 +2874,8 @@ class SchedullyApp {
     const btnLogin = document.getElementById('btn-google-login');
     const btnLogout = document.getElementById('btn-google-logout');
     const btnSaveCloud = document.getElementById('btn-save-to-cloud');
+    const btnSaveCloudMobile = document.getElementById('btn-save-to-cloud-mobile');
+    const mobileSaveWrapper = document.getElementById('mobile-save-cloud-wrapper');
 
     const loggedOutState = document.getElementById('user-logged-out-state');
     const loggedInState = document.getElementById('user-logged-in-state');
@@ -2899,15 +2901,26 @@ class SchedullyApp {
     if (btnLogout) {
       btnLogout.addEventListener('click', async () => {
         await window.schedullyFirebase?.logout();
-        // Hide the Save button and clear unsaved dot on logout
+        // Hide both desktop & mobile Save buttons on logout
         btnSaveCloud?.classList.replace('flex', 'hidden');
+        mobileSaveWrapper?.classList.add('hidden');
         document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
+        document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
       });
     }
 
-    // Wire up the manual Save to Cloud button
+    // Wire up the manual Save to Cloud button (desktop)
     if (btnSaveCloud) {
       btnSaveCloud.addEventListener('click', () => this.saveToCloud());
+    }
+
+    // Wire up the manual Save to Cloud button (mobile dropdown)
+    if (btnSaveCloudMobile) {
+      btnSaveCloudMobile.addEventListener('click', () => {
+        // Close the mobile dropdown first
+        document.getElementById('mobile-export-dropdown')?.classList.add('hidden');
+        this.saveToCloud();
+      });
     }
 
     // Listen for Auth state updates
@@ -2926,16 +2939,21 @@ class SchedullyApp {
             }
             if (loggedOutState) loggedOutState.classList.add('hidden');
             if (loggedInState) loggedInState.classList.remove('hidden');
-            // Show the Save button when logged in
+            // Show the Save button (desktop) when logged in
             btnSaveCloud?.classList.remove('hidden');
             btnSaveCloud?.classList.add('flex');
+            // Show Save to Cloud option in mobile dropdown
+            mobileSaveWrapper?.classList.remove('hidden');
           } else {
             if (loggedOutState) loggedOutState.classList.remove('hidden');
             if (loggedInState) loggedInState.classList.add('hidden');
-            // Hide the Save button when logged out
+            // Hide the Save button (desktop) when logged out
             btnSaveCloud?.classList.add('hidden');
             btnSaveCloud?.classList.remove('flex');
+            // Hide mobile save option
+            mobileSaveWrapper?.classList.add('hidden');
             document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
+            document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
           }
         };
 
@@ -3334,34 +3352,57 @@ class SchedullyApp {
     }
   }
 
-  // Shows the amber unsaved dot and enables the Save button
+  // Shows the amber unsaved dot on desktop + mobile and shows mobile save wrapper
   markUnsaved() {
     if (!window.schedullyFirebase?.currentUser) return; // only show if logged in
     this._hasUnsavedCloudChanges = true;
+    // Desktop dot
     document.getElementById('preset-unsaved-dot')?.classList.remove('hidden');
+    // Mobile dot (inside cloud icon)
+    document.getElementById('mobile-unsaved-dot')?.classList.remove('hidden');
   }
 
-  // Called after successful cloud save — clears the unsaved indicator
+  // Called after successful cloud save — clears all unsaved indicators
   markSaved() {
     this._hasUnsavedCloudChanges = false;
+    // Desktop
     document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
     const label = document.getElementById('btn-save-cloud-label');
     if (label) label.textContent = '✓ Saved';
-    setTimeout(() => {
-      if (label) label.textContent = 'Save';
-    }, 2000);
+    setTimeout(() => { if (label) label.textContent = 'Save'; }, 2000);
+    // Mobile
+    document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
+    const mobileLabel = document.getElementById('mobile-save-cloud-label');
+    if (mobileLabel) mobileLabel.textContent = '✓ Saved!';
+    setTimeout(() => { if (mobileLabel) mobileLabel.textContent = 'Save to Cloud'; }, 2000);
   }
 
-  // Manually push current data to Firebase cloud (called by Save button)
+  // Manually push current data to Firebase cloud (called by Save button on desktop or mobile)
   async saveToCloud() {
     if (!window.schedullyFirebase?.currentUser) return;
+
+    // Update local preset before cloud save
+    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+    const currentSettings = this.getPresetSettings();
+    if (this.activePresetKey && this.presets) {
+      this.presets[this.activePresetKey] = {
+        name: this.presets[this.activePresetKey]?.name || 'Default',
+        classes: this.classes,
+        wallpaper: currentWallpaper,
+        wallpaperSwatches: this.wallpaperSwatches || null,
+        settings: currentSettings
+      };
+    }
+
+    // Update desktop button UI
     const btn = document.getElementById('btn-save-to-cloud');
     const label = document.getElementById('btn-save-cloud-label');
     if (btn) btn.disabled = true;
     if (label) label.textContent = 'Saving…';
 
-    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
-    const currentSettings = this.getPresetSettings();
+    // Update mobile button UI
+    const mobileLabel = document.getElementById('mobile-save-cloud-label');
+    if (mobileLabel) mobileLabel.textContent = 'Saving…';
 
     const ok = await window.schedullyFirebase.saveUserData({
       classes: this.classes,
@@ -3376,7 +3417,11 @@ class SchedullyApp {
       this.markSaved();
     } else {
       if (label) label.textContent = 'Error!';
-      setTimeout(() => { if (label) label.textContent = 'Save'; }, 2500);
+      if (mobileLabel) mobileLabel.textContent = 'Error!';
+      setTimeout(() => {
+        if (label) label.textContent = 'Save';
+        if (mobileLabel) mobileLabel.textContent = 'Save to Cloud';
+      }, 2500);
     }
   }
 
