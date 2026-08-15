@@ -1026,7 +1026,7 @@ class SchedullyApp {
     }
   }
 
-  applyWallpaper(dataUrl, shouldExtract = true) {
+  applyWallpaper(dataUrl, shouldExtract = true, isSwitchingPreset = false) {
     const phoneCanvas = document.getElementById('phone-canvas');
     const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
     const controlsBar = document.getElementById('wallpaper-controls-bar');
@@ -1053,12 +1053,17 @@ class SchedullyApp {
       localStorage.setItem('schedully_wallpaper_data', dataUrl);
     } catch (e) {}
 
+    // Also update the active preset's wallpaper record immediately
+    if (this.activePresetKey && this.presets && this.presets[this.activePresetKey]) {
+      this.presets[this.activePresetKey].wallpaper = dataUrl;
+    }
+
     if (shouldExtract) {
       this.extractColorsFromImage(dataUrl);
     }
   }
 
-  removeWallpaper() {
+  removeWallpaper(isSwitchingPreset = false) {
     const phoneCanvas = document.getElementById('phone-canvas');
     const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
     const controlsBar = document.getElementById('wallpaper-controls-bar');
@@ -1088,6 +1093,12 @@ class SchedullyApp {
     try {
       localStorage.removeItem('schedully_wallpaper_data');
     } catch (e) {}
+
+    // Only wipe from active preset if user explicitly tapped the Remove Wallpaper button (not when switching presets)
+    if (!isSwitchingPreset && this.activePresetKey && this.presets && this.presets[this.activePresetKey]) {
+      this.presets[this.activePresetKey].wallpaper = null;
+      this.presets[this.activePresetKey].wallpaperSwatches = null;
+    }
 
     // Reset back to active preset theme palette
     this.applyThemeEngine();
@@ -3502,11 +3513,11 @@ class SchedullyApp {
             this.applyPresetSettings(this.presets[targetKey].settings);
           }
 
-          // 4. Restore or Remove Wallpaper
+          // 4. Restore or Remove Wallpaper for target preset
           if (this.presets[targetKey].wallpaper) {
-            this.applyWallpaper(this.presets[targetKey].wallpaper, true);
+            this.applyWallpaper(this.presets[targetKey].wallpaper, true, true);
           } else {
-            this.removeWallpaper();
+            this.removeWallpaper(true);
           }
 
           // 5. Update local persistence cleanly without overwriting other presets
