@@ -19,9 +19,9 @@
 
   --m3-header-custom-bg: transparent;
   --m3-font-custom-color: inherit;
-  --m3-card-text-color: inherit;
-
-  --font-sans: 'Google Sans', 'Product Sans', 'Outfit', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-ui-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --clock-font: 'Google Sans', 'Product Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+  --timetable-font-family: 'Google Sans', 'Product Sans', 'Inter', sans-serif;
 
   --m3-shape-full: 9999px;
   --m3-shape-xl: 24px;
@@ -36,8 +36,33 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: var(--font-sans);
+  font-family: var(--app-ui-font);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Scoped ONLY to the Timetable Grid, Headers, Time Column, and Course Cards */
+#lock-timetable-container,
+#lock-timetable-container *,
+.m3-lock-timetable-container,
+.m3-lock-timetable-container *,
+.lock-grid-title-bar,
+.exact-grid-cell-header,
+.exact-grid-cell-time,
+.exact-card-code,
+.exact-card-type,
+.exact-card-room,
+.exact-card-lecturer,
+.exact-card-group,
+.exact-card-time {
+  font-family: var(--timetable-font-family) !important;
+}
+
+/* Lockscreen Clock & Date (Unaffected by Timetable Font changes) */
+.phone-lock-header,
+.phone-lock-header *,
+.lock-time,
+.lock-date {
+  font-family: var(--clock-font) !important;
 }
 
 
@@ -588,11 +613,24 @@ body.dark-mode .mobile-export-option:hover {
   z-index: 10;
 }
 
+.btn-adaptive-auth {
+  background-color: var(--m3-sys-color-primary, #2563EB) !important;
+  color: var(--m3-sys-color-on-primary, #FFFFFF) !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-adaptive-auth:hover {
+  transform: translateY(-1px) scale(1.01);
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.32) !important;
+}
+
 .user-profile-card {
   background-color: var(--m3-sys-color-surface, #FFFFFF);
   border: 1px solid var(--m3-sys-color-outline, #E2E8F0);
   border-radius: 16px !important;
-  padding: 12px !important;
+  padding: 10px 12px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
   color: var(--m3-sys-text-primary);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1558,8 +1596,8 @@ textarea::placeholder,
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 700;
-  color: var(--m3-font-custom-color, var(--m3-sys-text-primary)) !important;
-  border-bottom: 2px solid var(--m3-sys-color-outline);
+  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-primary))) !important;
+  border-bottom: 2px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
   background: var(--m3-header-custom-bg, var(--m3-sys-color-surface-variant)) !important;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -1569,10 +1607,10 @@ textarea::placeholder,
   font-weight: 700;
   font-size: 11px;
   font-family: var(--font-sans);
-  color: var(--m3-font-custom-color, var(--m3-sys-text-primary)) !important;
+  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-primary))) !important;
   padding: 6px 2px;
-  border-right: 1.5px solid var(--m3-sys-color-outline);
-  border-bottom: 2px solid var(--m3-sys-color-outline);
+  border-right: 1.5px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
+  border-bottom: 2px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
   background: var(--m3-header-custom-bg, var(--m3-sys-color-surface-variant)) !important;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -1584,14 +1622,14 @@ textarea::placeholder,
 .exact-grid-cell-time {
   font-size: 9.5px;
   font-weight: 700;
-  color: var(--m3-font-custom-color, var(--m3-sys-text-secondary)) !important;
+  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-secondary))) !important;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4px 2px;
-  border-right: 2px solid var(--m3-sys-color-outline);
-  border-bottom: 1.5px solid var(--m3-sys-color-outline);
+  border-right: 2px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
+  border-bottom: 1.5px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
   background: var(--m3-header-custom-bg, var(--m3-sys-color-surface-variant)) !important;
   transition: background-color 0.2s ease, color 0.2s ease;
   line-height: 1.2;
@@ -2353,6 +2391,198 @@ input:focus, select:focus, textarea:focus {
     max-width: calc(100vw - 24px) !important;
     z-index: 9999 !important;
   }
+}
+
+/* Preset Selector & Button Adaptive Base Styles */
+#preset-schedule-select {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--m3-sys-text-primary, #1E293B);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+#btn-add-preset,
+#btn-edit-preset {
+  color: var(--m3-sys-text-primary, #64748B);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+#btn-add-preset:hover,
+#btn-edit-preset:hover {
+  background-color: var(--m3-sys-color-primary-light-bg, #DBEAFE);
+  color: var(--m3-sys-color-primary, #2563EB);
+}
+
+/* Global Dark Mode Fixes to Prevent White Ghosting on Hover/Focus */
+body.dark-mode #preset-schedule-select {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode #preset-schedule-select option {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+body.dark-mode #btn-add-preset,
+body.dark-mode #btn-edit-preset {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+body.dark-mode #btn-add-preset:hover,
+body.dark-mode #btn-edit-preset:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--m3-sys-color-primary, #60A5FA) !important;
+}
+
+body.dark-mode #user-logged-in-state {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+}
+
+body.dark-mode #user-display-name {
+  color: #F8FAFC !important;
+}
+
+body.dark-mode #user-status-text {
+  color: #94A3B8 !important;
+}
+
+/* Photo Wallpaper & Auto-Adaptive Dynamic Styling */
+.phone-wallpaper-layer {
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  right: -14px;
+  bottom: -14px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: blur(var(--wallpaper-blur-val, 0px));
+  transition: filter 0.15s ease, opacity 0.3s ease;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.phone-camera-dot,
+.phone-lock-header,
+.m3-lock-timetable-container {
+  position: relative;
+  z-index: 2;
+}
+
+#phone-canvas.has-photo-wallpaper .m3-lock-timetable-container {
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16) !important;
+}
+
+body.dark-mode #phone-canvas.has-photo-wallpaper .m3-lock-timetable-container {
+  background: rgba(15, 23, 42, 0.76) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-mode #wallpaper-controls-bar {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode label[for="wallpaper-image-input"] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #F8FAFC !important;
+}
+
+body.dark-mode #blur-intensity-control span:first-child {
+  color: #94A3B8 !important;
+}
+
+body.dark-mode #slider-bg-blur,
+body.dark-mode #slider-timetable-opacity {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+#lock-timetable-container,
+.m3-lock-timetable-container {
+  opacity: var(--timetable-opacity, 1) !important;
+}
+
+#select-font-family {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+body.dark-mode label[for="wallpaper-image-input"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--m3-sys-color-primary, #60A5FA) !important;
+}
+
+body.dark-mode #btn-schedule-settings-toggle {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F8FAFC !important;
+}
+
+/* Sleek Adaptive Badges for Light & Dark Mode */
+.badge-adaptive-pill {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+  border-radius: 9999px !important;
+  background-color: rgba(37, 99, 235, 0.1) !important;
+  color: #2563EB !important;
+  border: 1px solid rgba(37, 99, 235, 0.25) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1.2 !important;
+}
+
+body.dark-mode .badge-adaptive-pill {
+  background-color: rgba(96, 165, 250, 0.18) !important;
+  color: #93C5FD !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+
+/* Disabled & Greyed Out when Photo Wallpaper is Active */
+.disabled-by-wallpaper {
+  opacity: 0.38 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  user-select: none !important;
+}
+
+.disabled-by-wallpaper.palette-row,
+.disabled-by-wallpaper .palette-dot {
+  filter: grayscale(100%) brightness(0.85) contrast(0.85) !important;
+  border-color: rgba(148, 163, 184, 0.35) !important;
+}
+
+#btn-randomize-theme.disabled-by-wallpaper,
+#btn-randomize-course-colors.disabled-by-wallpaper,
+#btn-randomize-colors.disabled-by-wallpaper {
+  opacity: 0.28 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  filter: grayscale(100%) !important;
+}
+
+body.dark-mode #btn-schedule-settings-toggle svg {
+  color: #94A3B8 !important;
+}
+
+body.dark-mode #btn-schedule-settings-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+body.dark-mode #btn-google-logout:hover {
+  background-color: rgba(239, 68, 68, 0.2) !important;
+  color: #FCA5A5 !important;
 }
 
 /* ── GLOBAL Dark mode sidebar overlay & floating elements (Desktop + Mobile synchronized) ── */

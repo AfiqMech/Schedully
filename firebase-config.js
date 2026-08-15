@@ -66,7 +66,7 @@ class SchedullyFirebaseService {
           this.onUserChangedCallback(user);
         }
         if (user) {
-          this.listenToUserSchedule(user.uid);
+          this.listenToUserData(user.uid);
         }
       });
     } catch (err) {
@@ -100,29 +100,32 @@ class SchedullyFirebaseService {
     }
   }
 
-  async saveUserSchedule(scheduleData) {
+  async saveUserData(userData) {
     if (!this.db || !this.currentUser) return false;
     try {
       await this.db.ref('users/' + this.currentUser.uid).set({
-        classes: scheduleData.classes || [],
+        classes: userData.classes || [],
+        presets: userData.presets || {},
+        activePreset: userData.activePreset || 'default',
+        settings: userData.settings || {},
         updatedAt: new Date().toISOString(),
         userEmail: this.currentUser.email,
         displayName: this.currentUser.displayName
       });
       return true;
     } catch (error) {
-      console.error("Error saving schedule to Database:", error);
+      console.error("Error saving data to Database:", error);
       return false;
     }
   }
 
-  listenToUserSchedule(userId) {
+  listenToUserData(userId) {
     if (!this.db) return;
     const userRef = this.db.ref('users/' + userId);
     userRef.on('value', (snapshot) => {
       const data = snapshot.val();
-      if (data && this.onDataSyncedCallback && data.classes) {
-        this.onDataSyncedCallback(data.classes);
+      if (data && this.onDataSyncedCallback) {
+        this.onDataSyncedCallback(data);
       }
     }, (error) => {
       console.warn("Database listener error:", error);

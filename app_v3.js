@@ -187,6 +187,7 @@ class SchedullyApp {
 
     this.initDOMElements();
     this.bindEvents();
+    this.initPresets();
 
     this.applyThemeEngine();
 
@@ -577,7 +578,7 @@ class SchedullyApp {
 
       document.querySelectorAll('#left-sidebar, #right-sidebar, main').forEach(container => {
         container.querySelectorAll('svg, p, span, h1, h2, h3, h4, h5, h6, label').forEach(el => {
-          if (!el.closest('.btn-theme-primary') && !el.closest('.pill-btn.active')) {
+          if (!el.closest('.btn-theme-primary') && !el.closest('.pill-btn.active') && !el.classList.contains('badge-adaptive-pill') && !el.closest('.badge-adaptive-pill')) {
             if (el.tagName.toLowerCase() === 'svg') {
               el.style.color = textColor;
             } else if (el.classList.contains('text-gray-400') || el.classList.contains('text-gray-500') || el.classList.contains('subtext')) {
@@ -706,6 +707,10 @@ class SchedullyApp {
         container.querySelectorAll('svg, p, span, h1, h2, h3, h4, h5, h6, label').forEach(el => {
           if (!el.closest('.btn-theme-primary') && !el.closest('.pill-btn.active')) {
             el.style.color = '';
+            if (el.classList.contains('badge-adaptive-pill')) {
+              el.style.backgroundColor = '';
+              el.style.borderColor = '';
+            }
           }
         });
       });
@@ -787,7 +792,36 @@ class SchedullyApp {
 
   applyHeaderColor(colorVal) {
     const root = document.documentElement;
+    if (!colorVal) {
+      root.style.removeProperty('--m3-header-custom-bg');
+      root.style.removeProperty('--m3-header-text-color');
+      root.style.removeProperty('--m3-header-outline-color');
+      return;
+    }
     root.style.setProperty('--m3-header-custom-bg', colorVal);
+
+    // Auto-calculate luminance contrast for header & time text
+    const isDark = this.isColorDark(colorVal);
+    const headerTextColor = isDark ? '#FFFFFF' : '#0F172A';
+    const headerOutline = isDark ? 'rgba(255, 255, 255, 0.22)' : 'var(--m3-sys-color-outline)';
+
+    root.style.setProperty('--m3-header-text-color', headerTextColor);
+    root.style.setProperty('--m3-header-outline-color', headerOutline);
+  }
+
+  isColorDark(hex) {
+    if (!hex || typeof hex !== 'string') return false;
+    let c = hex.trim();
+    if (c.startsWith('#')) {
+      c = c.substring(1);
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const r = parseInt(c.substring(0, 2), 16) || 0;
+      const g = parseInt(c.substring(2, 4), 16) || 0;
+      const b = parseInt(c.substring(4, 6), 16) || 0;
+      const lum = (0.299 * r + 0.587 * g + 0.114 * b);
+      return lum < 140;
+    }
+    return false;
   }
 
   applyCardTextColor(colorVal) {
@@ -824,42 +858,464 @@ class SchedullyApp {
       content.style.overflow = 'hidden';
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
-      content.style.transition = 'max-height 0.4s ease-in-out, opacity 0.35s ease';
+      content.style.transform = 'translateY(-6px)';
+      content.style.transition = 'max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)';
 
       void content.offsetHeight;
 
       const targetHeight = content.scrollHeight;
-      content.style.maxHeight = (targetHeight + 40) + 'px';
+      content.style.maxHeight = targetHeight + 'px';
       content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
 
       setTimeout(() => {
         if (!content.classList.contains('hidden')) {
           content.style.maxHeight = 'none';
           content.style.overflow = 'visible';
         }
-      }, 420);
+      }, 330);
     } else {
       header?.classList.remove('active');
 
       content.style.overflow = 'hidden';
       content.style.maxHeight = content.scrollHeight + 'px';
-      content.style.transition = 'max-height 0.4s ease-in-out, opacity 0.3s ease';
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+      content.style.transition = 'max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-in, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
 
       void content.offsetHeight;
 
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
+      content.style.transform = 'translateY(-6px)';
 
       setTimeout(() => {
         if (content.style.maxHeight === '0px') {
           content.classList.add('hidden');
+          content.style.transform = '';
         }
-      }, 400);
+      }, 290);
     }
+  }
+
+  setupWallpaperEngine() {
+    const input = document.getElementById('wallpaper-image-input');
+    const removeBtn = document.getElementById('btn-remove-wallpaper');
+
+    // Background Blur Toggle & Intensity Slider
+    const toggleBgBlur = document.getElementById('toggle-bg-blur');
+    const blurControl = document.getElementById('blur-intensity-control');
+    const blurSlider = document.getElementById('slider-bg-blur');
+    const blurValText = document.getElementById('blur-intensity-val');
+
+    this.bgBlurEnabled = false;
+    this.bgBlurIntensity = 10;
+
+    if (toggleBgBlur) {
+      toggleBgBlur.querySelectorAll('.pill-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          toggleBgBlur.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const isEnabled = (btn.getAttribute('data-val') === 'yes');
+          this.bgBlurEnabled = isEnabled;
+
+          if (isEnabled) {
+            blurControl?.classList.remove('hidden');
+            document.documentElement.style.setProperty('--wallpaper-blur-val', `${this.bgBlurIntensity}px`);
+          } else {
+            blurControl?.classList.add('hidden');
+            document.documentElement.style.setProperty('--wallpaper-blur-val', '0px');
+          }
+          this.saveToLocal();
+        });
+      });
+    }
+
+    if (blurSlider) {
+      blurSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10) || 0;
+        this.bgBlurIntensity = val;
+        if (blurValText) blurValText.innerText = `${val}px`;
+        if (this.bgBlurEnabled) {
+          document.documentElement.style.setProperty('--wallpaper-blur-val', `${val}px`);
+        }
+        this.saveToLocal();
+      });
+    }
+
+    // Timetable Opacity Slider
+    const opacitySlider = document.getElementById('slider-timetable-opacity');
+    const opacityValText = document.getElementById('timetable-opacity-val');
+
+    this.timetableOpacity = 100;
+
+    this.setTimetableOpacity = (val) => {
+      this.timetableOpacity = Math.max(20, Math.min(100, parseInt(val, 10) || 100));
+      if (opacitySlider) opacitySlider.value = this.timetableOpacity;
+      if (opacityValText) opacityValText.innerText = `${this.timetableOpacity}%`;
+      document.documentElement.style.setProperty('--timetable-opacity', `${this.timetableOpacity / 100}`);
+    };
+
+    if (opacitySlider) {
+      opacitySlider.addEventListener('input', (e) => {
+        this.setTimetableOpacity(e.target.value);
+        this.saveToLocal();
+      });
+    }
+
+    // Restore saved wallpaper from storage if present
+    try {
+      const savedWallpaper = localStorage.getItem('schedully_wallpaper_data');
+      if (savedWallpaper) {
+        this.applyWallpaper(savedWallpaper, false);
+      }
+    } catch (e) {}
+
+    input?.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target.result;
+        this.applyWallpaper(dataUrl, true);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    removeBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.removeWallpaper();
+    });
+  }
+
+  setWallpaperModeUI(isActive) {
+    const paletteRow = document.querySelector('#palette-picker-section .palette-row');
+    const badge = document.getElementById('palette-wallpaper-badge');
+    const btnRandTheme = document.getElementById('btn-randomize-theme');
+    const btnRandCourse = document.getElementById('btn-randomize-course-colors');
+    const btnRandSchedule = document.getElementById('btn-randomize-colors');
+
+    if (isActive) {
+      paletteRow?.classList.add('disabled-by-wallpaper');
+      badge?.classList.remove('hidden');
+
+      [btnRandTheme, btnRandCourse, btnRandSchedule].forEach(btn => {
+        if (btn) {
+          btn.classList.add('disabled-by-wallpaper');
+          btn.setAttribute('disabled', 'true');
+          btn.title = "Color palette is automatically adapted from your active wallpaper";
+        }
+      });
+    } else {
+      paletteRow?.classList.remove('disabled-by-wallpaper');
+      badge?.classList.add('hidden');
+
+      [btnRandTheme, btnRandCourse, btnRandSchedule].forEach(btn => {
+        if (btn) {
+          btn.classList.remove('disabled-by-wallpaper');
+          btn.removeAttribute('disabled');
+          btn.title = btn.getAttribute('data-orig-title') || "Randomize";
+        }
+      });
+    }
+  }
+
+  applyWallpaper(dataUrl, shouldExtract = true) {
+    const phoneCanvas = document.getElementById('phone-canvas');
+    const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
+    const controlsBar = document.getElementById('wallpaper-controls-bar');
+    const thumbPreview = document.getElementById('wallpaper-thumb-preview');
+
+    if (wallpaperLayer) {
+      wallpaperLayer.style.backgroundImage = `url("${dataUrl}")`;
+      wallpaperLayer.style.opacity = '1';
+    }
+
+    if (phoneCanvas) {
+      phoneCanvas.classList.add('has-photo-wallpaper');
+    }
+
+    if (controlsBar && thumbPreview) {
+      thumbPreview.src = dataUrl;
+      controlsBar.classList.remove('hidden');
+    }
+
+    // Auto grey out & disable color palette and randomizer buttons
+    this.setWallpaperModeUI(true);
+
+    try {
+      localStorage.setItem('schedully_wallpaper_data', dataUrl);
+    } catch (e) {}
+
+    if (shouldExtract) {
+      this.extractColorsFromImage(dataUrl);
+    }
+  }
+
+  removeWallpaper() {
+    const phoneCanvas = document.getElementById('phone-canvas');
+    const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
+    const controlsBar = document.getElementById('wallpaper-controls-bar');
+    const input = document.getElementById('wallpaper-image-input');
+
+    if (wallpaperLayer) {
+      wallpaperLayer.style.backgroundImage = '';
+      wallpaperLayer.style.opacity = '0';
+    }
+
+    if (phoneCanvas) {
+      phoneCanvas.style.backgroundImage = '';
+      phoneCanvas.classList.remove('has-photo-wallpaper');
+    }
+
+    if (controlsBar) {
+      controlsBar.classList.add('hidden');
+    }
+
+    if (input) input.value = '';
+
+    this.wallpaperSwatches = null;
+
+    // Un-grey and re-enable color palette and randomizer buttons
+    this.setWallpaperModeUI(false);
+
+    try {
+      localStorage.removeItem('schedully_wallpaper_data');
+    } catch (e) {}
+
+    // Reset back to active preset theme palette
+    this.applyThemeEngine();
+    this.renderTimetableGrid();
+  }
+
+  setupFontFamilyEngine() {
+    const fontSelect = document.getElementById('select-font-family');
+    const customFontInput = document.getElementById('custom-font-upload');
+
+    const fontMap = {
+      'default': "'Google Sans', 'Product Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      'plus-jakarta': "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      'outfit': "'Outfit', -apple-system, BlinkMacSystemFont, sans-serif",
+      'jetbrains': "'JetBrains Mono', monospace",
+      'lexend': "'Lexend', -apple-system, BlinkMacSystemFont, sans-serif",
+      'space-grotesk': "'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif",
+      'playfair': "'Playfair Display', Georgia, serif",
+      'inter': "'Inter', -apple-system, BlinkMacSystemFont, sans-serif"
+    };
+
+    this.currentFontKey = 'default';
+
+    this.applyFontFamily = async (fontKey, customFamilyName = null) => {
+      this.currentFontKey = fontKey;
+      let stack = fontMap[fontKey] || fontMap['default'];
+      if (fontKey === 'custom' && customFamilyName) {
+        stack = `'${customFamilyName}', -apple-system, BlinkMacSystemFont, sans-serif`;
+      }
+
+      document.documentElement.style.setProperty('--timetable-font-family', stack);
+      
+      // Ensure browser font cache is primed
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (e) {}
+      }
+
+      if (fontSelect && fontKey !== 'custom') {
+        fontSelect.value = fontKey;
+      }
+      this.renderTimetableGrid();
+      this.saveToLocal();
+    };
+
+    if (fontSelect) {
+      fontSelect.addEventListener('change', (e) => {
+        this.applyFontFamily(e.target.value);
+      });
+    }
+
+    if (customFontInput) {
+      customFontInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          const fontName = 'CustomFont_' + Date.now();
+          const buffer = await file.arrayBuffer();
+          const fontFace = new FontFace(fontName, buffer);
+          await fontFace.load();
+          document.fonts.add(fontFace);
+
+          // Add / update custom option in dropdown
+          let customOpt = fontSelect.querySelector('option[value="custom"]');
+          if (!customOpt) {
+            customOpt = document.createElement('option');
+            customOpt.value = 'custom';
+            fontSelect.appendChild(customOpt);
+          }
+          const cleanName = file.name.replace(/\.[^/.]+$/, "");
+          customOpt.innerText = `Custom: ${cleanName}`;
+          customOpt.selected = true;
+
+          this.customLoadedFontName = fontName;
+          await this.applyFontFamily('custom', fontName);
+        } catch (err) {
+          console.error("Font loading error:", err);
+          alert("Could not load font. Please ensure the file is a valid .ttf, .otf, or .woff2 font file.");
+        }
+      });
+    }
+  }
+
+  extractColorsFromImage(dataUrl) {
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const width = 100;
+        const height = 100;
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const imgData = ctx.getImageData(0, 0, width, height).data;
+        const colorBuckets = {};
+        let topLuminanceSum = 0;
+        let topPixelCount = 0;
+
+        for (let i = 0; i < imgData.length; i += 4) {
+          const r = imgData[i];
+          const g = imgData[i+1];
+          const b = imgData[i+2];
+          const a = imgData[i+3];
+
+          if (a < 128) continue;
+
+          const pixelIndex = i / 4;
+          const y = Math.floor(pixelIndex / width);
+
+          // Top area luminance (for clock text contrast)
+          if (y < 30) {
+            topLuminanceSum += (0.299 * r + 0.587 * g + 0.114 * b);
+            topPixelCount++;
+          }
+
+          // Quantize to bucket similar shades
+          const qr = Math.round(r / 28) * 28;
+          const qg = Math.round(g / 28) * 28;
+          const qb = Math.round(b / 28) * 28;
+          const key = `${qr},${qg},${qb}`;
+
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const sat = (max === 0) ? 0 : (max - min) / max;
+          const lum = (0.299 * r + 0.587 * g + 0.114 * b);
+
+          if (lum > 25 && lum < 235) {
+            const weight = (sat * 2.5) + 1;
+            colorBuckets[key] = (colorBuckets[key] || 0) + weight;
+          }
+        }
+
+        const sorted = Object.keys(colorBuckets).sort((a, b) => colorBuckets[b] - colorBuckets[a]);
+
+        if (sorted.length > 0) {
+          const parseRgb = (k) => k.split(',').map(Number);
+          const dominantRgb = parseRgb(sorted[0]);
+          const rgbToHex = (r, g, b) => "#" + [r, g, b].map(x => {
+            const hex = Math.min(255, Math.max(0, Math.round(x))).toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+          }).join('');
+
+          const primaryHex = rgbToHex(dominantRgb[0], dominantRgb[1], dominantRgb[2]);
+
+          // Pick secondary color distinct from primary
+          let secondaryHex = primaryHex;
+          for (let i = 1; i < sorted.length; i++) {
+            const sRgb = parseRgb(sorted[i]);
+            const dist = Math.sqrt(
+              Math.pow(dominantRgb[0] - sRgb[0], 2) +
+              Math.pow(dominantRgb[1] - sRgb[1], 2) +
+              Math.pow(dominantRgb[2] - sRgb[2], 2)
+            );
+            if (dist > 65) {
+              secondaryHex = rgbToHex(sRgb[0], sRgb[1], sRgb[2]);
+              break;
+            }
+          }
+
+          // Generate harmonious course swatches
+          const courseSwatches = [];
+          for (let i = 0; i < Math.min(sorted.length, 6); i++) {
+            const rgb = parseRgb(sorted[i]);
+            courseSwatches.push(rgbToHex(rgb[0], rgb[1], rgb[2]));
+          }
+          while (courseSwatches.length < 6) {
+            courseSwatches.push(primaryHex);
+          }
+
+          // Auto-contrast Clock Color
+          const avgTopLum = topPixelCount > 0 ? (topLuminanceSum / topPixelCount) : 128;
+          const clockColor = avgTopLum > 140 ? '#0F172A' : '#FFFFFF';
+          const clockShadow = avgTopLum > 140 ? 'none' : '0 2px 10px rgba(0,0,0,0.5)';
+
+          // Adaptive UI Primary Color
+          const isDarkPrimary = this.isColorDark(primaryHex);
+          let uiPrimaryHex = primaryHex;
+          let onPrimaryHex = isDarkPrimary ? '#FFFFFF' : '#0F172A';
+
+          // In dark mode, if the extracted color is dark, brighten/saturate for high contrast on dark UI
+          if (this.currentMode === 'dark' && isDarkPrimary) {
+            const boost = (c) => Math.min(255, Math.round(c * 1.6 + 45));
+            uiPrimaryHex = rgbToHex(boost(dominantRgb[0]), boost(dominantRgb[1]), boost(dominantRgb[2]));
+            onPrimaryHex = '#FFFFFF';
+          }
+
+          // Apply adaptive CSS properties
+          const root = document.documentElement;
+          root.style.setProperty('--m3-sys-color-primary', uiPrimaryHex);
+          root.style.setProperty('--m3-sys-color-on-primary', onPrimaryHex);
+          root.style.setProperty('--m3-sys-color-primary-container', uiPrimaryHex + (this.currentMode === 'dark' ? '30' : '15'));
+          this.applyHeaderColor(primaryHex);
+
+          // Grey out & disable palette options while wallpaper is active
+          this.setWallpaperModeUI(true);
+
+          // Reset manual custom font override so wallpaper adaptive contrast takes effect
+          this.applyFontColor('');
+
+          const lockHeader = document.getElementById('phone-lock-header');
+          if (lockHeader) {
+            lockHeader.style.color = clockColor;
+            lockHeader.style.textShadow = clockShadow;
+          }
+
+          this.wallpaperSwatches = courseSwatches;
+
+          // Auto update class course colors to match photo palette
+          this.classes.forEach((cls, idx) => {
+            cls.customColor = courseSwatches[idx % courseSwatches.length];
+            cls.color = courseSwatches[idx % courseSwatches.length];
+          });
+
+          this.renderAll();
+          this.saveToLocal();
+        }
+      } catch (err) {
+        console.warn("Color extraction failed:", err);
+      }
+    };
+    img.src = dataUrl;
   }
 
   bindEvents() {
     this.setupFirebaseIntegration();
+    this.setupWallpaperEngine();
+    this.setupFontFamilyEngine();
 
     if (this.courseSearchInput) {
       this.courseSearchInput.addEventListener('input', (e) => {
@@ -987,6 +1443,7 @@ class SchedullyApp {
         btn.classList.add('active');
         this.showTitle = (btn.getAttribute('data-val') === 'yes');
         this.lockGridTitle.style.display = this.showTitle ? 'block' : 'none';
+        this.saveToLocal();
       });
     });
 
@@ -1004,6 +1461,7 @@ class SchedullyApp {
           if (rowCornerRadius) rowCornerRadius.style.display = 'flex';
         }
         this.renderTimetableGrid();
+        this.saveToLocal();
       });
     });
 
@@ -1017,6 +1475,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.cardCornerRadiusVal = Math.min(24, Math.max(2, val));
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
     if (btnRadiusDec && gridRadiusValEl) {
@@ -1024,6 +1483,7 @@ class SchedullyApp {
         this.cardCornerRadiusVal = Math.max(2, this.cardCornerRadiusVal - 1);
         gridRadiusValEl.value = this.cardCornerRadiusVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       });
     }
     if (btnRadiusInc && gridRadiusValEl) {
@@ -1031,6 +1491,7 @@ class SchedullyApp {
         this.cardCornerRadiusVal = Math.min(24, this.cardCornerRadiusVal + 1);
         gridRadiusValEl.value = this.cardCornerRadiusVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       });
     }
 
@@ -1192,6 +1653,7 @@ class SchedullyApp {
         btn.classList.add('active');
         this.clockFormat = btn.getAttribute('data-val');
         this.renderTimetableGrid();
+        this.saveToLocal();
       });
     });
 
@@ -1199,11 +1661,13 @@ class SchedullyApp {
     this.gridStartTimeSelect.addEventListener('change', (e) => {
       this.gridStartHour = parseInt(e.target.value.split(':')[0]);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     this.gridEndTimeSelect.addEventListener('change', (e) => {
       this.gridEndHour = parseInt(e.target.value.split(':')[0]);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     // Day Display Checkboxes
@@ -1212,6 +1676,7 @@ class SchedullyApp {
         const checked = Array.from(document.querySelectorAll('.day-toggle:checked')).map(c => c.value);
         this.activeDays = checked.length > 0 ? checked : ['Mon'];
         this.renderTimetableGrid();
+        this.saveToLocal();
       });
     });
 
@@ -1225,6 +1690,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridWidthVal = Math.min(100, Math.max(50, val));
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
     gridWidthValEl?.addEventListener('blur', (e) => {
@@ -1233,6 +1699,7 @@ class SchedullyApp {
       else if (val > 100) e.target.value = 100;
       this.gridWidthVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     btnWidthDec?.addEventListener('click', () => {
@@ -1240,6 +1707,7 @@ class SchedullyApp {
         this.gridWidthVal -= 5;
         if (gridWidthValEl) gridWidthValEl.value = this.gridWidthVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1248,6 +1716,7 @@ class SchedullyApp {
         this.gridWidthVal += 5;
         if (gridWidthValEl) gridWidthValEl.value = this.gridWidthVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1261,6 +1730,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridHeightVal = Math.min(90, Math.max(30, val));
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
     gridHeightValEl?.addEventListener('blur', (e) => {
@@ -1269,6 +1739,7 @@ class SchedullyApp {
       else if (val > 90) e.target.value = 90;
       this.gridHeightVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     btnHeightDec?.addEventListener('click', () => {
@@ -1276,6 +1747,7 @@ class SchedullyApp {
         this.gridHeightVal -= 3;
         if (gridHeightValEl) gridHeightValEl.value = this.gridHeightVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1284,6 +1756,7 @@ class SchedullyApp {
         this.gridHeightVal += 3;
         if (gridHeightValEl) gridHeightValEl.value = this.gridHeightVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1297,6 +1770,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridFontSizeVal = Math.min(16, Math.max(6, val));
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
     gridFontSizeValEl?.addEventListener('blur', (e) => {
@@ -1305,6 +1779,7 @@ class SchedullyApp {
       else if (val > 16) e.target.value = 16;
       this.gridFontSizeVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     btnFontSizeDec?.addEventListener('click', () => {
@@ -1312,6 +1787,7 @@ class SchedullyApp {
         this.gridFontSizeVal -= 1;
         if (gridFontSizeValEl) gridFontSizeValEl.value = this.gridFontSizeVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1320,6 +1796,7 @@ class SchedullyApp {
         this.gridFontSizeVal += 1;
         if (gridFontSizeValEl) gridFontSizeValEl.value = this.gridFontSizeVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1333,6 +1810,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridYPosVal = Math.min(150, Math.max(-120, val));
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
     gridYPosValEl?.addEventListener('blur', (e) => {
@@ -1341,6 +1819,7 @@ class SchedullyApp {
       else if (val > 150) e.target.value = 150;
       this.gridYPosVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
+      this.saveToLocal();
     });
 
     btnYPosDec?.addEventListener('click', () => {
@@ -1359,6 +1838,7 @@ class SchedullyApp {
         this.gridYPosVal = Math.max(Math.round(minY), this.gridYPosVal - 5);
         if (gridYPosValEl) gridYPosValEl.value = this.gridYPosVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1378,6 +1858,7 @@ class SchedullyApp {
         this.gridYPosVal = Math.min(Math.round(maxY), this.gridYPosVal + 5);
         if (gridYPosValEl) gridYPosValEl.value = this.gridYPosVal;
         this.renderTimetableGrid();
+        this.saveToLocal();
       }
     });
 
@@ -1533,22 +2014,30 @@ class SchedullyApp {
         dot.classList.add('active');
         this.currentMode = dot.getAttribute('data-mode');
         this.applyThemeEngine();
+        const wallpaperData = localStorage.getItem('schedully_wallpaper_data');
+        if (wallpaperData) {
+          this.extractColorsFromImage(wallpaperData);
+        }
+        this.saveToLocal();
       });
     });
 
     // Dynamic Swatch Palette Buttons
     document.querySelectorAll('.palette-dot').forEach(dot => {
       dot.addEventListener('click', () => {
+        if (localStorage.getItem('schedully_wallpaper_data')) return;
         document.querySelectorAll('.palette-dot').forEach(d => d.classList.remove('active'));
         dot.classList.add('active');
         this.currentPalette = dot.getAttribute('data-palette');
         this.applyThemeEngine();
+        this.saveToLocal();
       });
     });
 
     // System Theme Randomizer (Surprise Me)
     document.getElementById('btn-randomize-theme')?.addEventListener('click', (e) => {
       e.stopPropagation(); // Prevent the expand/collapse card header event
+      if (localStorage.getItem('schedully_wallpaper_data')) return;
       const modeDots = Array.from(document.querySelectorAll('.theme-mode-dot'));
       const paletteDots = Array.from(document.querySelectorAll('.palette-dot'));
       
@@ -1568,6 +2057,7 @@ class SchedullyApp {
         
         // Apply engine ONCE to avoid double-render lag
         this.applyThemeEngine();
+        this.saveToLocal();
       }
     });
 
@@ -1710,12 +2200,21 @@ class SchedullyApp {
     if (btnThemeToggle) {
       btnThemeToggle.addEventListener('click', () => {
         this.currentMode = this.currentMode === 'dark' ? 'light' : 'dark';
+        document.querySelectorAll('.theme-mode-dot').forEach(d => {
+          d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
+        });
         this.applyThemeEngine();
+        const wallpaperData = localStorage.getItem('schedully_wallpaper_data');
+        if (wallpaperData) {
+          this.extractColorsFromImage(wallpaperData);
+        }
+        this.saveToLocal();
       });
     }
 
     // Randomize Theme Palette Button (Bottom Pill Bar)
     document.getElementById('btn-randomize-theme')?.addEventListener('click', () => {
+      if (localStorage.getItem('schedully_wallpaper_data')) return;
       const paletteKeys = Object.keys(THEME_PALETTES.light);
       const available = paletteKeys.filter(k => k !== this.currentPalette);
       const randomPalette = available[Math.floor(Math.random() * available.length)];
@@ -1726,6 +2225,7 @@ class SchedullyApp {
 
     // Randomize Course Card Colors Button (Bottom Pill Bar)
     document.getElementById('btn-randomize-course-colors')?.addEventListener('click', () => {
+      if (localStorage.getItem('schedully_wallpaper_data')) return;
       const paletteColors = [
         '#2563EB', '#3B82F6', '#60A5FA', '#93C5FD', '#1D4ED8',
         '#D97706', '#F59E0B', '#FBBF24', '#B45309', '#7C3AED',
@@ -2193,15 +2693,27 @@ class SchedullyApp {
         el.style.setProperty('font-size', (currentFontSize * shrinkFactor) + 'px', 'important');
         el.style.setProperty('letter-spacing', letterSpace, 'important');
       });
-      clone.querySelectorAll('.exact-card-type, .exact-card-room, .exact-card-lecturer, .exact-card-group, .exact-card-time').forEach(el => {
-        const currentFontSize = parseFloat(el.style.fontSize) || 8.5;
-        el.style.setProperty('font-size', (currentFontSize * shrinkFactor) + 'px', 'important');
-        el.style.setProperty('letter-spacing', letterSpace, 'important');
-      });
+      // Explicitly carry over the active custom font family onto the timetable inside the clone
+      const activeTimetableFont = getComputedStyle(document.documentElement).getPropertyValue('--timetable-font-family') || "'Inter', sans-serif";
+      const timetableContainer = clone.querySelector('#lock-timetable-container');
+      if (timetableContainer) {
+        timetableContainer.style.setProperty('font-family', activeTimetableFont, 'important');
+        timetableContainer.style.setProperty('opacity', `${(this.timetableOpacity || 100) / 100}`, 'important');
+        timetableContainer.querySelectorAll('*').forEach(el => {
+          el.style.setProperty('font-family', activeTimetableFont, 'important');
+        });
+      }
 
       stagingContainer.appendChild(clone);
 
-      setTimeout(() => {
+      const runRasterize = async () => {
+        // Guarantee all font faces and custom glyphs are ready in canvas memory
+        if (document.fonts && document.fonts.ready) {
+          try {
+            await document.fonts.ready;
+          } catch (e) {}
+        }
+
         const scale = 3;
         const rect = originalCanvas.getBoundingClientRect();
         
@@ -2244,7 +2756,11 @@ class SchedullyApp {
           console.error('Wallpaper export failed:', err);
           alert('Export failed. Please try again.');
         });
-      }, 150);
+      };
+
+      setTimeout(() => {
+        runRasterize();
+      }, 50);
     };
 
 
@@ -2405,10 +2921,33 @@ class SchedullyApp {
           }
         };
 
-        // Sync Cloud Database changes
-        window.schedullyFirebase.onDataSyncedCallback = (remoteClasses) => {
-          if (Array.isArray(remoteClasses) && remoteClasses.length > 0) {
-            this.classes = remoteClasses;
+        // Sync Cloud Database changes (Multi-Schedules & Cloud Aesthetics)
+        window.schedullyFirebase.onDataSyncedCallback = (data) => {
+          if (!data) return;
+
+          // 1. Sync & Restore Presets
+          if (data.presets && typeof data.presets === 'object') {
+            this.presets = data.presets;
+            this.updatePresetSelectDropdown();
+          }
+
+          if (data.activePreset && this.presets[data.activePreset]) {
+            this.activePresetKey = data.activePreset;
+            if (this.presets[data.activePreset].settings) {
+              this.applyPresetSettings(this.presets[data.activePreset].settings);
+            } else if (data.settings) {
+              this.applyPresetSettings(data.settings);
+            }
+            if (this.presets[data.activePreset].wallpaper) {
+              this.applyWallpaper(this.presets[data.activePreset].wallpaper, true);
+            }
+          } else if (data.settings) {
+            this.applyPresetSettings(data.settings);
+          }
+
+          // 2. Restore Schedule Classes
+          if (Array.isArray(data.classes)) {
+            this.classes = data.classes;
             this.renderAll();
           }
         };
@@ -2424,14 +2963,345 @@ class SchedullyApp {
     initAuthListener();
   }
 
+  getPresetSettings() {
+    return {
+      cardCornerStyle: this.cardCornerStyle || 'rounded',
+      cardCornerRadiusVal: this.cardCornerRadiusVal || 8,
+      currentMode: this.currentMode || 'light',
+      currentPalette: this.currentPalette || 'nord',
+      gridWidthVal: this.gridWidthVal || 100,
+      gridHeightVal: this.gridHeightVal || 49,
+      gridYPosVal: this.gridYPosVal || 0,
+      fontSizeVal: this.gridFontSizeVal || this.fontSizeVal || 9,
+      clockFormat: this.clockFormat || '12-hour',
+      bgBlurEnabled: this.bgBlurEnabled || false,
+      bgBlurIntensity: this.bgBlurIntensity || 10,
+      fontFamily: this.currentFontKey || 'default',
+      timetableOpacity: this.timetableOpacity || 100,
+      showTitle: this.showTitle !== undefined ? this.showTitle : true,
+      titleText: this.timetableTitleText || 'Untitled',
+      activeDays: this.activeDays ? [...this.activeDays] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      gridStartHour: this.gridStartHour || 8,
+      gridEndHour: this.gridEndHour || 20
+    };
+  }
+
+  applyPresetSettings(settings) {
+    if (!settings || typeof settings !== 'object') return;
+
+    // 1. Card Corners & Radius
+    if (settings.cardCornerStyle) {
+      this.cardCornerStyle = settings.cardCornerStyle;
+      document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-val') === this.cardCornerStyle);
+      });
+      const rowCornerRadius = document.getElementById('row-corner-radius');
+      if (rowCornerRadius) {
+        rowCornerRadius.style.display = (this.cardCornerStyle === 'sharp') ? 'none' : 'flex';
+      }
+    }
+    if (settings.cardCornerRadiusVal) {
+      this.cardCornerRadiusVal = settings.cardCornerRadiusVal;
+      const gridRadiusValEl = document.getElementById('grid-radius-val');
+      if (gridRadiusValEl) gridRadiusValEl.value = this.cardCornerRadiusVal;
+    }
+
+    // 2. Mode & Palette
+    if (settings.currentPalette) {
+      this.currentPalette = settings.currentPalette;
+      document.querySelectorAll('.palette-dot').forEach(d => {
+        d.classList.toggle('active', d.getAttribute('data-palette') === this.currentPalette);
+      });
+    }
+    if (settings.currentMode) {
+      this.currentMode = settings.currentMode;
+      document.querySelectorAll('.theme-mode-dot').forEach(d => {
+        d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
+      });
+    }
+    this.applyThemeEngine();
+
+    // 3. Grid Dimensions & Position
+    if (settings.gridWidthVal) {
+      this.gridWidthVal = settings.gridWidthVal;
+      const gwEl = document.getElementById('grid-width-val');
+      if (gwEl) gwEl.value = this.gridWidthVal;
+    }
+    if (settings.gridHeightVal) {
+      this.gridHeightVal = settings.gridHeightVal;
+      const ghEl = document.getElementById('grid-height-val');
+      if (ghEl) ghEl.value = this.gridHeightVal;
+    }
+    if (settings.gridYPosVal !== undefined) {
+      this.gridYPosVal = settings.gridYPosVal;
+      const gyEl = document.getElementById('grid-ypos-val');
+      if (gyEl) gyEl.value = this.gridYPosVal;
+    }
+    if (settings.fontSizeVal) {
+      this.fontSizeVal = settings.fontSizeVal;
+      this.gridFontSizeVal = settings.fontSizeVal;
+      const fsEl = document.getElementById('grid-fontsize-val');
+      if (fsEl) fsEl.value = this.fontSizeVal;
+    }
+
+    // 4. Clock Format
+    if (settings.clockFormat) {
+      this.clockFormat = settings.clockFormat;
+      document.querySelectorAll('#toggle-clock-type .pill-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-val') === this.clockFormat);
+      });
+    }
+
+    // 5. Background Blur
+    if (typeof settings.bgBlurEnabled === 'boolean') {
+      this.bgBlurEnabled = settings.bgBlurEnabled;
+      this.bgBlurIntensity = settings.bgBlurIntensity || 10;
+      
+      const toggleBgBlur = document.getElementById('toggle-bg-blur');
+      const blurControl = document.getElementById('blur-intensity-control');
+      const blurSlider = document.getElementById('slider-bg-blur');
+      const blurValText = document.getElementById('blur-intensity-val');
+
+      if (toggleBgBlur) {
+        toggleBgBlur.querySelectorAll('.pill-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-val') === (this.bgBlurEnabled ? 'yes' : 'no'));
+        });
+      }
+      if (blurControl) blurControl.classList.toggle('hidden', !this.bgBlurEnabled);
+      if (blurSlider) blurSlider.value = this.bgBlurIntensity;
+      if (blurValText) blurValText.innerText = `${this.bgBlurIntensity}px`;
+      document.documentElement.style.setProperty('--wallpaper-blur-val', this.bgBlurEnabled ? `${this.bgBlurIntensity}px` : '0px');
+    }
+
+    // 6. Font Family
+    if (settings.fontFamily && this.applyFontFamily) {
+      this.applyFontFamily(settings.fontFamily);
+    }
+
+    // 7. Timetable Opacity
+    if (settings.timetableOpacity && this.setTimetableOpacity) {
+      this.setTimetableOpacity(settings.timetableOpacity);
+    }
+
+    // 8. Title
+    if (settings.showTitle !== undefined) {
+      this.showTitle = settings.showTitle;
+      document.querySelectorAll('#toggle-title .pill-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-val') === (this.showTitle ? 'yes' : 'no'));
+      });
+      if (this.lockGridTitle) this.lockGridTitle.style.display = this.showTitle ? 'block' : 'none';
+    }
+    if (settings.titleText) {
+      this.updateTitleText(settings.titleText);
+    }
+
+    // 9. Active Days
+    if (Array.isArray(settings.activeDays)) {
+      this.activeDays = [...settings.activeDays];
+      document.querySelectorAll('.day-toggle').forEach(chk => {
+        chk.checked = this.activeDays.includes(chk.value);
+      });
+    }
+
+    // 10. Hours
+    if (settings.gridStartHour && this.gridStartTimeSelect) {
+      this.gridStartHour = settings.gridStartHour;
+      this.gridStartTimeSelect.value = `${String(this.gridStartHour).padStart(2, '0')}:00`;
+    }
+    if (settings.gridEndHour && this.gridEndTimeSelect) {
+      this.gridEndHour = settings.gridEndHour;
+      this.gridEndTimeSelect.value = `${String(this.gridEndHour).padStart(2, '0')}:00`;
+    }
+
+    this.renderTimetableGrid();
+  }
+
+  initPresets() {
+    if (!this.presets) {
+      this.presets = {
+        default: { name: 'Default', classes: this.classes || [], settings: this.getPresetSettings() }
+      };
+      this.activePresetKey = 'default';
+    }
+    this.loadPresetsFromStorage();
+    this.setupPresetEvents();
+  }
+
+  loadPresetsFromStorage() {
+    try {
+      const stored = localStorage.getItem('schedully_presets');
+      if (stored) {
+        this.presets = JSON.parse(stored);
+      }
+      const active = localStorage.getItem('schedully_active_preset');
+      if (active && this.presets[active]) {
+        this.activePresetKey = active;
+        this.classes = this.presets[active].classes || [];
+        if (this.presets[active].settings) {
+          this.applyPresetSettings(this.presets[active].settings);
+        }
+        if (this.presets[active].wallpaper) {
+          this.applyWallpaper(this.presets[active].wallpaper, true);
+        }
+      }
+    } catch (e) {}
+    this.updatePresetSelectDropdown();
+  }
+
+  updatePresetSelectDropdown() {
+    const select = document.getElementById('preset-schedule-select');
+    if (!select || !this.presets) return;
+    select.innerHTML = '';
+    Object.keys(this.presets).forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.innerText = this.presets[key].name || key;
+      if (key === this.activePresetKey) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  setupPresetEvents() {
+    const select = document.getElementById('preset-schedule-select');
+    const btnAdd = document.getElementById('btn-add-preset');
+    const btnEdit = document.getElementById('btn-edit-preset');
+
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const targetKey = e.target.value;
+        if (this.presets[targetKey]) {
+          // 1. Save current preset's full state
+          if (this.activePresetKey && this.presets[this.activePresetKey]) {
+            this.presets[this.activePresetKey].classes = this.classes;
+            this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+            this.presets[this.activePresetKey].wallpaperSwatches = this.wallpaperSwatches || null;
+            this.presets[this.activePresetKey].settings = this.getPresetSettings();
+          }
+
+          // 2. Switch active key & classes
+          this.activePresetKey = targetKey;
+          this.classes = this.presets[targetKey].classes || [];
+
+          // 3. Restore Target Preset Settings
+          if (this.presets[targetKey].settings) {
+            this.applyPresetSettings(this.presets[targetKey].settings);
+          }
+
+          // 4. Restore or Remove Wallpaper
+          if (this.presets[targetKey].wallpaper) {
+            this.applyWallpaper(this.presets[targetKey].wallpaper, true);
+          } else {
+            this.removeWallpaper();
+          }
+
+          this.saveToLocal();
+          this.renderAll();
+        }
+      });
+    }
+
+    if (btnEdit) {
+      btnEdit.addEventListener('click', () => {
+        const currentName = this.presets[this.activePresetKey]?.name || 'Default';
+        const newName = prompt("Edit preset name (e.g. Semester 1, Exam Timetable):", currentName);
+        if (newName && newName.trim().length > 0) {
+          this.presets[this.activePresetKey].name = newName.trim();
+          this.updatePresetSelectDropdown();
+          this.saveToLocal();
+        }
+      });
+    }
+
+    if (btnAdd) {
+      btnAdd.addEventListener('click', () => {
+        const name = prompt("Enter a name for your new schedule preset (e.g. Semester 2, Exam Schedule):");
+        if (name && name.trim().length > 0) {
+          // 1. Save current preset
+          if (this.activePresetKey && this.presets[this.activePresetKey]) {
+            this.presets[this.activePresetKey].classes = this.classes;
+            this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+            this.presets[this.activePresetKey].wallpaperSwatches = this.wallpaperSwatches || null;
+            this.presets[this.activePresetKey].settings = this.getPresetSettings();
+          }
+
+          const key = 'preset_' + Date.now();
+          const freshSettings = {
+            cardCornerStyle: 'rounded',
+            cardCornerRadiusVal: 8,
+            currentMode: 'light',
+            currentPalette: 'nord',
+            gridWidthVal: 100,
+            gridHeightVal: 49,
+            gridYPosVal: 0,
+            fontSizeVal: 9,
+            clockFormat: '12-hour',
+            bgBlurEnabled: false,
+            bgBlurIntensity: 10,
+            fontFamily: 'default',
+            timetableOpacity: 100,
+            showTitle: true,
+            titleText: 'Untitled',
+            activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            gridStartHour: 8,
+            gridEndHour: 20
+          };
+
+          this.presets[key] = {
+            name: name.trim(),
+            classes: [],
+            wallpaper: null,
+            wallpaperSwatches: null,
+            settings: freshSettings
+          };
+          this.activePresetKey = key;
+          this.classes = [];
+
+          // FULL RESET: Reset timetable AND reset background/wallpaper and apply fresh settings!
+          this.removeWallpaper();
+          this.phoneCanvas.style.backgroundColor = '';
+          this.applyHeaderColor('');
+          this.applyFontColor('');
+          this.applyPresetSettings(freshSettings);
+
+          this.updatePresetSelectDropdown();
+          this.saveToLocal();
+          this.renderAll();
+        }
+      });
+    }
+  }
+
   saveToLocal() {
     try {
+      if (!this.presets) this.presets = {};
+      if (!this.activePresetKey) this.activePresetKey = 'default';
+
+      const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+      const currentSettings = this.getPresetSettings();
+
+      this.presets[this.activePresetKey] = {
+        name: this.presets[this.activePresetKey]?.name || 'Default',
+        classes: this.classes,
+        wallpaper: currentWallpaper,
+        wallpaperSwatches: this.wallpaperSwatches || null,
+        settings: currentSettings
+      };
+
       localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
+      localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
+      localStorage.setItem('schedully_active_preset', this.activePresetKey);
+
       if (window.schedullyFirebase) {
-        window.schedullyFirebase.saveUserSchedule({ classes: this.classes });
+        window.schedullyFirebase.saveUserData({
+          classes: this.classes,
+          presets: this.presets,
+          activePreset: this.activePresetKey,
+          wallpaper: currentWallpaper,
+          settings: currentSettings
+        });
       }
     } catch (e) {
-      console.warn("Could not save classes to local storage", e);
+      console.warn("Could not save to local storage", e);
     }
   }
 
@@ -2785,16 +3655,20 @@ class SchedullyApp {
           const topPercent = ((sm || 0) / 60) * 100;
           const durationHours = durationM / 60;
 
-          // Adaptive Color Palette Rotation
+          // Adaptive Color Palette Rotation (Wallpaper Swatches or Theme Palette)
           const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
           const modeKey = (this.currentMode === 'auto' ? (isDark ? 'dark' : 'light') : this.currentMode);
           const paletteGroup = THEME_PALETTES[modeKey] || THEME_PALETTES.light;
           const activePalette = paletteGroup[this.currentPalette] || paletteGroup.indigo;
-          const courseSwatches = activePalette.courseSwatches || ['#1D4ED8', '#2563EB', '#3B82F6', '#10B981'];
+          const courseSwatches = (this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
+            ? this.wallpaperSwatches
+            : (activePalette.courseSwatches || ['#1D4ED8', '#2563EB', '#3B82F6', '#10B981']);
 
           const matchIdx = this.classes.indexOf(matched);
           const adaptiveBg = courseSwatches[matchIdx % courseSwatches.length] || matched.customColor;
-          const effectiveBg = this.globalAdaptiveColor ? adaptiveBg : matched.customColor;
+          const effectiveBg = (this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
+            ? (matched.customColor || adaptiveBg)
+            : (this.globalAdaptiveColor ? adaptiveBg : matched.customColor);
 
           // Smart Auto-Contrast Font Color for Card Text
           const autoContrastFont = this.getContrastColor(effectiveBg);
