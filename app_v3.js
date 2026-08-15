@@ -1059,7 +1059,7 @@ class SchedullyApp {
     }
 
     if (shouldExtract) {
-      this.extractColorsFromImage(dataUrl);
+      this.extractColorsFromImage(dataUrl, isSwitchingPreset);
     }
   }
 
@@ -1186,7 +1186,7 @@ class SchedullyApp {
     }
   }
 
-  extractColorsFromImage(dataUrl) {
+  extractColorsFromImage(dataUrl, skipAutoStage = false) {
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.onload = () => {
@@ -1313,6 +1313,11 @@ class SchedullyApp {
 
           this.wallpaperSwatches = courseSwatches;
 
+          // Save wallpaperSwatches to active preset record
+          if (this.activePresetKey && this.presets && this.presets[this.activePresetKey]) {
+            this.presets[this.activePresetKey].wallpaperSwatches = courseSwatches;
+          }
+
           // Auto update class course colors to match photo palette (override unless user manually picked a specific color)
           this.classes.forEach((cls, idx) => {
             if (!cls.isManualCustomColor) {
@@ -1322,7 +1327,9 @@ class SchedullyApp {
           });
 
           this.renderAll();
-          this._stagePending();
+          if (!skipAutoStage) {
+            this._stagePending();
+          }
         }
       } catch (err) {
         console.warn("Color extraction failed:", err);
@@ -3517,6 +3524,15 @@ class SchedullyApp {
           // 4. Restore or Remove Wallpaper for target preset
           if (this.presets[targetKey].wallpaper) {
             this.applyWallpaper(this.presets[targetKey].wallpaper, true, true);
+            if (this.presets[targetKey].wallpaperSwatches && Array.isArray(this.presets[targetKey].wallpaperSwatches)) {
+              this.wallpaperSwatches = this.presets[targetKey].wallpaperSwatches;
+              this.classes.forEach((cls, idx) => {
+                if (!cls.isManualCustomColor) {
+                  cls.customColor = this.wallpaperSwatches[idx % this.wallpaperSwatches.length];
+                  cls.color = this.wallpaperSwatches[idx % this.wallpaperSwatches.length];
+                }
+              });
+            }
           } else {
             this.removeWallpaper(true);
           }
