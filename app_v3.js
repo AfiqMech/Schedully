@@ -3595,15 +3595,27 @@ class SchedullyApp {
       return;
     }
 
-    // Auto-assign random colors if importing
+    // Auto-assign adaptive colors if importing
+    const hasWallpaper = this.phoneCanvas?.classList.contains('has-photo-wallpaper');
+    const wallpaperSwatches = this.wallpaperSwatches || (this.presets && this.presets[this.activePresetKey]?.wallpaperSwatches);
     const themeColors = document.querySelectorAll('.swatch-dot');
     
+    // Build a unique color map by course code so slots for the same course share the same color
+    const codeColorMap = {};
+    let colorIdx = 0;
+
     const mapped = dedupedEvents.map((c, i) => {
-      let randomColor = this.selectedColor;
-      if (themeColors.length > 0) {
-         const randomIdx = Math.floor(Math.random() * themeColors.length);
-         randomColor = themeColors[randomIdx].getAttribute('data-color');
+      if (!codeColorMap[c.code]) {
+        if (hasWallpaper && Array.isArray(wallpaperSwatches) && wallpaperSwatches.length > 0) {
+          codeColorMap[c.code] = wallpaperSwatches[colorIdx % wallpaperSwatches.length];
+        } else if (themeColors.length > 0) {
+          codeColorMap[c.code] = themeColors[colorIdx % themeColors.length].getAttribute('data-color');
+        } else {
+          codeColorMap[c.code] = this.selectedColor;
+        }
+        colorIdx++;
       }
+
       return {
         id: Date.now() + i,
         code: c.code,
@@ -3615,7 +3627,7 @@ class SchedullyApp {
         room: c.room || '',
         lecturer: c.lecturer || '',
         group: c.group || '',
-        customColor: randomColor,
+        customColor: codeColorMap[c.code],
         fontColor: this.newCourseFontColor,
         displayTime: this.newCourseDisplayTime
       };
