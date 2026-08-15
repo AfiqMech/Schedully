@@ -330,7 +330,8 @@ class SchedullyApp {
     root.style.setProperty('--m3-sys-color-outline', selectedTheme.outline);
     root.style.setProperty('--m3-sys-color-primary', selectedTheme.top);
     root.style.setProperty('--m3-sys-color-primary-container', selectedTheme.bottom || selectedTheme.variant);
-    root.style.setProperty('--m3-sys-color-on-primary', '#FFFFFF');
+    const onPrimary = selectedTheme.onPrimary || this.getContrastColor(selectedTheme.top);
+    root.style.setProperty('--m3-sys-color-on-primary', onPrimary);
 
     // Apply default high-contrast font color for headers/title
     if (!this.userHasPickedFontColor) {
@@ -407,7 +408,7 @@ class SchedullyApp {
   applyDynamicThemeToElements(theme) {
     const primary   = theme.top;
     const container = theme.bottom;
-    const onPrimary = theme.onPrimary || '#FFFFFF';
+    const onPrimary = theme.onPrimary || this.getContrastColor(primary);
     const surface   = theme.surface;
     const bg        = theme.bg;
     const variant   = theme.variant;
@@ -500,6 +501,21 @@ class SchedullyApp {
         }
       });
 
+      // Bottom Login & Globe pill buttons
+      document.querySelectorAll('.btn-adaptive-auth').forEach(btn => {
+        btn.style.backgroundColor = primary;
+        btn.style.color = onPrimary;
+        btn.querySelectorAll('span, svg').forEach(child => {
+          child.style.color = onPrimary;
+        });
+      });
+      document.querySelectorAll('.btn-globe-language, .btn-coffee-support').forEach(btn => {
+        btn.style.backgroundColor = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        btn.querySelectorAll('svg').forEach(svg => svg.style.color = '');
+      });
+
       // Bottom User Profile card
       document.querySelectorAll('.user-profile-card').forEach(el => {
         el.style.backgroundColor = variant;
@@ -515,9 +531,18 @@ class SchedullyApp {
       });
 
       // Force explicitly override the expandable content containers (to bypass CSS caching)
-      document.querySelectorAll('.expandable-content, .card-expand-content, #schedule-quick-settings, #canvas-controls-popover').forEach(el => {
+      document.querySelectorAll('.expandable-content, .card-expand-content, #schedule-quick-settings, #canvas-controls-popover, #login-providers-menu, #profile-settings-menu').forEach(el => {
         el.style.backgroundColor = surface;
         el.style.borderColor = outline || 'rgba(255,255,255,0.15)';
+      });
+
+      // Target Popover menus in dark mode
+      document.querySelectorAll('#login-providers-menu, #profile-settings-menu').forEach(menu => {
+        menu.style.backgroundColor = surface;
+        menu.style.borderColor = outline || 'rgba(255,255,255,0.15)';
+        menu.querySelectorAll('.popover-item-title, p:not(.popover-item-desc)').forEach(t => t.style.color = textColor);
+        menu.querySelectorAll('.popover-item-desc, span.text-gray-400').forEach(d => d.style.color = subtext);
+        menu.querySelectorAll('.popover-divider, .popover-header').forEach(div => div.style.borderColor = outline || 'rgba(255,255,255,0.15)');
       });
 
       // Target Popover controls card (#canvas-controls-popover) in dark mode
@@ -722,8 +747,9 @@ class SchedullyApp {
         slotsBadge.style.borderColor = '';
       }
 
-      document.querySelectorAll('#btn-toggle-right-sidebar, #btn-toggle-left-sidebar, #btn-clear-all, #btn-settings-toggle').forEach(btn => {
+      document.querySelectorAll('#btn-toggle-right-sidebar, #btn-toggle-left-sidebar, #btn-clear-all, #btn-settings-toggle, .btn-globe-language, .btn-coffee-support').forEach(btn => {
         btn.style.backgroundColor = '';
+        btn.style.borderColor = '';
         btn.style.color = '';
         btn.querySelectorAll('svg').forEach(svg => svg.style.color = '');
       });
@@ -975,12 +1001,10 @@ class SchedullyApp {
       const file = e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target.result;
-        this.applyWallpaper(dataUrl, true);
-      };
-      reader.readAsDataURL(file);
+      this.compressWallpaperImage(file, (compressedDataUrl) => {
+        this.applyWallpaper(compressedDataUrl, true);
+        this._stagePending();
+      });
     });
 
     removeBtn?.addEventListener('click', (e) => {
@@ -988,6 +1012,43 @@ class SchedullyApp {
       e.stopPropagation();
       this.removeWallpaper();
     });
+  }
+
+  compressWallpaperImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_WIDTH = 1080;
+        const MAX_HEIGHT = 1920;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // JPEG at 0.85 quality produces ~120KB - 250KB crisp wallpaper dataUrl
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        callback(compressedDataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   setWallpaperModeUI(isActive) {
@@ -1027,6 +1088,8 @@ class SchedullyApp {
   }
 
   applyWallpaper(dataUrl, shouldExtract = true, isSwitchingPreset = false) {
+    this.currentWallpaperData = dataUrl;
+
     const phoneCanvas = document.getElementById('phone-canvas');
     const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
     const controlsBar = document.getElementById('wallpaper-controls-bar');
@@ -1095,9 +1158,13 @@ class SchedullyApp {
     } catch (e) {}
 
     // Only wipe from active preset if user explicitly tapped the Remove Wallpaper button (not when switching presets)
-    if (!isSwitchingPreset && this.activePresetKey && this.presets && this.presets[this.activePresetKey]) {
-      this.presets[this.activePresetKey].wallpaper = null;
-      this.presets[this.activePresetKey].wallpaperSwatches = null;
+    if (!isSwitchingPreset) {
+      this.currentWallpaperData = null;
+      if (this.activePresetKey && this.presets && this.presets[this.activePresetKey]) {
+        this.presets[this.activePresetKey].wallpaper = null;
+        this.presets[this.activePresetKey].wallpaperSwatches = null;
+      }
+      this._stagePending();
     }
 
     // Reset back to active preset theme palette
@@ -1437,8 +1504,136 @@ class SchedullyApp {
     };
   }
 
+  setupLanguageModal() {
+    const btnOpen = document.getElementById('btn-open-language-modal');
+    const modal = document.getElementById('language-modal');
+    const btnClose = document.getElementById('btn-close-language-modal');
+
+    const openModal = () => {
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      window.SchedullyI18n?.applyTranslations();
+    };
+
+    const closeModal = () => {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    };
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal();
+      });
+
+      if (btnClose) {
+        btnClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+      }
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      document.querySelectorAll('.lang-option-pill').forEach(pill => {
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          const lang = pill.getAttribute('data-lang');
+          if (lang && window.SchedullyI18n) {
+            window.SchedullyI18n.setLanguage(lang);
+            closeModal();
+          }
+        });
+      });
+    }
+
+    window.SchedullyI18n?.applyTranslations();
+  }
+
+  setupCoffeeModal() {
+    const btnOpen = document.getElementById('btn-open-coffee-modal');
+    const modal = document.getElementById('coffee-modal');
+    const btnClose = document.getElementById('btn-close-coffee-modal');
+    const tabBmcBtn = document.getElementById('btn-tab-bmc');
+    const tabTngBtn = document.getElementById('btn-tab-tng');
+    const tabBmcContent = document.getElementById('support-tab-bmc');
+    const tabTngContent = document.getElementById('support-tab-tng');
+
+    const switchTab = (tab) => {
+      if (tab === 'bmc') {
+        tabBmcBtn?.classList.add('active');
+        tabTngBtn?.classList.remove('active');
+        tabBmcContent?.classList.remove('hidden');
+        tabTngContent?.classList.add('hidden');
+      } else {
+        tabTngBtn?.classList.add('active');
+        tabBmcBtn?.classList.remove('active');
+        tabTngContent?.classList.remove('hidden');
+        tabBmcContent?.classList.add('hidden');
+      }
+    };
+
+    if (tabBmcBtn) {
+      tabBmcBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab('bmc');
+      });
+    }
+    if (tabTngBtn) {
+      tabTngBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab('tng');
+      });
+    }
+
+    const openModal = () => {
+      if (!modal) return;
+      switchTab('bmc');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+    };
+
+    const closeModal = () => {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    };
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal();
+      });
+
+      if (btnClose) {
+        btnClose.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        });
+      }
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+    }
+  }
+
   bindEvents() {
     this.setupFirebaseIntegration();
+    this.setupLanguageModal();
+    this.setupCoffeeModal();
     this.setupWallpaperEngine();
     this.setupFontFamilyEngine();
     this.setupCustomColorModalEngine();
@@ -1754,11 +1949,22 @@ class SchedullyApp {
         btn.classList.add('active');
         this.showLockUI = (btn.getAttribute('data-val') === 'yes');
         const header = document.getElementById('phone-lock-header');
-        if (header) header.style.opacity = this.showLockUI ? '1' : '0';
+        if (header) {
+          if (this.showLockUI) {
+            header.classList.remove('hide-lock-ui');
+            header.style.visibility = 'visible';
+            header.style.opacity = '1';
+          } else {
+            header.classList.add('hide-lock-ui');
+            header.style.visibility = 'hidden';
+            header.style.opacity = '0';
+          }
+        }
+        this._stagePending();
       });
     });
 
-    // Show/Hide Table Toggle
+    // Show/Hide Table Toggle (TABLE vs BG ONLY)
     document.querySelectorAll('#toggle-show-table .pill-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#toggle-show-table .pill-btn').forEach(b => b.classList.remove('active'));
@@ -1766,9 +1972,19 @@ class SchedullyApp {
         this.showTable = (btn.getAttribute('data-val') === 'yes');
         const container = document.getElementById('lock-timetable-container');
         if (container) {
-          container.style.opacity = this.showTable ? '1' : '0';
-          container.style.pointerEvents = this.showTable ? 'auto' : 'none';
+          if (this.showTable) {
+            container.classList.remove('hide-timetable-grid');
+            container.style.display = 'flex';
+            container.style.opacity = '1';
+            container.style.pointerEvents = 'auto';
+          } else {
+            container.classList.add('hide-timetable-grid');
+            container.style.display = 'none';
+            container.style.opacity = '0';
+            container.style.pointerEvents = 'none';
+          }
         }
+        this._stagePending();
       });
     });
 
@@ -2789,7 +3005,7 @@ class SchedullyApp {
         delete target.isClashing;
         this.ignoreClashes = false;
         this.renderAll();
-        alert("ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¡Ãƒâ€šÃ‚Â¡ Clash Auto-Resolved! Shifted overlapping slot to Friday 2:00 PM.");
+        alert("⚠️ Clash Auto-Resolved! Shifted overlapping slot to Friday 2:00 PM.");
       }
     });
 
@@ -2806,20 +3022,20 @@ class SchedullyApp {
     // iCal Export Button
     this.btnExportICal?.addEventListener('click', () => {
       window.timetableEngine.exportToICal(this.classes, `schedully_schedule.ics`);
-      alert("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ Exported .ics Calendar File! Open this file to import into Google Calendar or Apple Calendar.");
+      alert("📅 Exported .ics Calendar File! Open this file to import into Google Calendar or Apple Calendar.");
     });
 
     // CSV Export Button
     this.btnExportCSV?.addEventListener('click', () => {
       window.timetableEngine.exportToCSV(this.classes, `schedully_schedule.csv`);
-      alert("ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œÃƒâ€¦Ã‚Â  Exported CSV File!");
+      alert("📊 Exported CSV File!");
     });
 
-    // Wallpaper export ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Using dom-to-image-more
+    // Wallpaper export — Using dom-to-image-more
     const exportWallpaper = (onComplete) => {
       const originalCanvas = document.getElementById('phone-canvas');
       
-      const cssW = originalCanvas.clientWidth + 24; // full width including borders if any
+      const cssW = originalCanvas.clientWidth + 24;
       const cssH = originalCanvas.clientHeight + 24;
 
       const stagingContainer = document.createElement('div');
@@ -2832,17 +3048,10 @@ class SchedullyApp {
 
       const clone = originalCanvas.cloneNode(true);
       
-      // DO NOT strip borders or margins from the clone! Changing the box model causes layout bugs in WebKit/Blink.
-      // Instead, we will capture it exactly as is, and then crop the canvas image mathematically.
-      
-      // CRITICAL FIX: WebKit/Blink SVG Rendering Bug Mitigation
-      // Mobile engines notoriously miscalculate clipping masks and shadows when rendering SVGs with scale().
-      // By stripping border-radius, overflow, and shadows, we force the engine to draw a plain box, avoiding all shifting bugs.
       clone.style.setProperty('overflow', 'visible', 'important');
       clone.style.setProperty('border-radius', '0', 'important');
       clone.style.setProperty('box-shadow', 'none', 'important');
       
-      // Make clock, camera dot, and nav bar INVISIBLE (but preserve their layout space)
       ['.phone-camera-dot', '#phone-lock-header', '.phone-nav-bar'].forEach(sel => {
         const el = clone.querySelector(sel);
         if (el) {
@@ -2851,8 +3060,6 @@ class SchedullyApp {
         }
       });
 
-      // Micro-adjust text size in the clone to cancel out the SVG kerning bug!
-      // Mobile devices require a much more aggressive shrink factor due to how mobile OS fonts map to SVG <foreignObject>.
       const isMobileExport = window.innerWidth <= 1280;
       const shrinkFactor = isMobileExport ? 0.85 : 0.94;
       const letterSpace = isMobileExport ? '-0.25px' : '-0.15px';
@@ -2862,7 +3069,7 @@ class SchedullyApp {
         el.style.setProperty('font-size', (currentFontSize * shrinkFactor) + 'px', 'important');
         el.style.setProperty('letter-spacing', letterSpace, 'important');
       });
-      // Explicitly carry over the active custom font family onto the timetable inside the clone
+      
       const activeTimetableFont = getComputedStyle(document.documentElement).getPropertyValue('--timetable-font-family') || "'Inter', sans-serif";
       const timetableContainer = clone.querySelector('#lock-timetable-container');
       if (timetableContainer) {
@@ -2876,7 +3083,6 @@ class SchedullyApp {
       stagingContainer.appendChild(clone);
 
       const runRasterize = async () => {
-        // Guarantee all font faces and custom glyphs are ready in canvas memory
         if (document.fonts && document.fonts.ready) {
           try {
             await document.fonts.ready;
@@ -2884,8 +3090,6 @@ class SchedullyApp {
         }
 
         const scale = 3;
-        const rect = originalCanvas.getBoundingClientRect();
-        
         window.domtoimage.toCanvas(clone, {
           width: originalCanvas.offsetWidth * scale,
           height: originalCanvas.offsetHeight * scale,
@@ -2898,7 +3102,6 @@ class SchedullyApp {
         }).then(canvas => {
           if (document.body.contains(stagingContainer)) document.body.removeChild(stagingContainer);
           
-          // Step 2: Mathematically crop the black bezel from the resulting canvas
           const computedStyle = window.getComputedStyle(originalCanvas);
           const borderTop = parseFloat(computedStyle.borderTopWidth) || 0;
           const borderLeft = parseFloat(computedStyle.borderLeftWidth) || 0;
@@ -2915,8 +3118,8 @@ class SchedullyApp {
           
           ctx.drawImage(
             canvas,
-            borderLeft * scale, borderTop * scale, finalW, finalH, // Source crop
-            0, 0, finalW, finalH // Destination
+            borderLeft * scale, borderTop * scale, finalW, finalH,
+            0, 0, finalW, finalH
           );
           
           onComplete(finalCanvas);
@@ -2933,8 +3136,8 @@ class SchedullyApp {
     };
 
 
-    // Download Image Button ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Pure clean wallpaper PNG export (Mobile & Desktop)
-    this.btnDownloadHD.addEventListener('click', () => {
+    // Download Image Button â€” Pure clean wallpaper PNG export (Mobile & Desktop)
+    this.btnDownloadHD?.addEventListener('click', () => {
       exportWallpaper((canvas) => {
         canvas.toBlob((blob) => {
           if (blob && window.timetableEngine?.downloadOrShareFile) {
@@ -2949,8 +3152,8 @@ class SchedullyApp {
       });
     });
 
-    // Save As PDF Button ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Pure clean wallpaper PDF export (Mobile & Desktop)
-    this.btnSavePdf.addEventListener('click', () => {
+    // Save As PDF Button â€” Pure clean wallpaper PDF export (Mobile & Desktop)
+    this.btnSavePdf?.addEventListener('click', () => {
       exportWallpaper((canvas) => {
         const { jsPDF } = window.jspdf;
         const imgData = canvas.toDataURL('image/png');
@@ -2978,7 +3181,7 @@ class SchedullyApp {
       });
     });
 
-    // ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Mobile Export Dropdown ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬
+    // â”€â”€ Mobile Export Dropdown â”€â”€
     const mobileExportToggle = document.getElementById('btn-mobile-export-toggle');
     const mobileExportDropdown = document.getElementById('mobile-export-dropdown');
     const mobileExportChevron = document.getElementById('mobile-export-chevron');
@@ -3006,7 +3209,7 @@ class SchedullyApp {
       }
     });
 
-    // Proxy mobile buttons ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ desktop button click handlers
+    // Proxy mobile buttons â€” desktop button click handlers
     document.getElementById('btn-download-hd-mobile')?.addEventListener('click', () => {
       closeMobileDropdown();
       this.btnDownloadHD?.click();
@@ -3023,295 +3226,8 @@ class SchedullyApp {
       closeMobileDropdown();
       this.btnSavePdf?.click();
     });
-    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  }
-  loadFromLocal() {
-    try {
-      const saved = localStorage.getItem('schedully_classes') || localStorage.getItem('timefactory_classes');
-      if (saved) {
-        this.classes = JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn("Could not load classes from local storage", e);
-      this.classes = [];
-    }
   }
 
-  setupFirebaseIntegration() {
-    const btnLogin = document.getElementById('btn-google-login');
-    const btnLogout = document.getElementById('btn-google-logout');
-    const btnSaveCloud = document.getElementById('btn-save-to-cloud');
-    const btnSaveCloudMobile = document.getElementById('btn-save-to-cloud-mobile');
-    const mobileSaveWrapper = document.getElementById('mobile-save-cloud-wrapper');
-
-    const loggedOutState = document.getElementById('user-logged-out-state');
-    const loggedInState = document.getElementById('user-logged-in-state');
-
-    const avatarBadge = document.getElementById('user-avatar-badge');
-    const displayNameEl = document.getElementById('user-display-name');
-    const statusTextEl = document.getElementById('user-status-text');
-
-    const btnResetCloud = document.getElementById('btn-google-reset-cloud');
-
-    if (btnLogin) {
-      btnLogin.addEventListener('click', async () => {
-        if (!window.schedullyFirebase?.auth) {
-          alert("Firebase is not initialized yet. Please check your config.");
-          return;
-        }
-        try {
-          await window.schedullyFirebase.loginWithGoogle();
-        } catch (err) {
-          alert('Google Login error: ' + (err.message || err));
-        }
-      });
-    }
-
-    if (btnResetCloud) {
-      btnResetCloud.addEventListener('click', async () => {
-        const confirmed = confirm("Are you sure you want to reset your account data in the cloud to fresh defaults? This will clear any broken test presets and classes.");
-        if (!confirmed) return;
-
-        const freshSettings = {
-          cardCornerStyle: 'rounded',
-          cardCornerRadiusVal: 8,
-          currentMode: 'light',
-          currentPalette: 'nord',
-          gridWidthVal: 100,
-          gridHeightVal: 49,
-          gridYPosVal: 0,
-          fontSizeVal: 9,
-          clockFormat: '12-hour',
-          bgBlurEnabled: false,
-          bgBlurIntensity: 10,
-          fontFamily: 'default',
-          timetableOpacity: 100,
-          showTitle: true,
-          titleText: 'Untitled',
-          activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-          gridStartHour: 8,
-          gridEndHour: 20
-        };
-
-        // 1. Reset Local Storage
-        localStorage.removeItem('schedully_presets');
-        localStorage.removeItem('schedully_active_preset');
-        localStorage.removeItem('schedully_classes');
-        localStorage.removeItem('schedully_wallpaper_data');
-
-        // 2. Reset In-Memory App State
-        this.classes = [];
-        this.presets = {
-          default: { name: 'Default', classes: [], settings: freshSettings, wallpaper: null, wallpaperSwatches: null }
-        };
-        this.activePresetKey = 'default';
-        this.removeWallpaper();
-        this.applyPresetSettings(freshSettings);
-        this.updatePresetSelectDropdown();
-        this.renderAll();
-
-        // 3. Reset Firebase Cloud Data
-        if (window.schedullyFirebase?.currentUser) {
-          await window.schedullyFirebase.resetUserData(freshSettings);
-        }
-
-        this.markSaved();
-        alert("Account reset successfully! Fresh default workspace is ready.");
-      });
-    }
-
-    if (btnLogout) {
-      btnLogout.addEventListener('click', async () => {
-        await window.schedullyFirebase?.logout();
-        if (btnSaveCloud) btnSaveCloud.style.display = 'none';
-        document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-
-        // Reset in-memory state and reload offline storage so previous user's data does not linger
-        localStorage.removeItem('schedully_presets');
-        localStorage.removeItem('schedully_active_preset');
-        localStorage.removeItem('schedully_classes');
-        localStorage.removeItem('schedully_wallpaper_data');
-
-        this.classes = [];
-        this.presets = {
-          default: { name: 'Default', classes: [], settings: this.getPresetSettings(), wallpaper: null, wallpaperSwatches: null }
-        };
-        this.activePresetKey = 'default';
-        this.removeWallpaper();
-        this.updatePresetSelectDropdown();
-        this.renderAll();
-      });
-    }
-
-    // Wire up the manual Save to Cloud button
-    if (btnSaveCloud) {
-      btnSaveCloud.addEventListener('click', () => this.saveToCloud());
-    }
-
-    // Listen for Auth state updates
-    const initAuthListener = () => {
-      if (window.schedullyFirebase) {
-        window.schedullyFirebase.onUserChangedCallback = (user) => {
-          if (user) {
-            if (displayNameEl) displayNameEl.innerText = user.displayName || 'User';
-            if (statusTextEl) statusTextEl.innerText = user.email || 'Online';
-            if (avatarBadge) {
-              if (user.photoURL) {
-                avatarBadge.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover" alt="User Avatar" />`;
-              } else {
-                avatarBadge.innerText = (user.displayName || 'U').charAt(0).toUpperCase();
-              }
-            }
-            if (loggedOutState) loggedOutState.classList.add('hidden');
-            if (loggedInState) loggedInState.classList.remove('hidden');
-            // Show the Save button when logged in
-            if (btnSaveCloud) btnSaveCloud.style.display = 'flex';
-          } else {
-            if (loggedOutState) loggedOutState.classList.remove('hidden');
-            if (loggedInState) loggedInState.classList.add('hidden');
-            // Hide the Save button when logged out
-            if (btnSaveCloud) btnSaveCloud.style.display = 'none';
-            document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-          }
-        };
-
-        // Fires on login (initial load) and whenever ANOTHER device presses Save.
-        // The _isSaving flag in firebase-config.js prevents your own saves from echoing back.
-        window.schedullyFirebase.onDataSyncedCallback = (data) => {
-          try {
-            // Case 1: Brand new user with NO cloud data yet -> Clear local storage & start completely fresh
-            if (!data || (!data.presets && !data.classes && !data.settings)) {
-              console.log("New user detected (no cloud data) - initializing clean fresh workspace.");
-              localStorage.removeItem('schedully_presets');
-              localStorage.removeItem('schedully_active_preset');
-              localStorage.removeItem('schedully_classes');
-              localStorage.removeItem('schedully_wallpaper_data');
-
-              this.classes = [];
-              const freshSettings = {
-                cardCornerStyle: 'rounded',
-                cardCornerRadiusVal: 8,
-                currentMode: 'light',
-                currentPalette: 'nord',
-                gridWidthVal: 100,
-                gridHeightVal: 49,
-                gridYPosVal: 0,
-                fontSizeVal: 9,
-                clockFormat: '12-hour',
-                bgBlurEnabled: false,
-                bgBlurIntensity: 10,
-                fontFamily: 'default',
-                timetableOpacity: 100,
-                showTitle: true,
-                titleText: 'Untitled',
-                activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                gridStartHour: 8,
-                gridEndHour: 20
-              };
-              this.presets = {
-                default: { name: 'Default', classes: [], settings: freshSettings, wallpaper: null, wallpaperSwatches: null }
-              };
-              this.activePresetKey = 'default';
-              this.removeWallpaper();
-              this.applyPresetSettings(freshSettings);
-              this.updatePresetSelectDropdown();
-              this.renderAll();
-              this.markSaved();
-              return;
-            }
-
-            // Case 2: Existing user WITH cloud data -> Restore progress accurately without losing anything!
-            if (data.presets && typeof data.presets === 'object') {
-              this.presets = data.presets;
-              this.updatePresetSelectDropdown();
-            }
-
-            if (data.activePreset && this.presets[data.activePreset]) {
-              this.activePresetKey = data.activePreset;
-              const presetData = this.presets[data.activePreset];
-              if (presetData.settings) {
-                this.applyPresetSettings(presetData.settings);
-              } else if (data.settings) {
-                this.applyPresetSettings(data.settings);
-              }
-              if (presetData.wallpaperSwatches && Array.isArray(presetData.wallpaperSwatches)) {
-                this.wallpaperSwatches = presetData.wallpaperSwatches;
-              }
-              if (presetData.wallpaper) {
-                this.applyWallpaper(presetData.wallpaper, true);
-                localStorage.setItem('schedully_wallpaper_data', presetData.wallpaper);
-              } else {
-                this.removeWallpaper();
-              }
-            } else if (data.settings) {
-              this.applyPresetSettings(data.settings);
-              if (!data.wallpaper) this.removeWallpaper();
-            }
-
-            // Restore schedule classes
-            if (Array.isArray(data.classes)) {
-              this.classes = data.classes;
-            } else if (data.activePreset && this.presets[data.activePreset] && Array.isArray(this.presets[data.activePreset].classes)) {
-              this.classes = this.presets[data.activePreset].classes;
-            }
-
-            // If wallpaper is active, guarantee wallpaper swatch adaptation is applied
-            if (this.phoneCanvas?.classList.contains('has-photo-wallpaper') && this.wallpaperSwatches && this.wallpaperSwatches.length > 0) {
-              this.classes.forEach((cls, idx) => {
-                if (!cls.isManualCustomColor) {
-                  cls.customColor = this.wallpaperSwatches[idx % this.wallpaperSwatches.length];
-                }
-              });
-            }
-
-            this.renderAll();
-
-            // Cache cloud data into localStorage so offline refresh preserves progress
-            localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
-            localStorage.setItem('schedully_active_preset', this.activePresetKey);
-            localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
-
-            // Silently clear unsaved indicator on load (NO animated "Saved!" flash on refresh)
-            this._hasUnsavedCloudChanges = false;
-            document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-          } catch (syncErr) {
-            console.warn("Cloud sync non-fatal error:", syncErr);
-          }
-        };
-
-        if (window.schedullyFirebase.currentUser) {
-          window.schedullyFirebase.onUserChangedCallback(window.schedullyFirebase.currentUser);
-        }
-      } else {
-        setTimeout(initAuthListener, 300);
-      }
-    };
-
-    initAuthListener();
-  }
-
-  getPresetSettings() {
-    return {
-      cardCornerStyle: this.cardCornerStyle || 'rounded',
-      cardCornerRadiusVal: this.cardCornerRadiusVal || 8,
-      currentMode: this.currentMode || 'light',
-      currentPalette: this.currentPalette || 'nord',
-      gridWidthVal: this.gridWidthVal || 100,
-      gridHeightVal: this.gridHeightVal || 49,
-      gridYPosVal: this.gridYPosVal || 0,
-      fontSizeVal: this.gridFontSizeVal || this.fontSizeVal || 9,
-      clockFormat: this.clockFormat || '12-hour',
-      bgBlurEnabled: this.bgBlurEnabled || false,
-      bgBlurIntensity: this.bgBlurIntensity || 10,
-      fontFamily: this.currentFontKey || 'default',
-      timetableOpacity: this.timetableOpacity || 100,
-      showTitle: this.showTitle !== undefined ? this.showTitle : true,
-      titleText: this.timetableTitleText || 'Untitled',
-      activeDays: this.activeDays ? [...this.activeDays] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-      gridStartHour: this.gridStartHour || 8,
-      gridEndHour: this.gridEndHour || 20
-    };
-  }
 
   applyPresetSettings(settings) {
     if (!settings || typeof settings !== 'object') return;
@@ -3401,7 +3317,7 @@ class SchedullyApp {
         document.documentElement.style.setProperty('--wallpaper-blur-val', this.bgBlurEnabled ? `${this.bgBlurIntensity}px` : '0px');
       }
 
-      // 6. Font Family (skip auto-save here so we don't trigger sync loop)
+      // 6. Font Family
       if (settings.fontFamily && this.applyFontFamily) {
         this.applyFontFamily(settings.fontFamily, null, true);
       }
@@ -3454,7 +3370,6 @@ class SchedullyApp {
       };
       this.activePresetKey = 'default';
     }
-    // Load local storage first (ensures immediate rendering for offline & existing users)
     this.loadPresetsFromStorage();
     this.setupPresetEvents();
   }
@@ -3472,8 +3387,10 @@ class SchedullyApp {
         if (this.presets[active].settings) {
           this.applyPresetSettings(this.presets[active].settings);
         }
-        if (this.presets[active].wallpaper) {
-          this.applyWallpaper(this.presets[active].wallpaper, true, true);
+        const activeWallpaper = this.presets[active].wallpaper || null;
+        this.currentWallpaperData = activeWallpaper;
+        if (activeWallpaper) {
+          this.applyWallpaper(activeWallpaper, true, true);
         } else {
           this.removeWallpaper(true);
         }
@@ -3497,9 +3414,6 @@ class SchedullyApp {
 
   setupPresetEvents() {
     const select = document.getElementById('preset-schedule-select');
-    const btnAdd = document.getElementById('btn-add-preset');
-    const btnEdit = document.getElementById('btn-edit-preset');
-
     if (select) {
       select.addEventListener('change', (e) => {
         const targetKey = e.target.value;
@@ -3507,7 +3421,7 @@ class SchedullyApp {
           // 1. Snapshot and save CURRENT active preset BEFORE switching
           if (this.activePresetKey && this.presets[this.activePresetKey]) {
             this.presets[this.activePresetKey].classes = [...this.classes];
-            this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+            this.presets[this.activePresetKey].wallpaper = this.currentWallpaperData || this.presets[this.activePresetKey].wallpaper || null;
             this.presets[this.activePresetKey].wallpaperSwatches = this.wallpaperSwatches || null;
             this.presets[this.activePresetKey].settings = this.getPresetSettings();
           }
@@ -3522,8 +3436,11 @@ class SchedullyApp {
           }
 
           // 4. Restore or Remove Wallpaper for target preset
-          if (this.presets[targetKey].wallpaper) {
-            this.applyWallpaper(this.presets[targetKey].wallpaper, true, true);
+          const targetWallpaper = this.presets[targetKey]?.wallpaper || null;
+          this.currentWallpaperData = targetWallpaper;
+
+          if (targetWallpaper) {
+            this.applyWallpaper(targetWallpaper, true, true);
             if (this.presets[targetKey].wallpaperSwatches && Array.isArray(this.presets[targetKey].wallpaperSwatches)) {
               this.wallpaperSwatches = this.presets[targetKey].wallpaperSwatches;
               this.classes.forEach((cls, idx) => {
@@ -3599,7 +3516,7 @@ class SchedullyApp {
           // 1. Save current preset snapshot
           if (this.activePresetKey && this.presets[this.activePresetKey]) {
             this.presets[this.activePresetKey].classes = this.classes;
-            this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+            this.presets[this.activePresetKey].wallpaper = this.currentWallpaperData || this.presets[this.activePresetKey].wallpaper || null;
             this.presets[this.activePresetKey].wallpaperSwatches = this.wallpaperSwatches || null;
             this.presets[this.activePresetKey].settings = this.getPresetSettings();
           }
@@ -3739,13 +3656,337 @@ class SchedullyApp {
     }
   }
 
-  // Called on every change ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â keeps changes in memory only. NO localStorage write.
-  // The Save button is the only thing that actually persists data.
+  loadFromLocal() {
+    try {
+      const saved = localStorage.getItem('schedully_classes') || localStorage.getItem('timefactory_classes');
+      if (saved) {
+        this.classes = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn("Could not load classes from local storage", e);
+      this.classes = [];
+    }
+  }
+
+  setupFirebaseIntegration() {
+    const btnLogin = document.getElementById('btn-google-login');
+    const btnLogout = document.getElementById('btn-google-logout');
+    const btnSaveCloud = document.getElementById('btn-save-to-cloud');
+
+    const loggedOutState = document.getElementById('user-logged-out-state');
+    const loggedInState = document.getElementById('user-logged-in-state');
+
+    const avatarBadge = document.getElementById('user-avatar-badge');
+    const displayNameEl = document.getElementById('user-display-name');
+    const statusTextEl = document.getElementById('user-status-text');
+
+    const btnResetCloud = document.getElementById('btn-google-reset-cloud');
+
+    // â”€â”€ Revamped Expandable Login Menu â”€â”€
+    const btnToggleLogin = document.getElementById('btn-toggle-login-menu');
+    const loginProvidersMenu = document.getElementById('login-providers-menu');
+    const loginChevron = document.getElementById('login-chevron');
+
+    if (btnToggleLogin && loginProvidersMenu) {
+      btnToggleLogin.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = loginProvidersMenu.classList.toggle('hidden');
+        if (loginChevron) {
+          loginChevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#user-logged-out-state')) {
+          loginProvidersMenu.classList.add('hidden');
+          if (loginChevron) loginChevron.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
+
+    // â”€â”€ Revamped Expandable Profile & Account Settings Menu â”€â”€
+    const btnToggleProfile = document.getElementById('btn-toggle-profile-menu');
+    const profileSettingsMenu = document.getElementById('profile-settings-menu');
+    const profileChevron = document.getElementById('profile-chevron');
+
+    if (btnToggleProfile && profileSettingsMenu) {
+      btnToggleProfile.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = profileSettingsMenu.classList.toggle('hidden');
+        if (profileChevron) {
+          profileChevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#user-logged-in-state')) {
+          profileSettingsMenu.classList.add('hidden');
+          if (profileChevron) profileChevron.style.transform = 'rotate(0deg)';
+        }
+      });
+    }
+
+    if (btnLogin) {
+      btnLogin.addEventListener('click', async () => {
+        loginProvidersMenu?.classList.add('hidden');
+        if (loginChevron) loginChevron.style.transform = 'rotate(0deg)';
+
+        if (!window.schedullyFirebase?.auth) {
+          alert("Firebase is not initialized yet. Please check your config.");
+          return;
+        }
+        try {
+          await window.schedullyFirebase.loginWithGoogle();
+        } catch (err) {
+          alert('Google Login error: ' + (err.message || err));
+        }
+      });
+    }
+
+    if (btnResetCloud) {
+      btnResetCloud.addEventListener('click', async () => {
+        profileSettingsMenu?.classList.add('hidden');
+        if (profileChevron) profileChevron.style.transform = 'rotate(0deg)';
+
+        const confirmed = confirm("Are you sure you want to reset your account data in the cloud to fresh defaults? This will clear any broken test presets and classes.");
+        if (!confirmed) return;
+
+        const freshSettings = {
+          cardCornerStyle: 'rounded',
+          cardCornerRadiusVal: 8,
+          currentMode: 'light',
+          currentPalette: 'nord',
+          gridWidthVal: 100,
+          gridHeightVal: 49,
+          gridYPosVal: 0,
+          fontSizeVal: 9,
+          clockFormat: '12-hour',
+          bgBlurEnabled: false,
+          bgBlurIntensity: 10,
+          fontFamily: 'default',
+          timetableOpacity: 100,
+          showTitle: true,
+          titleText: 'Untitled',
+          activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          gridStartHour: 8,
+          gridEndHour: 20
+        };
+
+        // 1. Reset Local Storage
+        localStorage.removeItem('schedully_presets');
+        localStorage.removeItem('schedully_active_preset');
+        localStorage.removeItem('schedully_classes');
+        localStorage.removeItem('schedully_wallpaper_data');
+
+        // 2. Reset In-Memory App State
+        this.classes = [];
+        this.presets = {
+          default: { name: 'Default', classes: [], settings: freshSettings, wallpaper: null, wallpaperSwatches: null }
+        };
+        this.activePresetKey = 'default';
+        this.removeWallpaper();
+        this.applyPresetSettings(freshSettings);
+        this.updatePresetSelectDropdown();
+        this.renderAll();
+
+        // 3. Reset Firebase Cloud Data
+        if (window.schedullyFirebase?.currentUser) {
+          await window.schedullyFirebase.resetUserData(freshSettings);
+        }
+
+        this.markSaved();
+        alert("Account reset successfully! Fresh default workspace is ready.");
+      });
+    }
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', async () => {
+        profileSettingsMenu?.classList.add('hidden');
+        if (profileChevron) profileChevron.style.transform = 'rotate(0deg)';
+
+        await window.schedullyFirebase?.logout();
+        if (btnSaveCloud) btnSaveCloud.style.display = 'none';
+
+        // Reset in-memory state and reload offline storage so previous user's data does not linger
+        localStorage.removeItem('schedully_presets');
+        localStorage.removeItem('schedully_active_preset');
+        localStorage.removeItem('schedully_classes');
+        localStorage.removeItem('schedully_wallpaper_data');
+
+        this.classes = [];
+        this.presets = {
+          default: { name: 'Default', classes: [], settings: this.getPresetSettings(), wallpaper: null, wallpaperSwatches: null }
+        };
+        this.activePresetKey = 'default';
+        this.removeWallpaper();
+        this.updatePresetSelectDropdown();
+        this.renderAll();
+      });
+    }
+
+    // Listen for Auth state updates
+    const initAuthListener = () => {
+      if (window.schedullyFirebase) {
+        window.schedullyFirebase.onUserChangedCallback = (user) => {
+          if (user) {
+            if (displayNameEl) displayNameEl.innerText = user.displayName || 'User';
+            if (statusTextEl) statusTextEl.innerText = user.email || 'Online';
+            if (avatarBadge) {
+              if (user.photoURL) {
+                avatarBadge.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover" alt="User Avatar" />`;
+              } else {
+                avatarBadge.innerText = (user.displayName || 'U').charAt(0).toUpperCase();
+              }
+            }
+            if (loggedOutState) loggedOutState.classList.add('hidden');
+            if (loggedInState) loggedInState.classList.remove('hidden');
+          } else {
+            if (loggedOutState) loggedOutState.classList.remove('hidden');
+            if (loggedInState) loggedInState.classList.add('hidden');
+          }
+        };
+
+        // Fires on login (initial load) and whenever cloud data updates
+        window.schedullyFirebase.onDataSyncedCallback = (data) => {
+          try {
+            // Case 1: Brand new user with NO cloud data yet -> Clear local storage & start completely fresh
+            if (!data || (!data.presets && !data.classes && !data.settings)) {
+              console.log("New user detected (no cloud data) - initializing clean fresh workspace.");
+              localStorage.removeItem('schedully_presets');
+              localStorage.removeItem('schedully_active_preset');
+              localStorage.removeItem('schedully_classes');
+              localStorage.removeItem('schedully_wallpaper_data');
+
+              this.classes = [];
+              const freshSettings = {
+                cardCornerStyle: 'rounded',
+                cardCornerRadiusVal: 8,
+                currentMode: 'light',
+                currentPalette: 'nord',
+                gridWidthVal: 100,
+                gridHeightVal: 49,
+                gridYPosVal: 0,
+                fontSizeVal: 9,
+                clockFormat: '12-hour',
+                bgBlurEnabled: false,
+                bgBlurIntensity: 10,
+                fontFamily: 'default',
+                timetableOpacity: 100,
+                showTitle: true,
+                titleText: 'Untitled',
+                activeDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                gridStartHour: 8,
+                gridEndHour: 20
+              };
+              this.presets = {
+                default: { name: 'Default', classes: [], settings: freshSettings, wallpaper: null, wallpaperSwatches: null }
+              };
+              this.activePresetKey = 'default';
+              this.removeWallpaper();
+              this.applyPresetSettings(freshSettings);
+              this.updatePresetSelectDropdown();
+              this.renderAll();
+              this.markSaved();
+              return;
+            }
+
+            // Case 2: Existing user WITH cloud data -> Restore progress accurately without losing anything!
+            if (data.presets && typeof data.presets === 'object') {
+              this.presets = data.presets;
+              this.updatePresetSelectDropdown();
+            }
+
+            if (data.activePreset && this.presets[data.activePreset]) {
+              this.activePresetKey = data.activePreset;
+              const presetData = this.presets[data.activePreset];
+              if (presetData.settings) {
+                this.applyPresetSettings(presetData.settings);
+              } else if (data.settings) {
+                this.applyPresetSettings(data.settings);
+              }
+              if (presetData.wallpaperSwatches && Array.isArray(presetData.wallpaperSwatches)) {
+                this.wallpaperSwatches = presetData.wallpaperSwatches;
+              }
+              if (presetData.wallpaper) {
+                this.applyWallpaper(presetData.wallpaper, true);
+                localStorage.setItem('schedully_wallpaper_data', presetData.wallpaper);
+              } else {
+                this.removeWallpaper();
+              }
+            } else if (data.settings) {
+              this.applyPresetSettings(data.settings);
+              if (!data.wallpaper) this.removeWallpaper();
+            }
+
+            // Restore schedule classes
+            if (Array.isArray(data.classes)) {
+              this.classes = data.classes;
+            } else if (data.activePreset && this.presets[data.activePreset] && Array.isArray(this.presets[data.activePreset].classes)) {
+              this.classes = this.presets[data.activePreset].classes;
+            }
+
+            // If wallpaper is active, guarantee wallpaper swatch adaptation is applied
+            if (this.phoneCanvas?.classList.contains('has-photo-wallpaper') && this.wallpaperSwatches && this.wallpaperSwatches.length > 0) {
+              this.classes.forEach((cls, idx) => {
+                if (!cls.isManualCustomColor) {
+                  cls.customColor = this.wallpaperSwatches[idx % this.wallpaperSwatches.length];
+                }
+              });
+            }
+
+            this.renderAll();
+
+            // Cache cloud data into localStorage so offline refresh preserves progress
+            localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
+            localStorage.setItem('schedully_active_preset', this.activePresetKey);
+            localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
+
+            // Silently clear unsaved indicator on load
+            this._hasUnsavedCloudChanges = false;
+          } catch (syncErr) {
+            console.warn("Cloud sync non-fatal error:", syncErr);
+          }
+        };
+
+        if (window.schedullyFirebase.currentUser) {
+          window.schedullyFirebase.onUserChangedCallback(window.schedullyFirebase.currentUser);
+        }
+      } else {
+        setTimeout(initAuthListener, 300);
+      }
+    };
+
+    initAuthListener();
+  }
+
+  getPresetSettings() {
+    return {
+      cardCornerStyle: this.cardCornerStyle || 'rounded',
+      cardCornerRadiusVal: this.cardCornerRadiusVal || 8,
+      currentMode: this.currentMode || 'light',
+      currentPalette: this.currentPalette || 'nord',
+      gridWidthVal: this.gridWidthVal || 100,
+      gridHeightVal: this.gridHeightVal || 49,
+      gridYPosVal: this.gridYPosVal || 0,
+      fontSizeVal: this.gridFontSizeVal || this.fontSizeVal || 9,
+      clockFormat: this.clockFormat || '12-hour',
+      bgBlurEnabled: this.bgBlurEnabled || false,
+      bgBlurIntensity: this.bgBlurIntensity || 10,
+      fontFamily: this.currentFontKey || 'default',
+      timetableOpacity: this.timetableOpacity || 100,
+      showTitle: this.showTitle !== undefined ? this.showTitle : true,
+      titleText: this.timetableTitleText || 'Untitled',
+      activeDays: this.activeDays ? [...this.activeDays] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      gridStartHour: this.gridStartHour || 8,
+      gridEndHour: this.gridEndHour || 20
+    };
+  }
+
   _stagePending() {
     if (!this.presets) this.presets = {};
     if (!this.activePresetKey) this.activePresetKey = 'default';
     const currentSettings = this.getPresetSettings();
-    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+    const currentWallpaper = this.currentWallpaperData || this.presets[this.activePresetKey]?.wallpaper || localStorage.getItem('schedully_wallpaper_data') || null;
     this.presets[this.activePresetKey] = {
       name: this.presets[this.activePresetKey]?.name || 'Default',
       classes: this.classes,
@@ -3763,11 +4004,9 @@ class SchedullyApp {
       console.warn("Could not save to local storage", e);
     }
 
-    // Show the amber unsaved dot while actively modifying
     this.markUnsaved();
 
-    // ── Smart Debounced Cloud Auto-Save (3-Second Inactivity Timer) ──
-    // Resets timer on every keystroke/color pick. Only saves once user stops for 3 seconds!
+    // Smart Debounced Cloud Auto-Save (3-Second Inactivity Timer)
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {
       if (window.schedullyFirebase?.currentUser && this._hasUnsavedCloudChanges) {
@@ -3776,14 +4015,12 @@ class SchedullyApp {
     }, 3000);
   }
 
-  // Writes in-memory state to localStorage AND Firebase.
-  // Only called explicitly by the Save button.
   saveToLocal() {
     try {
       if (!this.presets) this.presets = {};
       if (!this.activePresetKey) this.activePresetKey = 'default';
 
-      const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+      const currentWallpaper = this.currentWallpaperData || this.presets[this.activePresetKey]?.wallpaper || localStorage.getItem('schedully_wallpaper_data') || null;
       const currentSettings = this.getPresetSettings();
 
       this.presets[this.activePresetKey] = {
@@ -3802,37 +4039,20 @@ class SchedullyApp {
     }
   }
 
-  // Shows the amber unsaved dot on desktop + mobile and shows mobile save wrapper
   markUnsaved() {
-    if (!window.schedullyFirebase?.currentUser) return; // only show if logged in
+    if (!window.schedullyFirebase?.currentUser) return;
     this._hasUnsavedCloudChanges = true;
-    // Desktop dot
-    document.getElementById('preset-unsaved-dot')?.classList.remove('hidden');
-    // Mobile dot (inside cloud icon)
-    document.getElementById('mobile-unsaved-dot')?.classList.remove('hidden');
   }
 
-  // Called after successful cloud save ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â clears all unsaved indicators
   markSaved() {
     this._hasUnsavedCloudChanges = false;
-    // Desktop
-    document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
-    const label = document.getElementById('btn-save-cloud-label');
-    if (label) label.textContent = 'Saved!';
-    setTimeout(() => { if (label) label.textContent = 'Save'; }, 2000);
-    // Mobile
-    document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
-    const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = 'Saved!';
-    setTimeout(() => { if (mobileLabel) mobileLabel.textContent = 'Save to Cloud'; }, 2000);
   }
 
-  // Manually push current data to Firebase cloud (called by Save button on desktop or mobile)
+  // Manually push current data to Firebase cloud
   async saveToCloud() {
     if (!window.schedullyFirebase?.currentUser) return;
 
-    // Update local preset before cloud save
-    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+    const currentWallpaper = this.currentWallpaperData || this.presets[this.activePresetKey]?.wallpaper || localStorage.getItem('schedully_wallpaper_data') || null;
     const currentSettings = this.getPresetSettings();
     if (this.activePresetKey && this.presets) {
       this.presets[this.activePresetKey] = {
@@ -3844,16 +4064,6 @@ class SchedullyApp {
       };
     }
 
-    // Update desktop button UI
-    const btn = document.getElementById('btn-save-to-cloud');
-    const label = document.getElementById('btn-save-cloud-label');
-    if (btn) btn.disabled = true;
-    if (label) label.textContent = 'Saving...';
-
-    // Update mobile button UI
-    const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = 'Saving...';
-
     const ok = await window.schedullyFirebase.saveUserData({
       classes: this.classes,
       presets: this.presets,
@@ -3862,19 +4072,10 @@ class SchedullyApp {
       settings: currentSettings
     });
 
-    if (btn) btn.disabled = false;
     if (ok) {
       this.markSaved();
-    } else {
-      if (label) label.textContent = 'Error!';
-      if (mobileLabel) mobileLabel.textContent = 'Error!';
-      setTimeout(() => {
-        if (label) label.textContent = 'Save';
-        if (mobileLabel) mobileLabel.textContent = 'Save to Cloud';
-      }, 2500);
     }
   }
-
   importClassesDirectly(newEvents) {
     if (!newEvents || newEvents.length === 0) {
        alert("No matching classes found for the selected groups.");
@@ -4089,10 +4290,26 @@ class SchedullyApp {
     let hours = now.getHours();
     const mins = String(now.getMinutes()).padStart(2, '0');
     const formattedHours = String(hours % 12 || 12).padStart(2, '0');
-    this.lockTime.innerText = `${formattedHours}:${mins}`;
+    if (this.lockTime) this.lockTime.innerText = `${formattedHours}:${mins}`;
 
+    const currentLang = window.SchedullyI18n ? window.SchedullyI18n.currentLang : 'en';
+    const localeMap = {
+      'en': 'en-US',
+      'en-slang': 'en-US',
+      'fr': 'fr-FR',
+      'zh-cn': 'zh-CN',
+      'zh-tw': 'zh-TW',
+      'ko': 'ko-KR',
+      'ja': 'ja-JP',
+      'ms': 'ms-MY',
+      'id': 'id-ID',
+      'es': 'es-ES'
+    };
+    const locale = localeMap[currentLang] || 'en-US';
     const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    this.lockDate.innerText = now.toLocaleDateString('en-US', options);
+    if (this.lockDate) {
+      this.lockDate.innerText = now.toLocaleDateString(locale, options);
+    }
   }
 
   renderAll() {
@@ -4128,21 +4345,26 @@ class SchedullyApp {
     this.universalTimetableGrid.style.gridTemplateColumns = `${timeColWidth} repeat(${days.length}, calc((100% - ${timeColWidth}) / ${days.length}))`;
 
     // Smart Auto-Crop Grid Hours based on actual classes
-    let effectiveStartHour = this.gridStartHour;
-    let effectiveEndHour = this.gridEndHour;
-    
+    let effectiveStartHour = parseInt(this.gridStartHour, 10);
+    if (isNaN(effectiveStartHour) || effectiveStartHour < 0 || effectiveStartHour > 23) effectiveStartHour = 8;
+
+    let effectiveEndHour = parseInt(this.gridEndHour, 10);
+    if (isNaN(effectiveEndHour) || effectiveEndHour < 0 || effectiveEndHour > 23) effectiveEndHour = 20;
+
     if (this.classes && this.classes.length > 0) {
       let minH = 24;
       let maxH = 0;
       this.classes.forEach(c => {
         if (c.startTime) {
           const sh = parseInt(c.startTime.split(':')[0], 10);
-          if (sh < minH) minH = sh;
+          if (!isNaN(sh) && sh < minH) minH = sh;
         }
         if (c.endTime) {
           const [eh, em] = c.endTime.split(':').map(Number);
-          const trueEndH = em > 0 ? eh + 1 : eh;
-          if (trueEndH > maxH) maxH = trueEndH;
+          if (!isNaN(eh)) {
+            const trueEndH = (em || 0) > 0 ? eh + 1 : eh;
+            if (trueEndH > maxH) maxH = trueEndH;
+          }
         }
       });
       if (minH < 24) effectiveStartHour = minH;
@@ -4204,7 +4426,7 @@ class SchedullyApp {
     days.forEach(d => {
       const headerCell = document.createElement('div');
       headerCell.className = 'exact-grid-cell-header';
-      headerCell.innerText = d;
+      headerCell.innerText = window.SchedullyI18n ? window.SchedullyI18n.getDayName(d) : d;
       this.universalTimetableGrid.appendChild(headerCell);
     });
 
@@ -4401,27 +4623,36 @@ class SchedullyApp {
       const swatchBtnsHTML = swatches.map(hex => `
         <button type="button" class="swatch-dot mini-swatch ${c.customColor === hex ? 'active' : ''}" data-hex="${hex}" style="background: ${hex}"></button>
       `).join('') + `
-        <label class="swatch-custom mini-grid-custom" title="Custom Color" style="display:flex;align-items:center;justify-content:center;">
+        <button type="button" class="swatch-custom mini-grid-custom" title="Custom Color" style="display:flex;align-items:center;justify-content:center;background:${c.customColor || swatches[0]};">
           <span class="material-symbols-outlined icon-xs">colorize</span>
-          <input type="color" class="hidden-color-input mini-grid-color-input" value="${c.customColor || swatches[0]}">
-        </label>
+        </button>
       `;
 
       const FONT_COLORS = ['#FFFFFF', '#0F172A', '#1E293B', '#475569'];
       const fontSwatchBtnsHTML = FONT_COLORS.map(hex => `
         <button type="button" class="font-swatch-sq mini-font-swatch ${(c.fontColor || '#FFFFFF') === hex ? 'active' : ''}" data-fonthex="${hex}" style="background: ${hex}"></button>
       `).join('') + `
-        <label class="font-swatch-sq font-swatch-custom mini-font-custom" title="Custom Color" style="display:flex;align-items:center;justify-content:center;">
+        <button type="button" class="font-swatch-sq font-swatch-custom mini-font-custom" title="Custom Font Color" style="display:flex;align-items:center;justify-content:center;background:${c.fontColor || '#FFFFFF'};">
           <span class="material-symbols-outlined icon-xs">colorize</span>
-          <input type="color" class="hidden-color-input mini-font-color-input" value="${c.fontColor || '#FFFFFF'}">
-        </label>
+        </button>
       `;
+
+      const i18n = window.SchedullyI18n;
+      const localizedDay = i18n ? i18n.getDayName(c.day) : c.day;
+      const lblCourseCode = i18n ? i18n.get('courseCode') : 'Course Code';
+      const lblDay = i18n ? i18n.get('day') : 'Day';
+      const lblStart = i18n ? i18n.get('startTime') : 'Start Time';
+      const lblEnd = i18n ? i18n.get('endTime') : 'End Time';
+      const lblType = i18n ? i18n.get('courseType') : 'Course Type';
+      const lblRoom = i18n ? i18n.get('room') : 'Location';
+      const lblLecturer = i18n ? i18n.get('lecturer') : 'Lecturer';
+      const lblGroup = i18n ? i18n.get('group') : 'Group';
 
       card.innerHTML = `
         <div class="class-card-header">
           <div class="item-info">
             <h4>${c.code}</h4>
-            <p class="item-subtext">${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})</p>
+            <p class="item-subtext">${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${localizedDay} (${c.startTime} - ${c.endTime})</p>
           </div>
           <div class="class-card-actions">
             <span class="material-symbols-outlined class-expand-arrow">expand_more</span>
@@ -4433,7 +4664,7 @@ class SchedullyApp {
 
         <div class="class-card-editor hidden">
           <div class="editor-row">
-            <label>Course Code:</label>
+            <label>${lblCourseCode}:</label>
             <input type="text" class="m3-input edit-code" value="${c.code}">
           </div>
 
@@ -4446,18 +4677,18 @@ class SchedullyApp {
           </div>
 
           <div class="editor-row">
-            <label>Day:</label>
+            <label>${lblDay}:</label>
             <select class="m3-input-time edit-day">
-              <option value="Mon" ${c.day && c.day.startsWith('Mon') ? 'selected' : ''}>Mon</option>
-              <option value="Tue" ${c.day && c.day.startsWith('Tue') ? 'selected' : ''}>Tue</option>
-              <option value="Wed" ${c.day && c.day.startsWith('Wed') ? 'selected' : ''}>Wed</option>
-              <option value="Thu" ${c.day && c.day.startsWith('Thu') ? 'selected' : ''}>Thu</option>
-              <option value="Fri" ${c.day && c.day.startsWith('Fri') ? 'selected' : ''}>Fri</option>
+              <option value="Mon" ${c.day && c.day.startsWith('Mon') ? 'selected' : ''}>${i18n ? i18n.getDayName('Mon') : 'Mon'}</option>
+              <option value="Tue" ${c.day && c.day.startsWith('Tue') ? 'selected' : ''}>${i18n ? i18n.getDayName('Tue') : 'Tue'}</option>
+              <option value="Wed" ${c.day && c.day.startsWith('Wed') ? 'selected' : ''}>${i18n ? i18n.getDayName('Wed') : 'Wed'}</option>
+              <option value="Thu" ${c.day && c.day.startsWith('Thu') ? 'selected' : ''}>${i18n ? i18n.getDayName('Thu') : 'Thu'}</option>
+              <option value="Fri" ${c.day && c.day.startsWith('Fri') ? 'selected' : ''}>${i18n ? i18n.getDayName('Fri') : 'Fri'}</option>
             </select>
           </div>
 
           <div class="editor-row">
-            <label>Start Time:</label>
+            <label>${lblStart}:</label>
             <select class="m3-input-time edit-start">
               <option value="08:00" ${c.startTime === '08:00' ? 'selected' : ''}>08:00 AM</option>
               <option value="09:00" ${c.startTime === '09:00' ? 'selected' : ''}>09:00 AM</option>
@@ -4472,7 +4703,7 @@ class SchedullyApp {
           </div>
 
           <div class="editor-row">
-            <label>End Time:</label>
+            <label>${lblEnd}:</label>
             <select class="m3-input-time edit-end">
               <option value="09:00" ${c.endTime === '09:00' ? 'selected' : ''}>09:00 AM</option>
               <option value="10:00" ${c.endTime === '10:00' ? 'selected' : ''}>10:00 AM</option>
@@ -4487,22 +4718,22 @@ class SchedullyApp {
           </div>
 
           <div class="editor-row">
-            <label>Course Type:</label>
+            <label>${lblType}:</label>
             <input type="text" class="m3-input edit-type" value="${c.type || ''}" placeholder="">
           </div>
 
           <div class="editor-row">
-            <label>Location:</label>
+            <label>${lblRoom}:</label>
             <input type="text" class="m3-input edit-room" value="${c.room || ''}" placeholder="">
           </div>
 
           <div class="editor-row">
-            <label>Lecturer:</label>
+            <label>${lblLecturer}:</label>
             <input type="text" class="m3-input edit-lecturer" value="${c.lecturer || ''}" placeholder="">
           </div>
 
           <div class="editor-row">
-            <label>Group:</label>
+            <label>${lblGroup}:</label>
             <input type="text" class="m3-input edit-group" value="${c.group || ''}" placeholder="">
           </div>
 
@@ -4554,17 +4785,35 @@ class SchedullyApp {
 
       card.querySelector('.edit-day').addEventListener('change', (e) => {
         c.day = e.target.value;
-        this.renderAll();
+        const subtextEl = card.querySelector('.item-subtext');
+        if (subtextEl) {
+          const localizedDay = window.SchedullyI18n ? window.SchedullyI18n.getDayName(c.day) : c.day;
+          subtextEl.innerText = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${localizedDay} (${c.startTime} - ${c.endTime})`;
+        }
+        this.renderTimetableGrid();
+        this._stagePending();
       });
 
       card.querySelector('.edit-start').addEventListener('change', (e) => {
         c.startTime = e.target.value;
-        this.renderAll();
+        const subtextEl = card.querySelector('.item-subtext');
+        if (subtextEl) {
+          const localizedDay = window.SchedullyI18n ? window.SchedullyI18n.getDayName(c.day) : c.day;
+          subtextEl.innerText = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${localizedDay} (${c.startTime} - ${c.endTime})`;
+        }
+        this.renderTimetableGrid();
+        this._stagePending();
       });
 
       card.querySelector('.edit-end').addEventListener('change', (e) => {
         c.endTime = e.target.value;
-        this.renderAll();
+        const subtextEl = card.querySelector('.item-subtext');
+        if (subtextEl) {
+          const localizedDay = window.SchedullyI18n ? window.SchedullyI18n.getDayName(c.day) : c.day;
+          subtextEl.innerText = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${localizedDay} (${c.startTime} - ${c.endTime})`;
+        }
+        this.renderTimetableGrid();
+        this._stagePending();
       });
 
       card.querySelector('.edit-type').addEventListener('input', (e) => {

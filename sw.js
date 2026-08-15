@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schedully-cache-v2';
+const CACHE_NAME = 'schedully-cache-v39';
 const ASSETS = [
   '/',
   '/index.html',
@@ -8,7 +8,8 @@ const ASSETS = [
   '/ics_csv_parser_v3.js',
   '/timetable_engine.js',
   '/manifest.json',
-  '/logo.jpg'
+  '/logo.jpg',
+  '/tng_qr.png'
 ];
 
 // Install Event: cache core app shell

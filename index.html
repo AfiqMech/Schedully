@@ -17,6 +17,8 @@
 <meta name="apple-mobile-web-app-title" content="Schedully">
 <meta name="application-name" content="Schedully">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- i18n Localization Engine -->
+<script src="i18n.js"></script>
 <!-- html2canvas & jsPDF -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.8.0/dist/dom-to-image-more.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -171,7 +173,7 @@
     </div>
     <div>
       <h1 class="font-extrabold text-xl leading-tight">Schedully</h1>
-      <p class="text-xs text-gray-500 font-semibold tracking-wider">MAKE YOUR SCHEDULE</p>
+      <p data-i18n="makeSchedule" class="text-xs text-gray-500 font-semibold tracking-wider">MAKE YOUR SCHEDULE</p>
     </div>
   </div>
   <button id="btn-toggle-left-sidebar" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-all" title="Collapse Left Sidebar">
@@ -184,8 +186,8 @@
 <div class="flex items-center gap-3">
 <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 <div>
-<p class="font-bold text-sm">Theme &amp; Colors</p>
-<p class="text-xs font-medium mt-0.5">Customize your look</p>
+<p data-i18n="themeAndColors" class="font-bold text-sm">Theme &amp; Colors</p>
+<p data-i18n="customizeLook" class="text-xs font-medium mt-0.5">Customize your look</p>
 </div>
 </div>
 <svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -388,8 +390,8 @@
 <div class="flex items-center gap-3">
 <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 <div>
-<p class="font-bold text-sm text-gray-800">Timetable Layout</p>
-<p class="text-xs text-gray-500 font-medium mt-0.5">Edit title, clock, fonts &amp; colors</p>
+<p data-i18n="timetableLayout" class="font-bold text-sm text-gray-800">Timetable Layout</p>
+<p data-i18n="layoutDesc" class="text-xs text-gray-500 font-medium mt-0.5">Edit title, clock, fonts &amp; colors</p>
 </div>
 </div>
 <svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -622,8 +624,8 @@
 <div class="flex items-center gap-3">
 <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 <div>
-<p class="font-bold text-sm text-gray-800">Add Class / Course</p>
-<p class="text-xs text-gray-500 font-medium mt-0.5">Add classes, slots &amp; meeting times</p>
+<p data-i18n="addCourse" class="font-bold text-sm text-gray-800">Add A Course</p>
+<p data-i18n="addCourseDesc" class="text-xs text-gray-500 font-medium mt-0.5">Create a custom class or event</p>
 </div>
 </div>
 <svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -693,7 +695,7 @@
 
               <!-- Start Time -->
               <div class="form-row">
-                <label for="input-start-time">Start Time</label>
+                <label data-i18n="startTime" for="input-start-time">Start Time</label>
                 <select id="input-start-time" class="m3-input-time">
                   <option value="08:00">08:00 AM</option>
                   <option value="09:00" selected>09:00 AM</option>
@@ -709,7 +711,7 @@
 
               <!-- End Time -->
               <div class="form-row">
-                <label for="input-end-time">End Time</label>
+                <label data-i18n="endTime" for="input-end-time">End Time</label>
                 <select id="input-end-time" class="m3-input-time">
                   <option value="09:00">09:00 AM</option>
                   <option value="10:00">10:00 AM</option>
@@ -725,31 +727,31 @@
 
               <!-- Course Type (Optional) -->
               <div class="form-row">
-                <label for="input-type">Course Type</label>
+                <label data-i18n="courseType" for="input-type">Course Type</label>
                 <input type="text" id="input-type" placeholder="" class="m3-input">
               </div>
 
               <!-- Location (Optional) -->
               <div class="form-row">
-                <label for="input-location">Location</label>
+                <label data-i18n="room" for="input-location">Location</label>
                 <input type="text" id="input-location" placeholder="" class="m3-input">
               </div>
 
               <!-- Lecturer (Optional) -->
               <div class="form-row">
-                <label for="input-lecturer">Teacher / Lecturer</label>
+                <label data-i18n="lecturer" for="input-lecturer">Teacher / Lecturer</label>
                 <input type="text" id="input-lecturer" placeholder="" class="m3-input">
               </div>
 
               <!-- Group (Optional) -->
               <div class="form-row">
-                <label for="input-group">Group</label>
+                <label data-i18n="group" for="input-group">Group</label>
                 <input type="text" id="input-group" placeholder="" class="m3-input">
               </div>
             </div>
 
             <button type="submit" class="m3-button m3-button-filled full-width margin-top-sm">
-              <span class="material-symbols-outlined">add</span> Save to Timetable
+              <span class="material-symbols-outlined">add</span> <span data-i18n="saveCourse">Save to Timetable</span>
             </button>
           </form>
           </div><!-- end layout-card-inner -->
@@ -759,8 +761,8 @@
 <div class="flex items-center gap-3">
 <svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 <div>
-<p class="font-bold text-sm text-gray-800">Schedule Importer</p>
-<p class="text-xs text-gray-500 font-medium mt-0.5">Import CSV, .ics or screenshot</p>
+<p data-i18n="uploadFile" class="font-bold text-sm text-gray-800">Upload Timetable File or Image</p>
+<p data-i18n="uploadDesc" class="text-xs text-gray-500 font-medium mt-0.5">Supports CSV, .ics, PNG, JPG, WebP</p>
 </div>
 </div>
 <svg class="w-4 h-4 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -769,8 +771,8 @@
           <div class="layout-card-inner">
           <label for="universal-file-input" class="m3-dropzone">
             <span class="material-symbols-outlined dropzone-icon">document_scanner</span>
-            <span class="dropzone-title">Upload Timetable File or Image</span>
-            <span class="dropzone-sub">Supports CSV, .ics, PNG, JPG, WebP</span>
+            <span data-i18n="uploadFile" class="dropzone-title">Upload Timetable File or Image</span>
+            <span data-i18n="uploadDesc" class="dropzone-sub">Supports CSV, .ics, PNG, JPG, WebP</span>
           </label>
           <input type="file" id="universal-file-input" accept=".csv,.ics,text/csv,text/calendar,text/plain,application/ics,image/*,*/*" class="hidden">
 
@@ -790,42 +792,125 @@
         </div><!-- end layout-card-inner -->
 </nav>
 </div>
-  <!-- Bottom Section: Floating User Profile / Login -->
-  <div class="user-profile-wrapper">
-    <!-- Logged Out State: Single Adaptive Action Card (No Double Nesting!) -->
-    <div id="user-logged-out-state" class="w-full">
-      <button id="btn-google-login" type="button" class="btn-adaptive-auth w-full py-2.5 px-3.5 rounded-2xl flex items-center justify-between shadow-sm transition-all cursor-pointer border border-white/20">
+  <!-- Bottom Section: Floating User Profile / Login & Language Switcher -->
+  <div class="user-profile-wrapper flex items-center gap-2">
+    <!-- Logged Out State: Single Adaptive Action Card with Expandable Providers -->
+    <div id="user-logged-out-state" class="flex-1 relative">
+      <!-- Main Collapsed Login Action Button -->
+      <button id="btn-toggle-login-menu" type="button" class="btn-adaptive-auth w-full py-2.5 px-3.5 rounded-2xl flex items-center justify-between shadow-sm transition-all cursor-pointer border border-transparent">
         <div class="flex items-center gap-2.5">
-          <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-xs shrink-0">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+          <div class="auth-icon-circle w-6 h-6 rounded-full bg-black/10 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
           </div>
-          <span class="text-xs font-extrabold tracking-wide">Google Login</span>
+          <span data-i18n="login" class="text-xs font-extrabold tracking-wide">Login</span>
         </div>
-        <span class="text-[10px] font-extrabold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-lg">Sync</span>
+        <div class="flex items-center">
+          <svg id="login-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+        </div>
       </button>
+
+      <!-- Expandable Login Providers Options Menu (Expands Upward or Downward) -->
+      <div id="login-providers-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
+        <div class="popover-header px-2 py-1 flex items-center justify-between">
+          <span data-i18n="signInProvider" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Sign In Provider</span>
+        </div>
+
+        <!-- Google Login Option -->
+        <button id="btn-google-login" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-xs shrink-0 border border-gray-200/50">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+            </div>
+            <div>
+              <p class="popover-item-title text-xs font-bold transition-colors">Google Account</p>
+              <p data-i18n="continueGoogle" class="popover-item-desc text-[9px]">Continue with Google</p>
+            </div>
+          </div>
+          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Logged In State: User Avatar, Name, Reset & Logout Button -->
-    <div id="user-logged-in-state" class="hidden user-profile-card flex items-center justify-between w-full p-2.5 rounded-2xl border border-gray-200 bg-white">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <div id="user-avatar-badge" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-blue-100 text-blue-600 overflow-hidden shrink-0 border border-blue-200">
-          U
+    <!-- Logged In State: User Avatar, Name, and Expandable Profile Settings Popover -->
+    <div id="user-logged-in-state" class="hidden flex-1 relative min-w-0">
+      <!-- Main Clickable Profile Card Capsule -->
+      <button id="btn-toggle-profile-menu" type="button" class="user-profile-card flex items-center justify-between w-full rounded-2xl border transition-all cursor-pointer shadow-xs text-left min-w-0">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <div id="user-avatar-badge" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-blue-100 text-blue-600 overflow-hidden shrink-0 border border-blue-200 shadow-xs">
+            U
+          </div>
+          <div class="truncate min-w-0 flex-1">
+            <p id="user-display-name" class="font-bold text-xs leading-tight truncate">User</p>
+            <p id="user-status-text" class="text-[9px] font-medium truncate opacity-70">Online</p>
+          </div>
         </div>
-        <div class="truncate">
-          <p id="user-display-name" class="font-bold text-xs text-gray-900 leading-tight truncate">User</p>
-          <p id="user-status-text" class="text-[10px] font-medium text-gray-500 truncate">Online</p>
+        <div class="flex items-center shrink-0 text-gray-400 pl-1">
+          <svg id="profile-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
         </div>
-      </div>
-      <div class="flex items-center gap-1 shrink-0">
-        <button id="btn-google-reset-cloud" type="button" title="Reset All Cloud & Local Data to Fresh Default" class="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+      </button>
+
+      <!-- Expandable Account Settings Menu Popup (Expands Upward) -->
+      <div id="profile-settings-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
+        <div class="popover-header px-2 py-1 flex items-center justify-between">
+          <span data-i18n="accountSettings" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Account Settings</span>
+        </div>
+
+        <!-- Reset Cloud Data Option -->
+        <button id="btn-google-reset-cloud" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </div>
+            <div>
+              <p data-i18n="resetCloudData" class="popover-item-title text-xs font-bold group-hover:text-amber-500 transition-colors">Reset Cloud Data</p>
+              <p data-i18n="resetDesc" class="popover-item-desc text-[9px]">Restore fresh default schedule</p>
+            </div>
+          </div>
+          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
         </button>
-        <button id="btn-google-logout" type="button" title="Sign Out" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+
+        <div class="popover-divider h-[1px] my-0.5"></div>
+
+        <!-- Sign Out Option -->
+        <button id="btn-google-logout" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+          <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </div>
+            <div>
+              <p data-i18n="signOut" class="popover-item-title text-xs font-bold group-hover:text-red-500 transition-colors">Sign Out</p>
+              <p data-i18n="signOutDesc" class="popover-item-desc text-[9px]">Log out of your account</p>
+            </div>
+          </div>
+          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-red-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
         </button>
       </div>
     </div>
-  </div></div>
+
+    <!-- Separated Globe Language Selector Pill Button in Same Row -->
+    <button id="btn-open-language-modal" type="button" title="Select Language" class="btn-globe-language shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 00-3.5 9 14.5 14.5 0 003.5 9 14.5 14.5 0 003.5-9 14.5 14.5 0 00-3.5-9z"></path>
+      </svg>
+    </button>
+
+    <!-- Buy Me a Coffee Pill Button in Same Row -->
+    <button id="btn-open-coffee-modal" type="button" title="Buy Me a Coffee" class="btn-coffee-support shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
+      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+        <line x1="6" y1="1" x2="6" y2="4"></line>
+        <line x1="10" y1="1" x2="10" y2="4"></line>
+        <line x1="14" y1="1" x2="14" y2="4"></line>
+      </svg>
+    </button>
+  </div>
+  
+  <!-- App Creator Disclaimer / Footer -->
+  <div class="creator-footer">
+    <p>Schedully © 2026 • Developed by <span>Afiq</span></p>
+  </div>
+</div>
 </div>
 </div>
 </div>
@@ -840,19 +925,19 @@
   <div id="header-desktop-bar" class="hidden-mobile inline-flex items-center gap-2 p-1.5 bg-white/90 backdrop-blur-md border border-gray-200/90 rounded-full shadow-sm">
     <button id="btn-export-ical" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
       <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Calendar (.ics)</span>
+      <span data-i18n="exportIcs">Calendar (.ics)</span>
     </button>
     <button id="btn-export-csv" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
       <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Export CSV</span>
+      <span data-i18n="exportCsv">Export CSV</span>
     </button>
     <button id="btn-download-hd" class="btn-theme-primary flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-md">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Download Image</span>
+      <span data-i18n="downloadImage">Download Image</span>
     </button>
     <button id="btn-save-pdf" class="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold text-gray-700 adaptive-icon-btn transition-all">
       <svg class="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Save as PDF</span>
+      <span data-i18n="savePdf">Save as PDF</span>
     </button>
   </div>
 </header>
@@ -927,7 +1012,7 @@
     <!-- Popover Header -->
     <div class="flex items-center justify-between w-full border-b border-gray-100 pb-2.5 px-1">
       <span id="stage-device-label" class="text-[10px] font-extrabold tracking-wider text-slate-500 uppercase">LIVE PHONE LOCKSCREEN PREVIEW</span>
-      <span class="text-xs font-bold text-slate-400">Display Options</span>
+      <span data-i18n="displayOptions" class="text-xs font-bold text-slate-400">Display Options</span>
     </div>
 
     <!-- Title Input -->
@@ -942,15 +1027,15 @@
     <div class="flex p-0.5 bg-white border border-gray-200 rounded-full shadow-xs w-full justify-center capsule-group" id="device-type-toggles">
       <button data-device="phone" class="capsule-btn active flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-        Smartphone
+        <span data-i18n="smartphone">Smartphone</span>
       </button>
       <button data-device="tablet" class="capsule-btn flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-        Tablet
+        <span data-i18n="tablet">Tablet</span>
       </button>
       <button data-device="paper" class="capsule-btn flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-        Paper
+        <span data-i18n="paper">Paper</span>
       </button>
     </div>
 
@@ -958,13 +1043,13 @@
     <div class="flex items-center justify-center gap-3 w-full">
       <!-- Lock UI Toggle -->
       <div class="pill-toggle-group" id="toggle-lock-ui">
-        <button type="button" class="pill-btn active" data-val="yes">UI ON</button>
-        <button type="button" class="pill-btn" data-val="no">UI OFF</button>
+        <button type="button" class="pill-btn active" data-val="yes"><span data-i18n="uiOn">UI ON</span></button>
+        <button type="button" class="pill-btn" data-val="no"><span data-i18n="uiOff">UI OFF</span></button>
       </div>
       <!-- Show/Hide Timetable Grid Toggle -->
       <div class="pill-toggle-group" id="toggle-show-table">
-        <button type="button" class="pill-btn active" data-val="yes">TABLE</button>
-        <button type="button" class="pill-btn" data-val="no">BG ONLY</button>
+        <button type="button" class="pill-btn active" data-val="yes"><span data-i18n="table">TABLE</span></button>
+        <button type="button" class="pill-btn" data-val="no"><span data-i18n="bgOnly">BG ONLY</span></button>
       </div>
     </div>
   </div>
@@ -1003,7 +1088,7 @@
     <!-- Capsule 3: Expandable Controls Button -->
     <button id="btn-toggle-canvas-popover" class="btn-theme-primary flex items-center gap-2 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-extrabold active:scale-95 transition-all shadow-sm">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-      <span>Controls</span>
+      <span data-i18n="controls">Controls</span>
     </button>
 
   </div>
@@ -1022,10 +1107,10 @@
       <div class="flex items-center justify-between mb-3.5">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-          <h2 class="font-bold text-sm text-gray-800">Schedule List</h2>
+          <h2 data-i18n="scheduleList" class="font-bold text-sm text-gray-800">Schedule List</h2>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"><span id="slots-badge-count">0</span> Subjects</span>
+          <span class="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full"><span id="slots-badge-count">0</span> <span data-i18n="subjects">Subjects</span></span>
           <button id="btn-toggle-right-sidebar" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-all" title="Collapse Right Sidebar">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
           </button>
@@ -1036,24 +1121,22 @@
       <div class="flex gap-2.5 mb-3.5">
         <button id="btn-clear-all" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-red-50 text-red-500 rounded-xl text-xs font-bold hover:bg-red-100 transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-          <span>Clear All</span>
+          <span data-i18n="clearAll">Clear All</span>
         </button>
         <button id="btn-schedule-settings-toggle" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold hover:bg-gray-50 transition-colors">
           <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-          <span>Settings</span>
+          <span data-i18n="settings">Settings</span>
         </button>
       </div>
 
         <!-- Preset / Semester Selector Bar (Below the Divider Line) -->
         <div class="flex items-center justify-between pt-3 border-t border-gray-100/80">
           <div class="flex items-center gap-1.5 flex-1 min-w-0">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Preset:</span>
+            <span data-i18n="presetLabel" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Preset:</span>
             <div class="relative flex items-center flex-1 min-w-0">
               <select id="preset-schedule-select" class="text-xs font-bold border-none rounded-xl px-2.5 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-none cursor-pointer w-full truncate">
                 <option value="default">Default</option>
               </select>
-              <!-- Unsaved dot indicator -->
-              <span id="preset-unsaved-dot" class="hidden absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-amber-400 border-2 border-white" title="You have unsaved changes"></span>
             </div>
           </div>
           <div class="flex items-center gap-1 ml-1.5 shrink-0 relative">
@@ -1064,11 +1147,11 @@
 
             <!-- 3-Dot Preset Dropdown Menu Popup -->
             <div id="preset-action-dropdown" class="hidden absolute right-0 top-full mt-1.5 z-50 w-44 rounded-2xl p-1.5 flex flex-col gap-0.5 animate-in fade-in zoom-in-95">
-              <button id="menu-btn-add-preset" type="button" class="preset-menu-item w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors">
+              <button id="menu-btn-add-preset" type="button" class="preset-menu-item preset-menu-add w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>New Preset</span>
               </button>
-              <button id="menu-btn-rename-preset" type="button" class="preset-menu-item w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors">
+              <button id="menu-btn-rename-preset" type="button" class="preset-menu-item preset-menu-rename w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 <span>Rename</span>
               </button>
@@ -1082,12 +1165,6 @@
                 <span>Delete Preset</span>
               </button>
             </div>
-
-            <!-- Save to Cloud button (only visible when logged in) -->
-            <button id="btn-save-to-cloud" type="button" title="Save preset to cloud" style="display:none" class="items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition-all bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-              <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-              <span id="btn-save-cloud-label">Save</span>
-            </button>
           </div>
         </div>
     </div>
@@ -1160,8 +1237,8 @@
 </div>
 </div>
 </div>
-<h3 class="text-lg font-extrabold text-gray-800 mb-2">No classes loaded yet</h3>
-<p class="text-sm text-gray-500 font-medium leading-relaxed max-w-[220px]">
+<h3 data-i18n="noClasses" class="text-lg font-extrabold text-gray-800 mb-2">No classes loaded yet</h3>
+<p data-i18n="noClassesDesc" class="text-sm text-gray-500 font-medium leading-relaxed max-w-[220px]">
         Fill out "Add A Course" or scan a timetable screenshot.
       </p>
 </div>
@@ -1171,7 +1248,7 @@
     <svg class="absolute left-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
     </svg>
-    <input type="text" id="course-search-input" class="m3-input w-full" style="padding-left: 42px; padding-right: 36px; padding-top: 14px; padding-bottom: 14px; font-size: 14px;" placeholder="Search courses...">
+    <input type="text" id="course-search-input" class="m3-input w-full" style="padding-left: 42px; padding-right: 36px; padding-top: 14px; padding-bottom: 14px; font-size: 14px;" placeholder="Search courses..." data-i18n-placeholder="searchCourses">
     <button id="clear-search-btn" class="hidden absolute right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full focus:outline-none">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1300,6 +1377,137 @@
           <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm">Save & Connect</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Center Language Selection Modal -->
+  <div id="language-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="language-modal-card rounded-3xl shadow-2xl border max-w-xs w-full p-5 animate-scaleIn flex flex-col gap-4">
+      <div class="popover-header flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="modal-lang-icon-plate w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 00-3.5 9 14.5 14.5 0 003.5 9 14.5 14.5 0 003.5-9 14.5 14.5 0 00-3.5-9z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 data-i18n="language" class="lang-modal-title font-extrabold text-sm leading-tight">Language</h3>
+            <p data-i18n="selectLanguage" class="lang-modal-desc text-[10px] font-medium">Select your language</p>
+          </div>
+        </div>
+        <button id="btn-close-language-modal" type="button" class="btn-close-modal p-1.5 rounded-xl transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Languages List Pills (ENGLISH, CHRONICALLY ONLINE, FRANÇAIS, 中文, 繁體中文, 한국어, 日本語, MELAYU, BAHASA INDONESIA, ESPAÑOL) -->
+      <div class="flex flex-col gap-2 max-h-80 overflow-y-auto no-scrollbar pr-1">
+        <button type="button" class="lang-option-pill" data-lang="en">
+          <span>ENGLISH</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="en-slang">
+          <span>CHRONICALLY ONLINE</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="fr">
+          <span>FRANÇAIS</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="zh-cn">
+          <span>中文</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="zh-tw">
+          <span>繁體中文</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="ko">
+          <span>한국어</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="ja">
+          <span>日本語</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="ms">
+          <span>MELAYU</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="id">
+          <span>BAHASA INDONESIA</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+        <button type="button" class="lang-option-pill" data-lang="es">
+          <span>ESPAÑOL</span>
+          <svg class="w-4 h-4 lang-check-icon hidden text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy Me a Coffee & QR Support Modal -->
+  <div id="coffee-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="coffee-modal-card rounded-3xl shadow-2xl border max-w-xs w-full p-5 animate-scaleIn flex flex-col items-center text-center gap-3.5">
+      <div class="w-full flex items-center justify-between">
+        <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-600 bg-amber-100/70 dark:bg-amber-500/15 px-2.5 py-1 rounded-full">☕ Support Creator</span>
+        <button id="btn-close-coffee-modal" type="button" class="btn-close-modal p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="w-13 h-13 rounded-2xl bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner p-3">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          <line x1="6" y1="1" x2="6" y2="4"></line>
+          <line x1="10" y1="1" x2="10" y2="4"></line>
+          <line x1="14" y1="1" x2="14" y2="4"></line>
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="font-extrabold text-base text-gray-900 dark:text-white leading-tight">Support Schedully</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1 leading-relaxed">
+          Schedully is free! Pick your preferred way to fuel future updates:
+        </p>
+      </div>
+
+      <!-- Payment Method Switcher Tabs -->
+      <div class="pill-toggle-group w-full flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60" id="support-payment-tabs">
+        <button id="btn-tab-bmc" type="button" class="support-tab-btn active flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all" data-tab="bmc">☕ Buy Me a Coffee</button>
+        <button id="btn-tab-tng" type="button" class="support-tab-btn flex-1 py-1.5 px-2 rounded-lg text-[11px] font-bold transition-all" data-tab="tng">📱 Touch 'n Go QR</button>
+      </div>
+
+      <!-- Tab 1: Buy Me a Coffee -->
+      <div id="support-tab-bmc" class="w-full flex flex-col gap-2">
+        <a id="btn-bmc-link" href="https://buymeacoffee.com/schedully" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-2xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M20.216 6.415l-.132-.666c-.119-.598-.388-1.163-1.001-1.379-.197-.069-.42-.098-.57-.241-.152-.143-.196-.366-.231-.572-.065-.378-.125-.756-.192-1.133-.054-.305-.16-.628-.418-.802-.27-.183-.628-.159-.928-.159H7.256c-.3 0-.658-.024-.928.159-.258.174-.364.497-.418.802-.067.377-.127.755-.192 1.133-.035.206-.079.429-.231.572-.15.143-.373.172-.57.241-.613.216-.882.781-1.001 1.379l-.132.666c-.07.352-.109.709-.109 1.068 0 2.822 1.776 5.234 4.316 6.183.743 1.954 2.502 3.393 4.629 3.655v2.222H7.256c-.414 0-.75.336-.75.75s.336.75.75.75h9.488c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-1.364v-2.222c2.127-.262 3.886-1.701 4.629-3.655 2.54-.949 4.316-3.361 4.316-6.183 0-.359-.039-.716-.109-1.068zM5.385 8.167c.058-.291.192-.477.387-.545.195-.068.423-.027.604.109.181.136.273.344.313.565.04.221.04.448.04.673 0 .736.082 1.455.238 2.148-1.008-.667-1.582-1.748-1.582-2.95z"/>
+          </svg>
+          <span>Open Buy Me a Coffee</span>
+        </a>
+        <p class="text-[10px] text-gray-400 dark:text-gray-500 font-medium">Supports Card, Apple Pay, Google Pay, PayPal</p>
+      </div>
+
+      <!-- Tab 2: Touch 'n Go / DuitNow QR -->
+      <div id="support-tab-tng" class="w-full hidden flex flex-col items-center gap-2">
+        <div class="tng-qr-card w-full p-3 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-extrabold text-[#015CAE] dark:text-[#3B82F6]">Touch 'n Go</span>
+            <span class="text-[10px] font-bold text-gray-300 dark:text-gray-600">•</span>
+            <span class="text-[11px] font-extrabold text-[#ED1C24] dark:text-[#F87171]">DuitNow QR</span>
+          </div>
+          <div class="w-48 h-48 rounded-2xl bg-white p-2 shadow-xs border border-slate-100 flex items-center justify-center overflow-hidden">
+            <img id="tng-qr-image" src="tng_qr.png" alt="Touch 'n Go DuitNow QR" class="w-full h-full object-contain rounded-xl">
+          </div>
+          <p class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 text-center">Scan with Touch 'n Go or any Banking App</p>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-100 dark:border-slate-800/80 w-full pt-2">
+        <p class="text-[10px] text-gray-400 dark:text-gray-500 font-medium">Schedully © 2026 • Developed by Afiq</p>
+      </div>
     </div>
   </div>
 
