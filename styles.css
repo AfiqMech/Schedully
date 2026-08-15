@@ -635,13 +635,22 @@ body.dark-mode .mobile-export-option:hover {
 }
 
 
-.user-profile-wrapper {
+.sidebar-bottom-container {
   position: sticky;
   bottom: 0;
   margin-top: auto;
   padding: 10px 0 2px 0 !important;
-  background: transparent !important;
+  background: var(--m3-sys-color-surface, #FFFFFF) !important;
   z-index: 10;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+body.dark-mode .sidebar-bottom-container {
+  background: var(--m3-sys-color-surface, #1E293B) !important;
+}
+
+.user-profile-wrapper {
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
@@ -653,6 +662,7 @@ body.dark-mode .mobile-export-option:hover {
 #user-logged-in-state {
   flex: 1 1 0% !important;
   min-width: 0 !important;
+  width: 0 !important;
 }
 
 .btn-adaptive-auth {
@@ -661,11 +671,13 @@ body.dark-mode .mobile-export-option:hover {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   height: 40px !important;
-  padding: 0 12px !important;
+  padding: 0 10px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   box-sizing: border-box !important;
+  min-width: 0 !important;
+  width: 100% !important;
 }
 
 .btn-adaptive-auth svg,
@@ -702,6 +714,7 @@ body:not(.dark-mode) .btn-adaptive-auth .auth-icon-circle {
   width: 100% !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .user-profile-card:hover {

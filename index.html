@@ -793,127 +793,125 @@
 </nav>
 </div>
   <!-- Bottom Section: Floating User Profile / Login & Language Switcher -->
-  <div class="user-profile-wrapper flex items-center gap-2">
-    <!-- Logged Out State: Single Adaptive Action Card with Expandable Providers -->
-    <div id="user-logged-out-state" class="flex-1 relative">
-      <!-- Main Collapsed Login Action Button -->
-      <button id="btn-toggle-login-menu" type="button" class="btn-adaptive-auth w-full py-2.5 px-3.5 rounded-2xl flex items-center justify-between shadow-sm transition-all cursor-pointer border border-transparent">
-        <div class="flex items-center gap-2.5">
-          <div class="auth-icon-circle w-6 h-6 rounded-full bg-black/10 flex items-center justify-center shrink-0">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+  <div class="sidebar-bottom-container">
+    <div class="user-profile-wrapper flex items-center gap-1.5">
+      <!-- Logged Out State: Single Adaptive Action Card with Expandable Providers -->
+      <div id="user-logged-out-state" class="flex-1 relative min-w-0">
+        <!-- Main Collapsed Login Action Button -->
+        <button id="btn-toggle-login-menu" type="button" class="btn-adaptive-auth w-full py-2 px-3 rounded-2xl flex items-center justify-between shadow-sm transition-all cursor-pointer border border-transparent min-w-0">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="auth-icon-circle w-6 h-6 rounded-full bg-black/10 flex items-center justify-center shrink-0">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+            </div>
+            <span data-i18n="login" class="text-xs font-extrabold tracking-wide truncate">Login</span>
           </div>
-          <span data-i18n="login" class="text-xs font-extrabold tracking-wide">Login</span>
+          <div class="flex items-center shrink-0">
+            <svg id="login-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </button>
+
+        <!-- Expandable Login Providers Options Menu (Expands Upward or Downward) -->
+        <div id="login-providers-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
+          <div class="popover-header px-2 py-1 flex items-center justify-between">
+            <span data-i18n="signInProvider" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Sign In Provider</span>
+          </div>
+
+          <!-- Google Login Option -->
+          <button id="btn-google-login" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-xs shrink-0 border border-gray-200/50">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+              </div>
+              <div>
+                <p class="popover-item-title text-xs font-bold transition-colors">Google Account</p>
+                <p data-i18n="continueGoogle" class="popover-item-desc text-[9px]">Continue with Google</p>
+              </div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </button>
         </div>
-        <div class="flex items-center">
-          <svg id="login-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
+
+      <!-- Logged In State: User Avatar, Name, and Expandable Profile Settings Popover -->
+      <div id="user-logged-in-state" class="hidden flex-1 relative min-w-0">
+        <!-- Main Clickable Profile Card Capsule -->
+        <button id="btn-toggle-profile-menu" type="button" class="user-profile-card flex items-center justify-between w-full rounded-2xl border transition-all cursor-pointer shadow-xs text-left min-w-0">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <div id="user-avatar-badge" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-blue-100 text-blue-600 overflow-hidden shrink-0 border border-blue-200 shadow-xs">
+              U
+            </div>
+            <div class="truncate min-w-0 flex-1">
+              <p id="user-display-name" class="font-bold text-xs leading-tight truncate">User</p>
+              <p id="user-status-text" class="text-[9px] font-medium truncate opacity-70">Online</p>
+            </div>
+          </div>
+          <div class="flex items-center shrink-0 text-gray-400 pl-1">
+            <svg id="profile-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </button>
+
+        <!-- Expandable Account Settings Menu Popup (Expands Upward) -->
+        <div id="profile-settings-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
+          <div class="popover-header px-2 py-1 flex items-center justify-between">
+            <span data-i18n="accountSettings" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Account Settings</span>
+          </div>
+
+          <!-- Reset Cloud Data Option -->
+          <button id="btn-google-reset-cloud" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              </div>
+              <div>
+                <p data-i18n="resetCloudData" class="popover-item-title text-xs font-bold group-hover:text-amber-500 transition-colors">Reset Cloud Data</p>
+                <p data-i18n="resetDesc" class="popover-item-desc text-[9px]">Restore fresh default schedule</p>
+              </div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </button>
+
+          <div class="popover-divider h-[1px] my-0.5"></div>
+
+          <!-- Sign Out Option -->
+          <button id="btn-google-logout" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
+            <div class="flex items-center gap-2.5">
+              <div class="w-6 h-6 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              </div>
+              <div>
+                <p data-i18n="signOut" class="popover-item-title text-xs font-bold group-hover:text-red-500 transition-colors">Sign Out</p>
+                <p data-i18n="signOutDesc" class="popover-item-desc text-[9px]">Log out of your account</p>
+              </div>
+            </div>
+            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-red-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+          </button>
         </div>
+      </div>
+
+      <!-- Separated Globe Language Selector Pill Button in Same Row -->
+      <button id="btn-open-language-modal" type="button" title="Select Language" class="btn-globe-language shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 00-3.5 9 14.5 14.5 0 003.5 9 14.5 14.5 0 003.5-9 14.5 14.5 0 00-3.5-9z"></path>
+        </svg>
       </button>
 
-      <!-- Expandable Login Providers Options Menu (Expands Upward or Downward) -->
-      <div id="login-providers-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
-        <div class="popover-header px-2 py-1 flex items-center justify-between">
-          <span data-i18n="signInProvider" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Sign In Provider</span>
-        </div>
-
-        <!-- Google Login Option -->
-        <button id="btn-google-login" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
-          <div class="flex items-center gap-2.5">
-            <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-xs shrink-0 border border-gray-200/50">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
-            </div>
-            <div>
-              <p class="popover-item-title text-xs font-bold transition-colors">Google Account</p>
-              <p data-i18n="continueGoogle" class="popover-item-desc text-[9px]">Continue with Google</p>
-            </div>
-          </div>
-          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Logged In State: User Avatar, Name, and Expandable Profile Settings Popover -->
-    <div id="user-logged-in-state" class="hidden flex-1 relative min-w-0">
-      <!-- Main Clickable Profile Card Capsule -->
-      <button id="btn-toggle-profile-menu" type="button" class="user-profile-card flex items-center justify-between w-full rounded-2xl border transition-all cursor-pointer shadow-xs text-left min-w-0">
-        <div class="flex items-center gap-2 min-w-0 flex-1">
-          <div id="user-avatar-badge" class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs bg-blue-100 text-blue-600 overflow-hidden shrink-0 border border-blue-200 shadow-xs">
-            U
-          </div>
-          <div class="truncate min-w-0 flex-1">
-            <p id="user-display-name" class="font-bold text-xs leading-tight truncate">User</p>
-            <p id="user-status-text" class="text-[9px] font-medium truncate opacity-70">Online</p>
-          </div>
-        </div>
-        <div class="flex items-center shrink-0 text-gray-400 pl-1">
-          <svg id="profile-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
-        </div>
+      <!-- Buy Me a Coffee Pill Button in Same Row -->
+      <button id="btn-open-coffee-modal" type="button" title="Buy Me a Coffee" class="btn-coffee-support shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+          <line x1="6" y1="1" x2="6" y2="4"></line>
+          <line x1="10" y1="1" x2="10" y2="4"></line>
+          <line x1="14" y1="1" x2="14" y2="4"></line>
+        </svg>
       </button>
-
-      <!-- Expandable Account Settings Menu Popup (Expands Upward) -->
-      <div id="profile-settings-menu" class="hidden absolute bottom-full left-0 right-0 mb-2 p-2 rounded-2xl border shadow-2xl flex flex-col gap-1.5 z-50">
-        <div class="popover-header px-2 py-1 flex items-center justify-between">
-          <span data-i18n="accountSettings" class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Account Settings</span>
-        </div>
-
-        <!-- Reset Cloud Data Option -->
-        <button id="btn-google-reset-cloud" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
-          <div class="flex items-center gap-2.5">
-            <div class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </div>
-            <div>
-              <p data-i18n="resetCloudData" class="popover-item-title text-xs font-bold group-hover:text-amber-500 transition-colors">Reset Cloud Data</p>
-              <p data-i18n="resetDesc" class="popover-item-desc text-[9px]">Restore fresh default schedule</p>
-            </div>
-          </div>
-          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-        </button>
-
-        <div class="popover-divider h-[1px] my-0.5"></div>
-
-        <!-- Sign Out Option -->
-        <button id="btn-google-logout" type="button" class="w-full py-2 px-2.5 rounded-xl flex items-center justify-between transition-all text-left group cursor-pointer border border-transparent">
-          <div class="flex items-center gap-2.5">
-            <div class="w-6 h-6 rounded-lg bg-red-500/15 text-red-500 flex items-center justify-center shrink-0">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            </div>
-            <div>
-              <p data-i18n="signOut" class="popover-item-title text-xs font-bold group-hover:text-red-500 transition-colors">Sign Out</p>
-              <p data-i18n="signOutDesc" class="popover-item-desc text-[9px]">Log out of your account</p>
-            </div>
-          </div>
-          <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-red-500 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-        </button>
-      </div>
     </div>
-
-    <!-- Separated Globe Language Selector Pill Button in Same Row -->
-    <button id="btn-open-language-modal" type="button" title="Select Language" class="btn-globe-language shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14.5 14.5 0 00-3.5 9 14.5 14.5 0 003.5 9 14.5 14.5 0 003.5-9 14.5 14.5 0 00-3.5-9z"></path>
-      </svg>
-    </button>
-
-    <!-- Buy Me a Coffee Pill Button in Same Row -->
-    <button id="btn-open-coffee-modal" type="button" title="Buy Me a Coffee" class="btn-coffee-support shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xs cursor-pointer">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
-        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
-        <line x1="6" y1="1" x2="6" y2="4"></line>
-        <line x1="10" y1="1" x2="10" y2="4"></line>
-        <line x1="14" y1="1" x2="14" y2="4"></line>
-      </svg>
-    </button>
+    
+    <!-- App Creator Disclaimer / Footer -->
+    <div class="creator-footer">
+      <p>Schedully © 2026 • Developed by <span>Afiq</span></p>
+    </div>
   </div>
-  
-  <!-- App Creator Disclaimer / Footer -->
-  <div class="creator-footer">
-    <p>Schedully © 2026 • Developed by <span>Afiq</span></p>
-  </div>
-</div>
-</div>
-</div>
-</div>
 </aside>
 <!-- END: Left Sidebar Navigation -->
 <!-- BEGIN: Center Workspace -->
