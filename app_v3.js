@@ -1298,10 +1298,12 @@ class SchedullyApp {
 
           this.wallpaperSwatches = courseSwatches;
 
-          // Auto update class course colors to match photo palette
+          // Auto update class course colors to match photo palette (override unless user manually picked a specific color)
           this.classes.forEach((cls, idx) => {
-            cls.customColor = courseSwatches[idx % courseSwatches.length];
-            cls.color = courseSwatches[idx % courseSwatches.length];
+            if (!cls.isManualCustomColor) {
+              cls.customColor = courseSwatches[idx % courseSwatches.length];
+              cls.color = courseSwatches[idx % courseSwatches.length];
+            }
           });
 
           this.renderAll();
@@ -2353,6 +2355,7 @@ class SchedullyApp {
       }
       syncFloatingButtonsState();
     };
+    this.toggleLeftSidebar = toggleLeftSidebar;
 
     const toggleRightSidebar = (collapse) => {
       const isCurrentlyCollapsed = rightSidebar.classList.contains('sidebar-collapsed-right');
@@ -2368,6 +2371,7 @@ class SchedullyApp {
       }
       syncFloatingButtonsState();
     };
+    this.toggleRightSidebar = toggleRightSidebar;
 
     btnToggleLeft?.addEventListener('click', () => toggleLeftSidebar(true));
     btnExpandLeftFloating?.addEventListener('click', () => toggleLeftSidebar(false));
@@ -3067,6 +3071,9 @@ class SchedullyApp {
               } else if (data.settings) {
                 this.applyPresetSettings(data.settings);
               }
+              if (presetData.wallpaperSwatches && Array.isArray(presetData.wallpaperSwatches)) {
+                this.wallpaperSwatches = presetData.wallpaperSwatches;
+              }
               if (presetData.wallpaper) {
                 this.applyWallpaper(presetData.wallpaper, true);
                 localStorage.setItem('schedully_wallpaper_data', presetData.wallpaper);
@@ -3084,6 +3091,16 @@ class SchedullyApp {
             } else if (data.activePreset && this.presets[data.activePreset] && Array.isArray(this.presets[data.activePreset].classes)) {
               this.classes = this.presets[data.activePreset].classes;
             }
+
+            // If wallpaper is active, guarantee wallpaper swatch adaptation is applied
+            if (this.phoneCanvas?.classList.contains('has-photo-wallpaper') && this.wallpaperSwatches && this.wallpaperSwatches.length > 0) {
+              this.classes.forEach((cls, idx) => {
+                if (!cls.isManualCustomColor) {
+                  cls.customColor = this.wallpaperSwatches[idx % this.wallpaperSwatches.length];
+                }
+              });
+            }
+
             this.renderAll();
 
             // Cache cloud data into localStorage so offline refresh preserves progress
@@ -3737,15 +3754,12 @@ class SchedullyApp {
        }
        this.pendingCsvClasses = events;
 
-       // Always collapse/close left sidebar & menu capsule when OCC modal appears
-       const leftSidebar = document.getElementById('left-sidebar');
-       const btnExpandLeft = document.getElementById('btn-expand-left-floating');
-       if (leftSidebar) {
-         leftSidebar.classList.add('sidebar-collapsed-left');
-         leftSidebar.classList.remove('sidebar-open');
+       // Always collapse/close both left and right sidebars on all devices (mobile, tablet, desktop)
+       if (typeof this.toggleLeftSidebar === 'function') {
+         this.toggleLeftSidebar(true);
        }
-       if (btnExpandLeft) {
-         btnExpandLeft.classList.remove('hidden');
+       if (typeof this.toggleRightSidebar === 'function') {
+         this.toggleRightSidebar(true);
        }
 
        this.occModal.classList.remove('hidden');
