@@ -1,8 +1,13 @@
-// Firebase Integration for Schedully (Google Auth & Manual Cloud Save)
-// NOTE: Firebase is used for MANUAL save only.
-//       It does NOT auto-sync in real-time across devices.
-//       Changes are saved locally first. Cloud save only happens when
-//       the user explicitly clicks the "Save" button.
+// Firebase Integration for Schedully
+//
+// SYNC MODEL:
+//   - Data is NEVER auto-written to Firebase on every change.
+//   - Changes live in memory only until the user clicks the SAVE button.
+//   - The SAVE button writes to localStorage AND Firebase.
+//   - A real-time LISTENER runs on all open devices so that when you press
+//     Save on one device, all your other open devices receive the update instantly.
+//   - The _isSaving flag prevents your own save from echoing back to you.
+
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyBCjWjBb6x99Cu4p_SjVyy8f1vPLt7Yf-Q",
   authDomain: "schedully-2a6c3.firebaseapp.com",
@@ -22,8 +27,11 @@ class SchedullyFirebaseService {
     this.currentUser = null;
     this.provider = null;
     this.onUserChangedCallback = null;
-    // Called ONCE on login to restore cloud data — not a live listener
+    // Called when another device saves — updates your UI with their changes
     this.onDataSyncedCallback = null;
+    // True while we are the ones writing, so we ignore our own echo
+    this._isSaving = false;
+    this._activeListener = null;
 
     this.init();
   }
@@ -71,8 +79,9 @@ class SchedullyFirebaseService {
           this.onUserChangedCallback(user);
         }
         if (user) {
-          // ONE-TIME READ on login — no persistent listener
-          this.loadUserDataOnce(user.uid);
+          this._startListening(user.uid);
+        } else {
+          this._stopListening();
         }
       });
     } catch (err) {
@@ -80,13 +89,40 @@ class SchedullyFirebaseService {
     }
   }
 
+  // Start real-time listener — receives saves from other devices.
+  // Fires once immediately with current cloud data (for load-on-login),
+  // then continues listening for future saves from other devices.
+  _startListening(userId) {
+    if (!this.db) return;
+    this._stopListening(); // clean up any old listener first
+
+    const userRef = this.db.ref('users/' + userId);
+    const handler = (snapshot) => {
+      // Ignore our own save echo
+      if (this._isSaving) return;
+      const data = snapshot.val();
+      if (data && this.onDataSyncedCallback) {
+        this.onDataSyncedCallback(data);
+      }
+    };
+
+    userRef.on('value', handler, (err) => {
+      console.warn("Firebase listener error:", err);
+    });
+
+    this._activeListener = { ref: userRef, handler };
+  }
+
+  _stopListening() {
+    if (this._activeListener) {
+      this._activeListener.ref.off('value', this._activeListener.handler);
+      this._activeListener = null;
+    }
+  }
+
   async loginWithGoogle() {
-    if (!this.auth) {
-      this.init();
-    }
-    if (!this.auth) {
-      throw new Error("FIREBASE_NOT_CONFIGURED");
-    }
+    if (!this.auth) this.init();
+    if (!this.auth) throw new Error("FIREBASE_NOT_CONFIGURED");
     try {
       const result = await this.auth.signInWithPopup(this.provider);
       return result.user;
@@ -98,6 +134,7 @@ class SchedullyFirebaseService {
 
   async logout() {
     if (!this.auth) return;
+    this._stopListening();
     try {
       await this.auth.signOut();
       this.currentUser = null;
@@ -106,24 +143,12 @@ class SchedullyFirebaseService {
     }
   }
 
-  // ONE-TIME READ on login — called once, immediately detaches
-  async loadUserDataOnce(userId) {
-    if (!this.db) return;
-    try {
-      const snapshot = await this.db.ref('users/' + userId).once('value');
-      const data = snapshot.val();
-      if (data && this.onDataSyncedCallback) {
-        this.onDataSyncedCallback(data);
-      }
-    } catch (error) {
-      console.warn("Could not load cloud data:", error);
-    }
-  }
-
-  // MANUAL SAVE — only called when user clicks "Save" button
+  // MANUAL SAVE — only called when user clicks the Save button.
+  // Sets _isSaving so the listener ignores the echo of this write.
   async saveUserData(userData) {
     if (!this.db || !this.currentUser) return false;
     try {
+      this._isSaving = true;
       await this.db.ref('users/' + this.currentUser.uid).set({
         classes: userData.classes || [],
         presets: userData.presets || {},
@@ -133,8 +158,11 @@ class SchedullyFirebaseService {
         userEmail: this.currentUser.email,
         displayName: this.currentUser.displayName
       });
+      // Give Firebase time to deliver the echo before we stop ignoring it
+      setTimeout(() => { this._isSaving = false; }, 1500);
       return true;
     } catch (error) {
+      this._isSaving = false;
       console.error("Error saving data to Database:", error);
       return false;
     }

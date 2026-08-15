@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Schedully - Class Schedule & Lock Screen Wallpaper Builder
  * Includes Matcha Green, Mocha Brown Palettes + Auto-Contrast Lockscreen Clock Fix
  */
@@ -415,7 +415,7 @@ class SchedullyApp {
     const subtext   = theme.subtext || theme.text;
     const outline   = theme.outline || '';
 
-    // ── Detect dark mode (bg is dark if luminance < 0.25) ─────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Detect dark mode (bg is dark if luminance < 0.25) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     const isDark = this._isColorDark(bg);
 
     // Update CSS variables dynamically
@@ -428,7 +428,7 @@ class SchedullyApp {
     root.style.setProperty('--m3-sys-text-primary', textColor);
     root.style.setProperty('--m3-sys-text-secondary', subtext);
 
-    // ── DARK MODE: apply dark surfaces & contrast to all layout elements ──
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ DARK MODE: apply dark surfaces & contrast to all layout elements ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.body.classList.toggle('dark-mode', isDark);
     if (isDark) {
       document.body.style.backgroundColor = bg;
@@ -604,7 +604,7 @@ class SchedullyApp {
         btn.querySelectorAll('svg').forEach(svg => svg.style.color = textColor);
       });
     } else {
-      // ── LIGHT MODE: reset layout to neutral whites ─────────────
+      // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ LIGHT MODE: reset layout to neutral whites ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
       document.body.style.backgroundColor = '';
       const mainEl = document.querySelector('main');
       if (mainEl) {
@@ -729,40 +729,40 @@ class SchedullyApp {
       });
     }
 
-    // ── btn-theme-primary (Download Image, Controls) ──────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ btn-theme-primary (Download Image, Controls) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.btn-theme-primary').forEach(el => {
       el.style.backgroundColor = primary;
       el.style.color = onPrimary;
     });
 
-    // ── theme-primary-text (icons, links) ─────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ theme-primary-text (icons, links) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.theme-primary-text').forEach(el => {
       el.style.color = primary;
     });
 
-    // ── theme-primary-bg ──────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ theme-primary-bg ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.theme-primary-bg').forEach(el => {
       el.style.backgroundColor = primary;
     });
 
-    // ── theme-primary-light-bg (icon backing plates) ──────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ theme-primary-light-bg (icon backing plates) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.theme-primary-light-bg').forEach(el => {
       el.style.backgroundColor = container;
     });
 
-    // ── Active pill / capsule buttons ─────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Active pill / capsule buttons ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.pill-btn.active, .capsule-btn.active').forEach(el => {
       el.style.backgroundColor = primary;
       el.style.color = onPrimary;
     });
 
-    // ── Theme & Layout card inner ─────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Theme & Layout card inner ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     document.querySelectorAll('.theme-card-inner, .layout-card-inner').forEach(el => {
       el.style.backgroundColor = isDark ? variant : container;
       el.style.borderColor = isDark ? outline : container;
     });
 
-    // ── Aurora orbs ───────────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Aurora orbs ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     if (window.innerWidth > 1280) {
       document.querySelectorAll('.animate-aura').forEach((orb, i) => {
         orb.style.background = i === 0
@@ -772,7 +772,7 @@ class SchedullyApp {
       });
     }
 
-    // ── Logo glow backing ─────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Logo glow backing ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     const logoBacking = document.querySelector('[class*="from-blue-500"]');
     if (logoBacking) {
       logoBacking.style.background = `linear-gradient(to right, ${primary}50, ${primary}30)`;
@@ -926,7 +926,7 @@ class SchedullyApp {
             blurControl?.classList.add('hidden');
             document.documentElement.style.setProperty('--wallpaper-blur-val', '0px');
           }
-          this.saveToLocal();
+          this._stagePending();
         });
       });
     }
@@ -939,7 +939,7 @@ class SchedullyApp {
         if (this.bgBlurEnabled) {
           document.documentElement.style.setProperty('--wallpaper-blur-val', `${val}px`);
         }
-        this.saveToLocal();
+        this._stagePending();
       });
     }
 
@@ -959,7 +959,7 @@ class SchedullyApp {
     if (opacitySlider) {
       opacitySlider.addEventListener('input', (e) => {
         this.setTimetableOpacity(e.target.value);
-        this.saveToLocal();
+        this._stagePending();
       });
     }
 
@@ -1128,7 +1128,7 @@ class SchedullyApp {
       }
       this.renderTimetableGrid();
       if (!skipSave) {
-        this.saveToLocal();
+        this._stagePending();
       }
     };
 
@@ -1305,7 +1305,7 @@ class SchedullyApp {
           });
 
           this.renderAll();
-          this.saveToLocal();
+          this._stagePending();
         }
       } catch (err) {
         console.warn("Color extraction failed:", err);
@@ -1445,7 +1445,7 @@ class SchedullyApp {
         btn.classList.add('active');
         this.showTitle = (btn.getAttribute('data-val') === 'yes');
         this.lockGridTitle.style.display = this.showTitle ? 'block' : 'none';
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -1463,7 +1463,7 @@ class SchedullyApp {
           if (rowCornerRadius) rowCornerRadius.style.display = 'flex';
         }
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -1477,7 +1477,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.cardCornerRadiusVal = Math.min(24, Math.max(2, val));
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
     if (btnRadiusDec && gridRadiusValEl) {
@@ -1485,7 +1485,7 @@ class SchedullyApp {
         this.cardCornerRadiusVal = Math.max(2, this.cardCornerRadiusVal - 1);
         gridRadiusValEl.value = this.cardCornerRadiusVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       });
     }
     if (btnRadiusInc && gridRadiusValEl) {
@@ -1493,7 +1493,7 @@ class SchedullyApp {
         this.cardCornerRadiusVal = Math.min(24, this.cardCornerRadiusVal + 1);
         gridRadiusValEl.value = this.cardCornerRadiusVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       });
     }
 
@@ -1655,7 +1655,7 @@ class SchedullyApp {
         btn.classList.add('active');
         this.clockFormat = btn.getAttribute('data-val');
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -1663,13 +1663,13 @@ class SchedullyApp {
     this.gridStartTimeSelect.addEventListener('change', (e) => {
       this.gridStartHour = parseInt(e.target.value.split(':')[0]);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     this.gridEndTimeSelect.addEventListener('change', (e) => {
       this.gridEndHour = parseInt(e.target.value.split(':')[0]);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     // Day Display Checkboxes
@@ -1678,7 +1678,7 @@ class SchedullyApp {
         const checked = Array.from(document.querySelectorAll('.day-toggle:checked')).map(c => c.value);
         this.activeDays = checked.length > 0 ? checked : ['Mon'];
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -1692,7 +1692,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridWidthVal = Math.min(100, Math.max(50, val));
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
     gridWidthValEl?.addEventListener('blur', (e) => {
@@ -1701,7 +1701,7 @@ class SchedullyApp {
       else if (val > 100) e.target.value = 100;
       this.gridWidthVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     btnWidthDec?.addEventListener('click', () => {
@@ -1709,7 +1709,7 @@ class SchedullyApp {
         this.gridWidthVal -= 5;
         if (gridWidthValEl) gridWidthValEl.value = this.gridWidthVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1718,7 +1718,7 @@ class SchedullyApp {
         this.gridWidthVal += 5;
         if (gridWidthValEl) gridWidthValEl.value = this.gridWidthVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1732,7 +1732,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridHeightVal = Math.min(90, Math.max(30, val));
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
     gridHeightValEl?.addEventListener('blur', (e) => {
@@ -1741,7 +1741,7 @@ class SchedullyApp {
       else if (val > 90) e.target.value = 90;
       this.gridHeightVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     btnHeightDec?.addEventListener('click', () => {
@@ -1749,7 +1749,7 @@ class SchedullyApp {
         this.gridHeightVal -= 3;
         if (gridHeightValEl) gridHeightValEl.value = this.gridHeightVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1758,7 +1758,7 @@ class SchedullyApp {
         this.gridHeightVal += 3;
         if (gridHeightValEl) gridHeightValEl.value = this.gridHeightVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1772,7 +1772,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridFontSizeVal = Math.min(16, Math.max(6, val));
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
     gridFontSizeValEl?.addEventListener('blur', (e) => {
@@ -1781,7 +1781,7 @@ class SchedullyApp {
       else if (val > 16) e.target.value = 16;
       this.gridFontSizeVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     btnFontSizeDec?.addEventListener('click', () => {
@@ -1789,7 +1789,7 @@ class SchedullyApp {
         this.gridFontSizeVal -= 1;
         if (gridFontSizeValEl) gridFontSizeValEl.value = this.gridFontSizeVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1798,7 +1798,7 @@ class SchedullyApp {
         this.gridFontSizeVal += 1;
         if (gridFontSizeValEl) gridFontSizeValEl.value = this.gridFontSizeVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1812,7 +1812,7 @@ class SchedullyApp {
       if (!isNaN(val)) {
         this.gridYPosVal = Math.min(150, Math.max(-120, val));
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
     gridYPosValEl?.addEventListener('blur', (e) => {
@@ -1821,7 +1821,7 @@ class SchedullyApp {
       else if (val > 150) e.target.value = 150;
       this.gridYPosVal = parseInt(e.target.value, 10);
       this.renderTimetableGrid();
-      this.saveToLocal();
+      this._stagePending();
     });
 
     btnYPosDec?.addEventListener('click', () => {
@@ -1840,7 +1840,7 @@ class SchedullyApp {
         this.gridYPosVal = Math.max(Math.round(minY), this.gridYPosVal - 5);
         if (gridYPosValEl) gridYPosValEl.value = this.gridYPosVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -1860,7 +1860,7 @@ class SchedullyApp {
         this.gridYPosVal = Math.min(Math.round(maxY), this.gridYPosVal + 5);
         if (gridYPosValEl) gridYPosValEl.value = this.gridYPosVal;
         this.renderTimetableGrid();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -2020,7 +2020,7 @@ class SchedullyApp {
         if (wallpaperData) {
           this.extractColorsFromImage(wallpaperData);
         }
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -2032,7 +2032,7 @@ class SchedullyApp {
         dot.classList.add('active');
         this.currentPalette = dot.getAttribute('data-palette');
         this.applyThemeEngine();
-        this.saveToLocal();
+        this._stagePending();
       });
     });
 
@@ -2059,7 +2059,7 @@ class SchedullyApp {
         
         // Apply engine ONCE to avoid double-render lag
         this.applyThemeEngine();
-        this.saveToLocal();
+        this._stagePending();
       }
     });
 
@@ -2210,7 +2210,7 @@ class SchedullyApp {
         if (wallpaperData) {
           this.extractColorsFromImage(wallpaperData);
         }
-        this.saveToLocal();
+        this._stagePending();
       });
     }
 
@@ -2251,7 +2251,7 @@ class SchedullyApp {
         c.customColor = codeColorMap[c.code];
       });
 
-      this.saveToLocal();
+      this._stagePending();
       this.renderAll();
     });
 
@@ -2622,7 +2622,7 @@ class SchedullyApp {
         delete target.isClashing;
         this.ignoreClashes = false;
         this.renderAll();
-        alert("⚡ Clash Auto-Resolved! Shifted overlapping slot to Friday 2:00 PM.");
+        alert("ÃƒÂ¢Ã…Â¡Ã‚Â¡ Clash Auto-Resolved! Shifted overlapping slot to Friday 2:00 PM.");
       }
     });
 
@@ -2639,16 +2639,16 @@ class SchedullyApp {
     // iCal Export Button
     this.btnExportICal?.addEventListener('click', () => {
       window.timetableEngine.exportToICal(this.classes, `schedully_schedule.ics`);
-      alert("📅 Exported .ics Calendar File! Open this file to import into Google Calendar or Apple Calendar.");
+      alert("ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã¢â‚¬Â¦ Exported .ics Calendar File! Open this file to import into Google Calendar or Apple Calendar.");
     });
 
     // CSV Export Button
     this.btnExportCSV?.addEventListener('click', () => {
       window.timetableEngine.exportToCSV(this.classes, `schedully_schedule.csv`);
-      alert("📊 Exported CSV File!");
+      alert("ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…Â  Exported CSV File!");
     });
 
-    // Wallpaper export — Using dom-to-image-more
+    // Wallpaper export ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Using dom-to-image-more
     const exportWallpaper = (onComplete) => {
       const originalCanvas = document.getElementById('phone-canvas');
       
@@ -2766,7 +2766,7 @@ class SchedullyApp {
     };
 
 
-    // Download Image Button — Pure clean wallpaper PNG export (Mobile & Desktop)
+    // Download Image Button ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Pure clean wallpaper PNG export (Mobile & Desktop)
     this.btnDownloadHD.addEventListener('click', () => {
       exportWallpaper((canvas) => {
         canvas.toBlob((blob) => {
@@ -2782,7 +2782,7 @@ class SchedullyApp {
       });
     });
 
-    // Save As PDF Button — Pure clean wallpaper PDF export (Mobile & Desktop)
+    // Save As PDF Button ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Pure clean wallpaper PDF export (Mobile & Desktop)
     this.btnSavePdf.addEventListener('click', () => {
       exportWallpaper((canvas) => {
         const { jsPDF } = window.jspdf;
@@ -2811,7 +2811,7 @@ class SchedullyApp {
       });
     });
 
-    // ── Mobile Export Dropdown ──────────────────────────────────────────────
+    // ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Mobile Export Dropdown ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
     const mobileExportToggle = document.getElementById('btn-mobile-export-toggle');
     const mobileExportDropdown = document.getElementById('mobile-export-dropdown');
     const mobileExportChevron = document.getElementById('mobile-export-chevron');
@@ -2839,7 +2839,7 @@ class SchedullyApp {
       }
     });
 
-    // Proxy mobile buttons → desktop button click handlers
+    // Proxy mobile buttons ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ desktop button click handlers
     document.getElementById('btn-download-hd-mobile')?.addEventListener('click', () => {
       closeMobileDropdown();
       this.btnDownloadHD?.click();
@@ -2856,7 +2856,7 @@ class SchedullyApp {
       closeMobileDropdown();
       this.btnSavePdf?.click();
     });
-    // ────────────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   }
   loadFromLocal() {
     try {
@@ -2957,9 +2957,8 @@ class SchedullyApp {
           }
         };
 
-        // ONE-TIME LOAD on login — restore cloud data once, then stop.
-        // No real-time listener — changes on another device will NOT automatically
-        // overwrite what you're doing on this device.
+        // Fires on login (initial load) and whenever ANOTHER device presses Save.
+        // The _isSaving flag in firebase-config.js prevents your own saves from echoing back.
         window.schedullyFirebase.onDataSyncedCallback = (data) => {
           if (!data) return;
 
@@ -3248,7 +3247,7 @@ class SchedullyApp {
             this.removeWallpaper();
           }
 
-          this.saveToLocal();
+          this._stagePending();
           this.renderAll();
         }
       });
@@ -3261,7 +3260,7 @@ class SchedullyApp {
         if (newName && newName.trim().length > 0) {
           this.presets[this.activePresetKey].name = newName.trim();
           this.updatePresetSelectDropdown();
-          this.saveToLocal();
+          this._stagePending();
         }
       });
     }
@@ -3318,13 +3317,34 @@ class SchedullyApp {
           this.applyPresetSettings(freshSettings);
 
           this.updatePresetSelectDropdown();
-          this.saveToLocal();
+          this._stagePending();
           this.renderAll();
         }
       });
     }
   }
 
+  // Called on every change Ã¢â‚¬â€ keeps changes in memory only. NO localStorage write.
+  // The Save button is the only thing that actually persists data.
+  _stagePending() {
+    // Update the in-memory preset snapshot so the UI state is always current
+    if (!this.presets) this.presets = {};
+    if (!this.activePresetKey) this.activePresetKey = 'default';
+    const currentSettings = this.getPresetSettings();
+    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+    this.presets[this.activePresetKey] = {
+      name: this.presets[this.activePresetKey]?.name || 'Default',
+      classes: this.classes,
+      wallpaper: currentWallpaper,
+      wallpaperSwatches: this.wallpaperSwatches || null,
+      settings: currentSettings
+    };
+    // Show the unsaved dot so user knows they have pending changes
+    this.markUnsaved();
+  }
+
+  // Writes in-memory state to localStorage AND Firebase.
+  // Only called explicitly by the Save button.
   saveToLocal() {
     try {
       if (!this.presets) this.presets = {};
@@ -3344,9 +3364,6 @@ class SchedullyApp {
       localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
       localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
       localStorage.setItem('schedully_active_preset', this.activePresetKey);
-
-      // Mark as having unsaved cloud changes (if user is logged in)
-      this.markUnsaved();
     } catch (e) {
       console.warn("Could not save to local storage", e);
     }
@@ -3362,18 +3379,18 @@ class SchedullyApp {
     document.getElementById('mobile-unsaved-dot')?.classList.remove('hidden');
   }
 
-  // Called after successful cloud save — clears all unsaved indicators
+  // Called after successful cloud save Ã¢â‚¬â€ clears all unsaved indicators
   markSaved() {
     this._hasUnsavedCloudChanges = false;
     // Desktop
     document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
     const label = document.getElementById('btn-save-cloud-label');
-    if (label) label.textContent = '✓ Saved';
+    if (label) label.textContent = 'Ã¢Å“â€œ Saved';
     setTimeout(() => { if (label) label.textContent = 'Save'; }, 2000);
     // Mobile
     document.getElementById('mobile-unsaved-dot')?.classList.add('hidden');
     const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = '✓ Saved!';
+    if (mobileLabel) mobileLabel.textContent = 'Ã¢Å“â€œ Saved!';
     setTimeout(() => { if (mobileLabel) mobileLabel.textContent = 'Save to Cloud'; }, 2000);
   }
 
@@ -3398,11 +3415,11 @@ class SchedullyApp {
     const btn = document.getElementById('btn-save-to-cloud');
     const label = document.getElementById('btn-save-cloud-label');
     if (btn) btn.disabled = true;
-    if (label) label.textContent = 'Saving…';
+    if (label) label.textContent = 'SavingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦';
 
     // Update mobile button UI
     const mobileLabel = document.getElementById('mobile-save-cloud-label');
-    if (mobileLabel) mobileLabel.textContent = 'Saving…';
+    if (mobileLabel) mobileLabel.textContent = 'SavingÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦';
 
     const ok = await window.schedullyFirebase.saveUserData({
       classes: this.classes,
@@ -3488,7 +3505,7 @@ class SchedullyApp {
     });
 
     this.classes.push(...mapped);
-    this.saveToLocal();
+    this._stagePending();
     this.renderAll();
   }
 
@@ -3949,7 +3966,7 @@ class SchedullyApp {
         <div class="class-card-header">
           <div class="item-info">
             <h4>${c.code}</h4>
-            <p class="item-subtext">${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})</p>
+            <p class="item-subtext">${c.type ? `${c.type} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})</p>
           </div>
           <div class="class-card-actions">
             <span class="material-symbols-outlined class-expand-arrow">expand_more</span>
@@ -4104,7 +4121,7 @@ class SchedullyApp {
         c.room = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4114,7 +4131,7 @@ class SchedullyApp {
         c.lecturer = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4124,7 +4141,7 @@ class SchedullyApp {
         c.group = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4189,3 +4206,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 300);
 });
+
+
+
