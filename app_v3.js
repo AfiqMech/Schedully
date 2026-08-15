@@ -2976,26 +2976,9 @@ class SchedullyApp {
       });
     }
 
-    const btnSyncCloud = document.getElementById('btn-sync-from-cloud');
-
     // Wire up the manual Save to Cloud button
     if (btnSaveCloud) {
       btnSaveCloud.addEventListener('click', () => this.saveToCloud());
-    }
-
-    // Wire up the manual Sync from Cloud button
-    if (btnSyncCloud) {
-      btnSyncCloud.addEventListener('click', async () => {
-        if (!window.schedullyFirebase?.currentUser) {
-          alert("Please log in first to sync from cloud.");
-          return;
-        }
-        btnSyncCloud.classList.add('animate-spin');
-        await window.schedullyFirebase.fetchUserData();
-        setTimeout(() => {
-          btnSyncCloud.classList.remove('animate-spin');
-        }, 600);
-      });
     }
 
     // Listen for Auth state updates
@@ -3014,15 +2997,13 @@ class SchedullyApp {
             }
             if (loggedOutState) loggedOutState.classList.add('hidden');
             if (loggedInState) loggedInState.classList.remove('hidden');
-            // Show the Save and Sync buttons when logged in
+            // Show the Save button when logged in
             if (btnSaveCloud) btnSaveCloud.style.display = 'flex';
-            if (btnSyncCloud) btnSyncCloud.style.display = 'flex';
           } else {
             if (loggedOutState) loggedOutState.classList.remove('hidden');
             if (loggedInState) loggedInState.classList.add('hidden');
-            // Hide the Save and Sync buttons when logged out
+            // Hide the Save button when logged out
             if (btnSaveCloud) btnSaveCloud.style.display = 'none';
-            if (btnSyncCloud) btnSyncCloud.style.display = 'none';
             document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
           }
         };
@@ -3110,7 +3091,9 @@ class SchedullyApp {
             localStorage.setItem('schedully_active_preset', this.activePresetKey);
             localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
 
-            this.markSaved();
+            // Silently clear unsaved indicator on load (NO animated "Saved!" flash on refresh)
+            this._hasUnsavedCloudChanges = false;
+            document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
           } catch (syncErr) {
             console.warn("Cloud sync non-fatal error:", syncErr);
           }
@@ -3753,6 +3736,18 @@ class SchedullyApp {
          subtitle.innerText = `Please review and select your preferred groups for all ${Object.keys(groupedByCode).length} subjects before importing.`;
        }
        this.pendingCsvClasses = events;
+
+       // Always collapse/close left sidebar & menu capsule when OCC modal appears
+       const leftSidebar = document.getElementById('left-sidebar');
+       const btnExpandLeft = document.getElementById('btn-expand-left-floating');
+       if (leftSidebar) {
+         leftSidebar.classList.add('sidebar-collapsed-left');
+         leftSidebar.classList.remove('sidebar-open');
+       }
+       if (btnExpandLeft) {
+         btnExpandLeft.classList.remove('hidden');
+       }
+
        this.occModal.classList.remove('hidden');
     } else {
        this.importClassesDirectly(events);
@@ -3926,14 +3921,15 @@ class SchedullyApp {
           const modeKey = (this.currentMode === 'auto' ? (isDark ? 'dark' : 'light') : this.currentMode);
           const paletteGroup = THEME_PALETTES[modeKey] || THEME_PALETTES.light;
           const activePalette = paletteGroup[this.currentPalette] || paletteGroup.indigo;
-          const courseSwatches = (this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
+          const hasPhotoWallpaper = this.phoneCanvas?.classList.contains('has-photo-wallpaper');
+          const courseSwatches = (hasPhotoWallpaper && this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
             ? this.wallpaperSwatches
             : (activePalette.courseSwatches || ['#1D4ED8', '#2563EB', '#3B82F6', '#10B981']);
 
           const matchIdx = this.classes.indexOf(matched);
           const adaptiveBg = courseSwatches[matchIdx % courseSwatches.length] || matched.customColor;
-          const effectiveBg = (this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
-            ? (matched.customColor || adaptiveBg)
+          const effectiveBg = (hasPhotoWallpaper && this.wallpaperSwatches && this.wallpaperSwatches.length > 0)
+            ? (matched.isManualCustomColor ? matched.customColor : adaptiveBg)
             : (this.globalAdaptiveColor ? adaptiveBg : matched.customColor);
 
           // Smart Auto-Contrast Font Color for Card Text
@@ -4250,7 +4246,7 @@ class SchedullyApp {
         c.room = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4260,7 +4256,7 @@ class SchedullyApp {
         c.lecturer = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4270,7 +4266,7 @@ class SchedullyApp {
         c.group = e.target.value.trim();
         const subtextEl = card.querySelector('.item-subtext');
         if (subtextEl) {
-          const subtext = `${c.type ? `${c.type} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.room ? `${c.room} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.lecturer ? `${c.lecturer} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.group ? `${c.group} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
+          const subtext = `${c.type ? `${c.type} • ` : ''}${c.room ? `${c.room} • ` : ''}${c.lecturer ? `${c.lecturer} • ` : ''}${c.group ? `${c.group} • ` : ''}${c.day} (${c.startTime} - ${c.endTime})`;
           subtextEl.innerText = subtext;
         }
         this.renderTimetableGrid();
@@ -4282,6 +4278,7 @@ class SchedullyApp {
           card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           c.customColor = btn.getAttribute('data-hex');
+          c.isManualCustomColor = true;
           this.renderTimetableGrid();
         });
       });
@@ -4290,6 +4287,7 @@ class SchedullyApp {
       card.querySelector('.mini-grid-color-input')?.addEventListener('input', (e) => {
         card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
         c.customColor = e.target.value;
+        c.isManualCustomColor = true;
         const btn = card.querySelector('.mini-grid-custom');
         if (btn) btn.style.background = e.target.value;
         this.renderTimetableGrid();
