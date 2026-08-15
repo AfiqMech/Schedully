@@ -636,14 +636,12 @@ body.dark-mode .mobile-export-option:hover {
 
 
 .sidebar-bottom-container {
-  position: sticky;
-  bottom: 0;
-  margin-top: auto;
-  padding: 8px 0 2px 0 !important;
-  background: transparent !important;
-  z-index: 10;
+  margin-top: auto !important;
+  padding-top: 16px !important;
+  padding-bottom: 2px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  background: transparent !important;
 }
 
 body.dark-mode .sidebar-bottom-container {
@@ -724,21 +722,21 @@ body:not(.dark-mode) .btn-adaptive-auth .auth-icon-circle {
 
 .btn-globe-language,
 .btn-coffee-support {
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
   flex-shrink: 0 !important;
-  border-radius: 50% !important;
+  border-radius: 14px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
+  border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
+  box-sizing: border-box !important;
   cursor: pointer !important;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
@@ -785,44 +783,56 @@ body.dark-mode .language-modal-card {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
 }
 
-/* Pure Floating Globe Language Selector Icon */
+/* Globe Language Selector Button */
 .btn-globe-language {
-  color: #64748B !important;
+  background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
+  border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
+  color: var(--m3-sys-text-primary, #0F172A) !important;
 }
 
 .btn-globe-language:hover {
+  border-color: var(--m3-sys-color-primary, #2563EB) !important;
   color: var(--m3-sys-color-primary, #2563EB) !important;
-  background-color: rgba(37, 99, 235, 0.08) !important;
-  transform: translateY(-1px) scale(1.08);
+  background-color: #EFF6FF !important;
+  transform: translateY(-1px);
 }
 
 body.dark-mode .btn-globe-language {
-  color: #CBD5E1 !important;
+  background-color: var(--m3-sys-color-surface, #1E293B) !important;
+  border-color: var(--m3-sys-color-outline, rgba(255, 255, 255, 0.15)) !important;
+  color: var(--m3-sys-text-primary, #F8FAFC) !important;
 }
 
 body.dark-mode .btn-globe-language:hover {
+  border-color: var(--m3-sys-color-primary, #3B82F6) !important;
   color: var(--m3-sys-color-primary, #3B82F6) !important;
-  background-color: rgba(59, 130, 246, 0.16) !important;
+  background-color: rgba(59, 130, 246, 0.15) !important;
 }
 
-/* Pure Floating Buy Me a Coffee Support Icon */
+/* Buy Me a Coffee Support Button */
 .btn-coffee-support {
+  background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
+  border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
   color: #D97706 !important;
 }
 
 .btn-coffee-support:hover {
+  border-color: #F59E0B !important;
   color: #B45309 !important;
-  background-color: rgba(245, 158, 11, 0.12) !important;
-  transform: translateY(-1px) scale(1.08);
+  background-color: #FFFBEB !important;
+  transform: translateY(-1px);
 }
 
 body.dark-mode .btn-coffee-support {
+  background-color: var(--m3-sys-color-surface, #1E293B) !important;
+  border-color: var(--m3-sys-color-outline, rgba(255, 255, 255, 0.15)) !important;
   color: #FBBF24 !important;
 }
 
 body.dark-mode .btn-coffee-support:hover {
+  border-color: #F59E0B !important;
   color: #FDE68A !important;
-  background-color: rgba(245, 158, 11, 0.2) !important;
+  background-color: rgba(245, 158, 11, 0.18) !important;
 }
 
 /* Modal Overlays: Ensure Globe Language and Coffee Modals are always on top on Mobile and Desktop */
