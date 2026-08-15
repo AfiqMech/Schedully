@@ -167,6 +167,38 @@ class SchedullyFirebaseService {
       return false;
     }
   }
+
+  // RESET USER CLOUD DATA — completely wipes damaged/broken data and writes fresh default state
+  async resetUserData(freshPresetSettings) {
+    if (!this.db || !this.currentUser) return false;
+    try {
+      this._isSaving = true;
+      const defaultState = {
+        classes: [],
+        presets: {
+          default: {
+            name: 'Default',
+            classes: [],
+            wallpaper: null,
+            wallpaperSwatches: null,
+            settings: freshPresetSettings || {}
+          }
+        },
+        activePreset: 'default',
+        settings: freshPresetSettings || {},
+        updatedAt: new Date().toISOString(),
+        userEmail: this.currentUser.email,
+        displayName: this.currentUser.displayName
+      };
+      await this.db.ref('users/' + this.currentUser.uid).set(defaultState);
+      setTimeout(() => { this._isSaving = false; }, 1000);
+      return true;
+    } catch (error) {
+      this._isSaving = false;
+      console.error("Error resetting user data in Firebase:", error);
+      return false;
+    }
+  }
 }
 
 // Global Singleton Instance
