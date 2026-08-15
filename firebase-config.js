@@ -102,27 +102,42 @@ class SchedullyFirebaseService {
 
   async saveUserData(userData) {
     if (!this.db || !this.currentUser) return false;
-    try {
-      await this.db.ref('users/' + this.currentUser.uid).set({
-        classes: userData.classes || [],
-        presets: userData.presets || {},
-        activePreset: userData.activePreset || 'default',
-        settings: userData.settings || {},
-        updatedAt: new Date().toISOString(),
-        userEmail: this.currentUser.email,
-        displayName: this.currentUser.displayName
-      });
-      return true;
-    } catch (error) {
-      console.error("Error saving data to Database:", error);
-      return false;
+    
+    // Clear pending debounce timer
+    if (this._saveDebounceTimer) {
+      clearTimeout(this._saveDebounceTimer);
     }
+
+    return new Promise((resolve) => {
+      this._saveDebounceTimer = setTimeout(async () => {
+        try {
+          this._isSaving = true;
+          await this.db.ref('users/' + this.currentUser.uid).set({
+            classes: userData.classes || [],
+            presets: userData.presets || {},
+            activePreset: userData.activePreset || 'default',
+            settings: userData.settings || {},
+            updatedAt: new Date().toISOString(),
+            userEmail: this.currentUser.email,
+            displayName: this.currentUser.displayName
+          });
+          setTimeout(() => { this._isSaving = false; }, 300);
+          resolve(true);
+        } catch (error) {
+          this._isSaving = false;
+          console.error("Error saving data to Database:", error);
+          resolve(false);
+        }
+      }, 500);
+    });
   }
 
   listenToUserData(userId) {
     if (!this.db) return;
     const userRef = this.db.ref('users/' + userId);
     userRef.on('value', (snapshot) => {
+      // Ignore incoming echo snapshot while local save is in progress
+      if (this._isSaving) return;
       const data = snapshot.val();
       if (data && this.onDataSyncedCallback) {
         this.onDataSyncedCallback(data);
