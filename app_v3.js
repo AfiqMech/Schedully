@@ -3485,17 +3485,17 @@ class SchedullyApp {
       select.addEventListener('change', (e) => {
         const targetKey = e.target.value;
         if (this.presets[targetKey]) {
-          // 1. Save current preset's full state
+          // 1. Snapshot and save CURRENT active preset BEFORE switching
           if (this.activePresetKey && this.presets[this.activePresetKey]) {
-            this.presets[this.activePresetKey].classes = this.classes;
+            this.presets[this.activePresetKey].classes = [...this.classes];
             this.presets[this.activePresetKey].wallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
             this.presets[this.activePresetKey].wallpaperSwatches = this.wallpaperSwatches || null;
             this.presets[this.activePresetKey].settings = this.getPresetSettings();
           }
 
-          // 2. Switch active key & classes
+          // 2. Switch to target preset
           this.activePresetKey = targetKey;
-          this.classes = this.presets[targetKey].classes || [];
+          this.classes = this.presets[targetKey].classes ? [...this.presets[targetKey].classes] : [];
 
           // 3. Restore Target Preset Settings
           if (this.presets[targetKey].settings) {
@@ -3509,7 +3509,21 @@ class SchedullyApp {
             this.removeWallpaper();
           }
 
-          this._stagePending();
+          // 5. Update local persistence cleanly without overwriting other presets
+          try {
+            localStorage.setItem('schedully_classes', JSON.stringify(this.classes));
+            localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
+            localStorage.setItem('schedully_active_preset', this.activePresetKey);
+          } catch (err) {}
+
+          // 6. Debounced auto-save to cloud
+          if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
+          this._autoSaveTimer = setTimeout(() => {
+            if (window.schedullyFirebase?.currentUser) {
+              this.saveToCloud();
+            }
+          }, 3000);
+
           this.renderAll();
         }
       });
