@@ -859,10 +859,23 @@ class SchedullyApp {
     const root = document.documentElement;
     if (colorVal) {
       this.userHasPickedFontColor = true;
+      this.customFontColor = colorVal;
       root.style.setProperty('--m3-font-custom-color', colorVal);
+      const phoneCanvas = document.getElementById('phone-canvas');
+      if (phoneCanvas) {
+        phoneCanvas.style.setProperty('--m3-font-custom-color', colorVal);
+      }
     } else {
       this.userHasPickedFontColor = false;
+      this.customFontColor = null;
       root.style.removeProperty('--m3-font-custom-color');
+      const phoneCanvas = document.getElementById('phone-canvas');
+      if (phoneCanvas) {
+        phoneCanvas.style.removeProperty('--m3-font-custom-color');
+      }
+    }
+    if (typeof this.renderTimetableGrid === 'function') {
+      this.renderTimetableGrid();
     }
   }
 
@@ -4265,6 +4278,12 @@ class SchedullyApp {
         const cardsContainer = document.createElement('div');
         cardsContainer.className = 'occ-cards-container';
         cardsContainer.setAttribute('data-coursecode', code);
+        cardsContainer.addEventListener('wheel', (e) => {
+          if (e.deltaY !== 0 && cardsContainer.scrollWidth > cardsContainer.clientWidth) {
+            e.preventDefault();
+            cardsContainer.scrollLeft += e.deltaY;
+          }
+        }, { passive: false });
         
         const sortedGroups = groups.sort();
         let isFirst = true;
@@ -4543,7 +4562,8 @@ class SchedullyApp {
 
           // Smart Auto-Contrast Font Color for Card Text
           const autoContrastFont = this.getContrastColor(effectiveBg);
-          const textColor = matched.fontColor || autoContrastFont;
+          const customFontOverride = (this.userHasPickedFontColor && this.customFontColor) ? this.customFontColor : null;
+          const textColor = matched.fontColor || customFontOverride || autoContrastFont;
 
           const cardStyle = (matched.isClashing && !this.ignoreClashes)
             ? 'background: #F43F5E !important; color: #FFFFFF !important;'
@@ -4945,6 +4965,27 @@ class SchedullyApp {
               cls.isManualCustomColor = true;
             }
           });
+          this.renderTimetableGrid();
+          this._stagePending();
+        });
+      });
+
+      // In-line Font Colour Swatch Picker (Card Text Font Color)
+      card.querySelectorAll('.mini-font-swatch').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          card.querySelectorAll('.mini-font-swatch').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const pickedFont = btn.getAttribute('data-fonthex');
+          c.fontColor = pickedFont;
+          // Apply same font color to all slots of this course code
+          this.classes.forEach(cls => {
+            if (cls.code === c.code) {
+              cls.fontColor = pickedFont;
+            }
+          });
+          const customBtn = card.querySelector('.mini-font-custom');
+          if (customBtn) customBtn.style.background = pickedFont;
           this.renderTimetableGrid();
           this._stagePending();
         });

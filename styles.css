@@ -1999,7 +1999,7 @@ textarea::placeholder,
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 700;
-  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-primary))) !important;
+  color: var(--m3-font-custom-color, var(--m3-header-text-color, var(--m3-sys-text-primary))) !important;
   border-bottom: 2px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
   background: var(--m3-header-custom-bg, var(--m3-sys-color-surface-variant)) !important;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -2010,7 +2010,7 @@ textarea::placeholder,
   font-weight: 700;
   font-size: 11px;
   font-family: var(--font-sans);
-  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-primary))) !important;
+  color: var(--m3-font-custom-color, var(--m3-header-text-color, var(--m3-sys-text-primary))) !important;
   padding: 6px 2px;
   border-right: 1.5px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
   border-bottom: 2px solid var(--m3-header-outline-color, var(--m3-sys-color-outline));
@@ -2025,7 +2025,7 @@ textarea::placeholder,
 .exact-grid-cell-time {
   font-size: 9.5px;
   font-weight: 700;
-  color: var(--m3-header-text-color, var(--m3-font-custom-color, var(--m3-sys-text-secondary))) !important;
+  color: var(--m3-font-custom-color, var(--m3-header-text-color, var(--m3-sys-text-secondary))) !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2695,22 +2695,41 @@ input:focus, select:focus, textarea:focus {
 
 /* Horizontal scrollable group options */
 .occ-cards-container {
-  display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 10px;
-  padding: 4px; flex-grow: 1; justify-content: flex-end;
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 6px 4px;
+  flex-grow: 1;
+  min-width: 0;
+  max-width: 100%;
+  justify-content: flex-start !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
 }
-.occ-cards-container::-webkit-scrollbar { height: 4px; }
-.occ-cards-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 9999px; }
+.occ-cards-container::-webkit-scrollbar { height: 6px; }
+.occ-cards-container::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.04); border-radius: 9999px; }
+.occ-cards-container::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 9999px; }
 
 /* Group Card Pills */
 .occ-card {
-  min-width: 130px; max-width: 190px;
+  min-width: 140px;
+  max-width: 190px;
+  flex-shrink: 0 !important;
   background: #FFFFFF;
   border: 1.5px solid var(--m3-sys-color-outline, #E2E8F0);
-  border-radius: 16px; padding: 10px 14px;
-  cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 16px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   user-select: none;
+  touch-action: pan-x;
 }
 .occ-card:hover {
   border-color: #3B82F6;
