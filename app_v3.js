@@ -1107,7 +1107,7 @@ class SchedullyApp {
 
     this.currentFontKey = 'default';
 
-    this.applyFontFamily = async (fontKey, customFamilyName = null) => {
+    this.applyFontFamily = async (fontKey, customFamilyName = null, skipSave = false) => {
       this.currentFontKey = fontKey;
       let stack = fontMap[fontKey] || fontMap['default'];
       if (fontKey === 'custom' && customFamilyName) {
@@ -1127,7 +1127,9 @@ class SchedullyApp {
         fontSelect.value = fontKey;
       }
       this.renderTimetableGrid();
-      this.saveToLocal();
+      if (!skipSave) {
+        this.saveToLocal();
+      }
     };
 
     if (fontSelect) {
@@ -2925,30 +2927,34 @@ class SchedullyApp {
         window.schedullyFirebase.onDataSyncedCallback = (data) => {
           if (!data) return;
 
-          // 1. Sync & Restore Presets
-          if (data.presets && typeof data.presets === 'object') {
-            this.presets = data.presets;
-            this.updatePresetSelectDropdown();
-          }
+          try {
+            // 1. Sync & Restore Presets
+            if (data.presets && typeof data.presets === 'object') {
+              this.presets = data.presets;
+              this.updatePresetSelectDropdown();
+            }
 
-          if (data.activePreset && this.presets[data.activePreset]) {
-            this.activePresetKey = data.activePreset;
-            if (this.presets[data.activePreset].settings) {
-              this.applyPresetSettings(this.presets[data.activePreset].settings);
+            if (data.activePreset && this.presets[data.activePreset]) {
+              this.activePresetKey = data.activePreset;
+              if (this.presets[data.activePreset].settings) {
+                this.applyPresetSettings(this.presets[data.activePreset].settings);
+              } else if (data.settings) {
+                this.applyPresetSettings(data.settings);
+              }
+              if (this.presets[data.activePreset].wallpaper) {
+                this.applyWallpaper(this.presets[data.activePreset].wallpaper, true);
+              }
             } else if (data.settings) {
               this.applyPresetSettings(data.settings);
             }
-            if (this.presets[data.activePreset].wallpaper) {
-              this.applyWallpaper(this.presets[data.activePreset].wallpaper, true);
-            }
-          } else if (data.settings) {
-            this.applyPresetSettings(data.settings);
-          }
 
-          // 2. Restore Schedule Classes
-          if (Array.isArray(data.classes)) {
-            this.classes = data.classes;
-            this.renderAll();
+            // 2. Restore Schedule Classes
+            if (Array.isArray(data.classes)) {
+              this.classes = data.classes;
+              this.renderAll();
+            }
+          } catch (syncErr) {
+            console.warn("Cloud sync non-fatal error handled:", syncErr);
           }
         };
 
@@ -2989,131 +2995,135 @@ class SchedullyApp {
   applyPresetSettings(settings) {
     if (!settings || typeof settings !== 'object') return;
 
-    // 1. Card Corners & Radius
-    if (settings.cardCornerStyle) {
-      this.cardCornerStyle = settings.cardCornerStyle;
-      document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-val') === this.cardCornerStyle);
-      });
-      const rowCornerRadius = document.getElementById('row-corner-radius');
-      if (rowCornerRadius) {
-        rowCornerRadius.style.display = (this.cardCornerStyle === 'sharp') ? 'none' : 'flex';
+    try {
+      // 1. Card Corners & Radius
+      if (settings.cardCornerStyle) {
+        this.cardCornerStyle = settings.cardCornerStyle;
+        document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-val') === this.cardCornerStyle);
+        });
+        const rowCornerRadius = document.getElementById('row-corner-radius');
+        if (rowCornerRadius) {
+          rowCornerRadius.style.display = (this.cardCornerStyle === 'sharp') ? 'none' : 'flex';
+        }
       }
-    }
-    if (settings.cardCornerRadiusVal) {
-      this.cardCornerRadiusVal = settings.cardCornerRadiusVal;
-      const gridRadiusValEl = document.getElementById('grid-radius-val');
-      if (gridRadiusValEl) gridRadiusValEl.value = this.cardCornerRadiusVal;
-    }
+      if (settings.cardCornerRadiusVal) {
+        this.cardCornerRadiusVal = settings.cardCornerRadiusVal;
+        const gridRadiusValEl = document.getElementById('grid-radius-val');
+        if (gridRadiusValEl) gridRadiusValEl.value = this.cardCornerRadiusVal;
+      }
 
-    // 2. Mode & Palette
-    if (settings.currentPalette) {
-      this.currentPalette = settings.currentPalette;
-      document.querySelectorAll('.palette-dot').forEach(d => {
-        d.classList.toggle('active', d.getAttribute('data-palette') === this.currentPalette);
-      });
-    }
-    if (settings.currentMode) {
-      this.currentMode = settings.currentMode;
-      document.querySelectorAll('.theme-mode-dot').forEach(d => {
-        d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
-      });
-    }
-    this.applyThemeEngine();
-
-    // 3. Grid Dimensions & Position
-    if (settings.gridWidthVal) {
-      this.gridWidthVal = settings.gridWidthVal;
-      const gwEl = document.getElementById('grid-width-val');
-      if (gwEl) gwEl.value = this.gridWidthVal;
-    }
-    if (settings.gridHeightVal) {
-      this.gridHeightVal = settings.gridHeightVal;
-      const ghEl = document.getElementById('grid-height-val');
-      if (ghEl) ghEl.value = this.gridHeightVal;
-    }
-    if (settings.gridYPosVal !== undefined) {
-      this.gridYPosVal = settings.gridYPosVal;
-      const gyEl = document.getElementById('grid-ypos-val');
-      if (gyEl) gyEl.value = this.gridYPosVal;
-    }
-    if (settings.fontSizeVal) {
-      this.fontSizeVal = settings.fontSizeVal;
-      this.gridFontSizeVal = settings.fontSizeVal;
-      const fsEl = document.getElementById('grid-fontsize-val');
-      if (fsEl) fsEl.value = this.fontSizeVal;
-    }
-
-    // 4. Clock Format
-    if (settings.clockFormat) {
-      this.clockFormat = settings.clockFormat;
-      document.querySelectorAll('#toggle-clock-type .pill-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-val') === this.clockFormat);
-      });
-    }
-
-    // 5. Background Blur
-    if (typeof settings.bgBlurEnabled === 'boolean') {
-      this.bgBlurEnabled = settings.bgBlurEnabled;
-      this.bgBlurIntensity = settings.bgBlurIntensity || 10;
-      
-      const toggleBgBlur = document.getElementById('toggle-bg-blur');
-      const blurControl = document.getElementById('blur-intensity-control');
-      const blurSlider = document.getElementById('slider-bg-blur');
-      const blurValText = document.getElementById('blur-intensity-val');
-
-      if (toggleBgBlur) {
-        toggleBgBlur.querySelectorAll('.pill-btn').forEach(b => {
-          b.classList.toggle('active', b.getAttribute('data-val') === (this.bgBlurEnabled ? 'yes' : 'no'));
+      // 2. Mode & Palette
+      if (settings.currentPalette) {
+        this.currentPalette = settings.currentPalette;
+        document.querySelectorAll('.palette-dot').forEach(d => {
+          d.classList.toggle('active', d.getAttribute('data-palette') === this.currentPalette);
         });
       }
-      if (blurControl) blurControl.classList.toggle('hidden', !this.bgBlurEnabled);
-      if (blurSlider) blurSlider.value = this.bgBlurIntensity;
-      if (blurValText) blurValText.innerText = `${this.bgBlurIntensity}px`;
-      document.documentElement.style.setProperty('--wallpaper-blur-val', this.bgBlurEnabled ? `${this.bgBlurIntensity}px` : '0px');
-    }
+      if (settings.currentMode) {
+        this.currentMode = settings.currentMode;
+        document.querySelectorAll('.theme-mode-dot').forEach(d => {
+          d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
+        });
+      }
+      this.applyThemeEngine();
 
-    // 6. Font Family
-    if (settings.fontFamily && this.applyFontFamily) {
-      this.applyFontFamily(settings.fontFamily);
-    }
+      // 3. Grid Dimensions & Position
+      if (settings.gridWidthVal) {
+        this.gridWidthVal = settings.gridWidthVal;
+        const gwEl = document.getElementById('grid-width-val');
+        if (gwEl) gwEl.value = this.gridWidthVal;
+      }
+      if (settings.gridHeightVal) {
+        this.gridHeightVal = settings.gridHeightVal;
+        const ghEl = document.getElementById('grid-height-val');
+        if (ghEl) ghEl.value = this.gridHeightVal;
+      }
+      if (settings.gridYPosVal !== undefined) {
+        this.gridYPosVal = settings.gridYPosVal;
+        const gyEl = document.getElementById('grid-ypos-val');
+        if (gyEl) gyEl.value = this.gridYPosVal;
+      }
+      if (settings.fontSizeVal) {
+        this.fontSizeVal = settings.fontSizeVal;
+        this.gridFontSizeVal = settings.fontSizeVal;
+        const fsEl = document.getElementById('grid-fontsize-val');
+        if (fsEl) fsEl.value = this.fontSizeVal;
+      }
 
-    // 7. Timetable Opacity
-    if (settings.timetableOpacity && this.setTimetableOpacity) {
-      this.setTimetableOpacity(settings.timetableOpacity);
-    }
+      // 4. Clock Format
+      if (settings.clockFormat) {
+        this.clockFormat = settings.clockFormat;
+        document.querySelectorAll('#toggle-clock-type .pill-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-val') === this.clockFormat);
+        });
+      }
 
-    // 8. Title
-    if (settings.showTitle !== undefined) {
-      this.showTitle = settings.showTitle;
-      document.querySelectorAll('#toggle-title .pill-btn').forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-val') === (this.showTitle ? 'yes' : 'no'));
-      });
-      if (this.lockGridTitle) this.lockGridTitle.style.display = this.showTitle ? 'block' : 'none';
-    }
-    if (settings.titleText) {
-      this.updateTitleText(settings.titleText);
-    }
+      // 5. Background Blur
+      if (typeof settings.bgBlurEnabled === 'boolean') {
+        this.bgBlurEnabled = settings.bgBlurEnabled;
+        this.bgBlurIntensity = settings.bgBlurIntensity || 10;
+        
+        const toggleBgBlur = document.getElementById('toggle-bg-blur');
+        const blurControl = document.getElementById('blur-intensity-control');
+        const blurSlider = document.getElementById('slider-bg-blur');
+        const blurValText = document.getElementById('blur-intensity-val');
 
-    // 9. Active Days
-    if (Array.isArray(settings.activeDays)) {
-      this.activeDays = [...settings.activeDays];
-      document.querySelectorAll('.day-toggle').forEach(chk => {
-        chk.checked = this.activeDays.includes(chk.value);
-      });
-    }
+        if (toggleBgBlur) {
+          toggleBgBlur.querySelectorAll('.pill-btn').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-val') === (this.bgBlurEnabled ? 'yes' : 'no'));
+          });
+        }
+        if (blurControl) blurControl.classList.toggle('hidden', !this.bgBlurEnabled);
+        if (blurSlider) blurSlider.value = this.bgBlurIntensity;
+        if (blurValText) blurValText.innerText = `${this.bgBlurIntensity}px`;
+        document.documentElement.style.setProperty('--wallpaper-blur-val', this.bgBlurEnabled ? `${this.bgBlurIntensity}px` : '0px');
+      }
 
-    // 10. Hours
-    if (settings.gridStartHour && this.gridStartTimeSelect) {
-      this.gridStartHour = settings.gridStartHour;
-      this.gridStartTimeSelect.value = `${String(this.gridStartHour).padStart(2, '0')}:00`;
-    }
-    if (settings.gridEndHour && this.gridEndTimeSelect) {
-      this.gridEndHour = settings.gridEndHour;
-      this.gridEndTimeSelect.value = `${String(this.gridEndHour).padStart(2, '0')}:00`;
-    }
+      // 6. Font Family (skip auto-save here so we don't trigger sync loop)
+      if (settings.fontFamily && this.applyFontFamily) {
+        this.applyFontFamily(settings.fontFamily, null, true);
+      }
 
-    this.renderTimetableGrid();
+      // 7. Timetable Opacity
+      if (settings.timetableOpacity && this.setTimetableOpacity) {
+        this.setTimetableOpacity(settings.timetableOpacity);
+      }
+
+      // 8. Title
+      if (settings.showTitle !== undefined) {
+        this.showTitle = settings.showTitle;
+        document.querySelectorAll('#toggle-title .pill-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-val') === (this.showTitle ? 'yes' : 'no'));
+        });
+        if (this.lockGridTitle) this.lockGridTitle.style.display = this.showTitle ? 'block' : 'none';
+      }
+      if (settings.titleText) {
+        this.updateTitleText(settings.titleText);
+      }
+
+      // 9. Active Days
+      if (Array.isArray(settings.activeDays)) {
+        this.activeDays = [...settings.activeDays];
+        document.querySelectorAll('.day-toggle').forEach(chk => {
+          chk.checked = this.activeDays.includes(chk.value);
+        });
+      }
+
+      // 10. Hours
+      if (settings.gridStartHour && this.gridStartTimeSelect) {
+        this.gridStartHour = settings.gridStartHour;
+        this.gridStartTimeSelect.value = `${String(this.gridStartHour).padStart(2, '0')}:00`;
+      }
+      if (settings.gridEndHour && this.gridEndTimeSelect) {
+        this.gridEndHour = settings.gridEndHour;
+        this.gridEndTimeSelect.value = `${String(this.gridEndHour).padStart(2, '0')}:00`;
+      }
+
+      this.renderTimetableGrid();
+    } catch (e) {
+      console.warn("Could not apply preset settings:", e);
+    }
   }
 
   initPresets() {
