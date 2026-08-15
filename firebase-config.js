@@ -1,4 +1,8 @@
-// Firebase Integration for Schedully (Google Auth & Database Sync)
+// Firebase Integration for Schedully (Google Auth & Manual Cloud Save)
+// NOTE: Firebase is used for MANUAL save only.
+//       It does NOT auto-sync in real-time across devices.
+//       Changes are saved locally first. Cloud save only happens when
+//       the user explicitly clicks the "Save" button.
 const DEFAULT_FIREBASE_CONFIG = {
   apiKey: "AIzaSyBCjWjBb6x99Cu4p_SjVyy8f1vPLt7Yf-Q",
   authDomain: "schedully-2a6c3.firebaseapp.com",
@@ -18,6 +22,7 @@ class SchedullyFirebaseService {
     this.currentUser = null;
     this.provider = null;
     this.onUserChangedCallback = null;
+    // Called ONCE on login to restore cloud data — not a live listener
     this.onDataSyncedCallback = null;
 
     this.init();
@@ -66,7 +71,8 @@ class SchedullyFirebaseService {
           this.onUserChangedCallback(user);
         }
         if (user) {
-          this.listenToUserData(user.uid);
+          // ONE-TIME READ on login — no persistent listener
+          this.loadUserDataOnce(user.uid);
         }
       });
     } catch (err) {
@@ -100,51 +106,38 @@ class SchedullyFirebaseService {
     }
   }
 
-  async saveUserData(userData) {
-    if (!this.db || !this.currentUser) return false;
-    
-    // Clear pending debounce timer
-    if (this._saveDebounceTimer) {
-      clearTimeout(this._saveDebounceTimer);
-    }
-
-    return new Promise((resolve) => {
-      this._saveDebounceTimer = setTimeout(async () => {
-        try {
-          this._isSaving = true;
-          await this.db.ref('users/' + this.currentUser.uid).set({
-            classes: userData.classes || [],
-            presets: userData.presets || {},
-            activePreset: userData.activePreset || 'default',
-            settings: userData.settings || {},
-            updatedAt: new Date().toISOString(),
-            userEmail: this.currentUser.email,
-            displayName: this.currentUser.displayName
-          });
-          setTimeout(() => { this._isSaving = false; }, 300);
-          resolve(true);
-        } catch (error) {
-          this._isSaving = false;
-          console.error("Error saving data to Database:", error);
-          resolve(false);
-        }
-      }, 500);
-    });
-  }
-
-  listenToUserData(userId) {
+  // ONE-TIME READ on login — called once, immediately detaches
+  async loadUserDataOnce(userId) {
     if (!this.db) return;
-    const userRef = this.db.ref('users/' + userId);
-    userRef.on('value', (snapshot) => {
-      // Ignore incoming echo snapshot while local save is in progress
-      if (this._isSaving) return;
+    try {
+      const snapshot = await this.db.ref('users/' + userId).once('value');
       const data = snapshot.val();
       if (data && this.onDataSyncedCallback) {
         this.onDataSyncedCallback(data);
       }
-    }, (error) => {
-      console.warn("Database listener error:", error);
-    });
+    } catch (error) {
+      console.warn("Could not load cloud data:", error);
+    }
+  }
+
+  // MANUAL SAVE — only called when user clicks "Save" button
+  async saveUserData(userData) {
+    if (!this.db || !this.currentUser) return false;
+    try {
+      await this.db.ref('users/' + this.currentUser.uid).set({
+        classes: userData.classes || [],
+        presets: userData.presets || {},
+        activePreset: userData.activePreset || 'default',
+        settings: userData.settings || {},
+        updatedAt: new Date().toISOString(),
+        userEmail: this.currentUser.email,
+        displayName: this.currentUser.displayName
+      });
+      return true;
+    } catch (error) {
+      console.error("Error saving data to Database:", error);
+      return false;
+    }
   }
 }
 

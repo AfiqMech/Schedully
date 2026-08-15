@@ -2873,6 +2873,7 @@ class SchedullyApp {
   setupFirebaseIntegration() {
     const btnLogin = document.getElementById('btn-google-login');
     const btnLogout = document.getElementById('btn-google-logout');
+    const btnSaveCloud = document.getElementById('btn-save-to-cloud');
 
     const loggedOutState = document.getElementById('user-logged-out-state');
     const loggedInState = document.getElementById('user-logged-in-state');
@@ -2898,7 +2899,15 @@ class SchedullyApp {
     if (btnLogout) {
       btnLogout.addEventListener('click', async () => {
         await window.schedullyFirebase?.logout();
+        // Hide the Save button and clear unsaved dot on logout
+        btnSaveCloud?.classList.replace('flex', 'hidden');
+        document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
       });
+    }
+
+    // Wire up the manual Save to Cloud button
+    if (btnSaveCloud) {
+      btnSaveCloud.addEventListener('click', () => this.saveToCloud());
     }
 
     // Listen for Auth state updates
@@ -2917,18 +2926,27 @@ class SchedullyApp {
             }
             if (loggedOutState) loggedOutState.classList.add('hidden');
             if (loggedInState) loggedInState.classList.remove('hidden');
+            // Show the Save button when logged in
+            btnSaveCloud?.classList.remove('hidden');
+            btnSaveCloud?.classList.add('flex');
           } else {
             if (loggedOutState) loggedOutState.classList.remove('hidden');
             if (loggedInState) loggedInState.classList.add('hidden');
+            // Hide the Save button when logged out
+            btnSaveCloud?.classList.add('hidden');
+            btnSaveCloud?.classList.remove('flex');
+            document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
           }
         };
 
-        // Sync Cloud Database changes (Multi-Schedules & Cloud Aesthetics)
+        // ONE-TIME LOAD on login — restore cloud data once, then stop.
+        // No real-time listener — changes on another device will NOT automatically
+        // overwrite what you're doing on this device.
         window.schedullyFirebase.onDataSyncedCallback = (data) => {
           if (!data) return;
 
           try {
-            // 1. Sync & Restore Presets
+            // 1. Restore Presets from cloud
             if (data.presets && typeof data.presets === 'object') {
               this.presets = data.presets;
               this.updatePresetSelectDropdown();
@@ -2958,8 +2976,11 @@ class SchedullyApp {
               this.classes = data.classes;
               this.renderAll();
             }
+
+            // After loading from cloud, mark as saved (data is already in sync)
+            this.markSaved();
           } catch (syncErr) {
-            console.warn("Cloud sync non-fatal error handled:", syncErr);
+            console.warn("Cloud load non-fatal error handled:", syncErr);
           }
         };
 
@@ -3306,17 +3327,56 @@ class SchedullyApp {
       localStorage.setItem('schedully_presets', JSON.stringify(this.presets));
       localStorage.setItem('schedully_active_preset', this.activePresetKey);
 
-      if (window.schedullyFirebase) {
-        window.schedullyFirebase.saveUserData({
-          classes: this.classes,
-          presets: this.presets,
-          activePreset: this.activePresetKey,
-          wallpaper: currentWallpaper,
-          settings: currentSettings
-        });
-      }
+      // Mark as having unsaved cloud changes (if user is logged in)
+      this.markUnsaved();
     } catch (e) {
       console.warn("Could not save to local storage", e);
+    }
+  }
+
+  // Shows the amber unsaved dot and enables the Save button
+  markUnsaved() {
+    if (!window.schedullyFirebase?.currentUser) return; // only show if logged in
+    this._hasUnsavedCloudChanges = true;
+    document.getElementById('preset-unsaved-dot')?.classList.remove('hidden');
+  }
+
+  // Called after successful cloud save — clears the unsaved indicator
+  markSaved() {
+    this._hasUnsavedCloudChanges = false;
+    document.getElementById('preset-unsaved-dot')?.classList.add('hidden');
+    const label = document.getElementById('btn-save-cloud-label');
+    if (label) label.textContent = '✓ Saved';
+    setTimeout(() => {
+      if (label) label.textContent = 'Save';
+    }, 2000);
+  }
+
+  // Manually push current data to Firebase cloud (called by Save button)
+  async saveToCloud() {
+    if (!window.schedullyFirebase?.currentUser) return;
+    const btn = document.getElementById('btn-save-to-cloud');
+    const label = document.getElementById('btn-save-cloud-label');
+    if (btn) btn.disabled = true;
+    if (label) label.textContent = 'Saving…';
+
+    const currentWallpaper = localStorage.getItem('schedully_wallpaper_data') || null;
+    const currentSettings = this.getPresetSettings();
+
+    const ok = await window.schedullyFirebase.saveUserData({
+      classes: this.classes,
+      presets: this.presets,
+      activePreset: this.activePresetKey,
+      wallpaper: currentWallpaper,
+      settings: currentSettings
+    });
+
+    if (btn) btn.disabled = false;
+    if (ok) {
+      this.markSaved();
+    } else {
+      if (label) label.textContent = 'Error!';
+      setTimeout(() => { if (label) label.textContent = 'Save'; }, 2500);
     }
   }
 
