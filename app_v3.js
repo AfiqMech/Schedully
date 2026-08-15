@@ -2786,6 +2786,63 @@ class SchedullyApp {
       }
     });
 
+    // Touch Swipe Gestures for Mobile & Tablet Sidebars
+    const setupSidebarSwipeGestures = () => {
+      // 1. Left Sidebar Swipe to Dismiss
+      if (leftSidebar) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        leftSidebar.addEventListener('touchstart', (e) => {
+          if (!isMobile()) return;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        leftSidebar.addEventListener('touchend', (e) => {
+          if (!isMobile()) return;
+          const touchEndX = e.changedTouches[0].clientX;
+          const touchEndY = e.changedTouches[0].clientY;
+          const diffX = touchEndX - touchStartX;
+          const diffY = touchEndY - touchStartY;
+
+          // Check if swipe exceeds threshold and is predominantly horizontal
+          if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.2) {
+            // Dismiss left sidebar
+            toggleLeftSidebar(true);
+          }
+        }, { passive: true });
+      }
+
+      // 2. Right Sidebar Swipe to Dismiss
+      if (rightSidebar) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        rightSidebar.addEventListener('touchstart', (e) => {
+          if (!isMobile()) return;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        rightSidebar.addEventListener('touchend', (e) => {
+          if (!isMobile()) return;
+          const touchEndX = e.changedTouches[0].clientX;
+          const touchEndY = e.changedTouches[0].clientY;
+          const diffX = touchEndX - touchStartX;
+          const diffY = touchEndY - touchStartY;
+
+          // Check if swipe exceeds threshold and is predominantly horizontal
+          if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.2) {
+            // Dismiss right sidebar
+            toggleRightSidebar(true);
+          }
+        }, { passive: true });
+      }
+    };
+
+    setupSidebarSwipeGestures();
+
     // Add Course Form Submit
     this.addCourseForm.addEventListener('submit', (e) => {
       e.preventDefault();

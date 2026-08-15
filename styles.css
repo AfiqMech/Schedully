@@ -821,11 +821,33 @@ body.dark-mode .btn-coffee-support:hover {
   background-color: rgba(245, 158, 11, 0.18) !important;
 }
 
+/* Modal Overlays: Ensure Globe Language and Coffee Modals are always on top on Mobile and Desktop */
+#language-modal,
+#coffee-modal {
+  z-index: 99999 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  background-color: rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
 /* Coffee Modal Card */
 .coffee-modal-card {
   background-color: var(--m3-sys-color-surface, #FFFFFF) !important;
   border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
   color: var(--m3-sys-text-primary, #0F172A) !important;
+  max-width: 340px !important;
+  width: 100% !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 100000 !important;
 }
 
 body.dark-mode .coffee-modal-card {
@@ -892,6 +914,14 @@ body.dark-mode .creator-footer span {
   border: 1px solid var(--m3-sys-color-outline, #E2E8F0) !important;
   color: var(--m3-sys-text-primary, #0F172A) !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25) !important;
+  max-width: 340px !important;
+  width: 100% !important;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  z-index: 100000 !important;
 }
 
 .language-modal-card .popover-header {
