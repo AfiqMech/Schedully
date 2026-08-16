@@ -3440,10 +3440,10 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   z-index: 99999;
   display: flex;
   flex-direction: column;
-  border-radius: 26px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 4px 14px rgba(0, 0, 0, 0.3);
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 4px 14px rgba(0, 0, 0, 0.4);
   background: #090D16;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   overflow: hidden;
   user-select: none;
   touch-action: none;
@@ -3463,10 +3463,16 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   padding: 5px 8px;
   background: rgba(15, 23, 42, 0.95);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: grab;
+  touch-action: none;
+  cursor: move;
 }
-.pip-header-bar:active {
-  cursor: grabbing;
+
+.pip-drag-handle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  touch-action: none;
+  cursor: move;
 }
 
 .pip-control-btn {
@@ -3476,53 +3482,56 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: auto;
 }
 
-/* Phone Device Frame */
+/* Base Device Frame */
 .pip-phone-device {
   position: relative;
   background: #000000;
-  padding: 4px 4px 6px 4px;
+  padding: 4px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  touch-action: none;
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Three Standard Size Presets */
-.pip-phone-device.size-sm {
-  width: 96px;
-  height: 198px;
-}
-.pip-phone-device.size-sm .pip-live-stage {
-  transform: scale(0.2315);
-}
+/* --- 1. PHONE MODE (Portrait 380x760) --- */
+.pip-phone-device.mode-phone.size-sm { width: 96px; height: 196px; }
+.pip-phone-device.mode-phone.size-med { width: 130px; height: 264px; }
+.pip-phone-device.mode-phone.size-lg { width: 168px; height: 340px; }
 
-.pip-phone-device.size-med {
-  width: 132px;
-  height: 270px;
-}
-.pip-phone-device.size-med .pip-live-stage {
-  transform: scale(0.3263);
-}
+/* --- 2. TABLET MODE (Landscape 920x690) --- */
+.pip-phone-device.mode-tablet.size-sm { width: 160px; height: 124px; border-radius: 14px; }
+.pip-phone-device.mode-tablet.size-med { width: 210px; height: 162px; border-radius: 18px; }
+.pip-phone-device.mode-tablet.size-lg { width: 260px; height: 200px; border-radius: 20px; }
 
-.pip-phone-device.size-lg {
-  width: 172px;
-  height: 350px;
-}
-.pip-phone-device.size-lg .pip-live-stage {
-  transform: scale(0.4315);
-}
+/* --- 3. PAPER MODE (Portrait Document 720x1018) --- */
+.pip-phone-device.mode-paper { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15); }
+.pip-phone-device.mode-paper.size-sm { width: 110px; height: 160px; border-radius: 10px; }
+.pip-phone-device.mode-paper.size-med { width: 150px; height: 218px; border-radius: 12px; }
+.pip-phone-device.mode-paper.size-lg { width: 190px; height: 274px; border-radius: 14px; }
 
-/* Dynamic Island / Camera Notch */
+/* Dynamic Island / Notch */
 .pip-camera-notch {
   width: 28px;
-  height: 7px;
+  height: 6px;
   background: #000000;
   border-radius: 9999px;
   margin-bottom: 2px;
   z-index: 10;
+  transition: all 0.2s ease;
+}
+.pip-phone-device.mode-tablet .pip-camera-notch {
+  width: 6px;
+  height: 6px;
+  margin-bottom: 3px;
+}
+.pip-phone-device.mode-paper .pip-camera-notch {
+  display: none !important;
 }
 
 /* Viewport containing the live scaled canvas */
@@ -3530,18 +3539,20 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 18px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0F172A;
   cursor: pointer;
+}
+.pip-phone-device.mode-paper .pip-screen-viewport {
+  border-radius: 6px;
+  background: #FFFFFF;
 }
 
 .pip-live-stage {
   position: absolute;
   top: 0;
   left: 0;
-  width: 380px;
-  height: 760px;
   transform-origin: top left;
   pointer-events: none;
 }

@@ -1650,7 +1650,7 @@ class SchedullyApp {
     const btnSize = document.getElementById('btn-pip-size');
     const btnMinimize = document.getElementById('btn-pip-minimize');
     const targetStage = document.getElementById('pip-live-clone-target');
-    const dragHandle = pipWidget?.querySelector('.pip-drag-handle');
+    const headerBar = pipWidget?.querySelector('.pip-header-bar');
 
     if (!pipWidget || !pipDevice || !targetStage) return;
 
@@ -1660,28 +1660,62 @@ class SchedullyApp {
 
     const isSmartphone = () => window.innerWidth <= 640;
 
-    // 1. Synchronize PiP Content from Live Canvas
+    // 1. Synchronize PiP Content & Device Mode from Live Canvas
     const updateMobilePip = () => {
       if (!isSmartphone()) return;
       const originalCanvas = document.getElementById('phone-canvas');
       if (!originalCanvas || !targetStage) return;
 
+      // Determine active device platform mode
+      let deviceMode = 'phone';
+      if (originalCanvas.classList.contains('canvas-tablet')) {
+        deviceMode = 'tablet';
+      } else if (originalCanvas.classList.contains('canvas-paper')) {
+        deviceMode = 'paper';
+      }
+
+      // Update PiP Device Mode Class
+      pipDevice.classList.remove('mode-phone', 'mode-tablet', 'mode-paper');
+      pipDevice.classList.add(`mode-${deviceMode}`);
+
+      // Update Label in PiP Header
+      const labelEl = pipWidget.querySelector('.pip-drag-handle span:last-child');
+      if (labelEl) {
+        if (deviceMode === 'tablet') labelEl.innerText = 'Live Tablet';
+        else if (deviceMode === 'paper') labelEl.innerText = 'Live Paper';
+        else labelEl.innerText = 'Live Lockscreen';
+      }
+
+      // Copy HTML and styles from main phone canvas
       targetStage.innerHTML = originalCanvas.innerHTML;
       targetStage.className = originalCanvas.className + ' pip-live-stage';
       targetStage.style.cssText = originalCanvas.style.cssText;
       targetStage.style.position = 'absolute';
       targetStage.style.top = '0';
       targetStage.style.left = '0';
-      targetStage.style.width = '380px';
-      targetStage.style.height = '760px';
       targetStage.style.transformOrigin = 'top left';
       targetStage.style.pointerEvents = 'none';
 
-      const currentSize = SIZES[currentSizeIdx];
-      let scale = 0.3263;
-      if (currentSize === 'size-sm') scale = 0.2315;
-      if (currentSize === 'size-lg') scale = 0.4315;
-      targetStage.style.transform = `scale(${scale})`;
+      // Set base canvas dimensions according to device
+      let baseW = 380;
+      let baseH = 760;
+      if (deviceMode === 'tablet') {
+        baseW = 920;
+        baseH = 690;
+      } else if (deviceMode === 'paper') {
+        baseW = 720;
+        baseH = 1018;
+      }
+      targetStage.style.width = `${baseW}px`;
+      targetStage.style.height = `${baseH}px`;
+
+      // Calculate exact scale factor based on viewport width
+      const viewport = pipDevice.querySelector('.pip-screen-viewport');
+      if (viewport) {
+        const vpW = viewport.clientWidth || (deviceMode === 'tablet' ? 200 : (deviceMode === 'paper' ? 140 : 122));
+        const scale = vpW / baseW;
+        targetStage.style.transform = `scale(${scale})`;
+      }
     };
     this.updateMobilePip = updateMobilePip;
 
@@ -1714,7 +1748,7 @@ class SchedullyApp {
       currentSizeIdx = (currentSizeIdx + 1) % SIZES.length;
       SIZES.forEach(s => pipDevice.classList.remove(s));
       pipDevice.classList.add(SIZES[currentSizeIdx]);
-      updateMobilePip();
+      setTimeout(updateMobilePip, 50);
     };
 
     btnSize?.addEventListener('click', (e) => {
@@ -1749,12 +1783,56 @@ class SchedullyApp {
       if (typeof this.toggleRightSidebar === 'function') this.toggleRightSidebar(true);
     });
 
-    // 6. Touch Dragging around screen
+    // 6. Robust Touch Dragging & 2-Finger Pinch-to-Zoom
     let isDragging = false;
+    let isPinching = false;
     let dragStartX = 0;
     let dragStartY = 0;
     let initialLeft = 0;
     let initialTop = 0;
+    let initialPinchDist = 0;
+    let initialPinchWidth = 0;
+
+    const getPinchDistance = (touches) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    };
+
+    const applyDeviceDimensions = (newWidth) => {
+      const originalCanvas = document.getElementById('phone-canvas');
+      let ratio = 760 / 380; // Phone default (2:1)
+      let minW = 85;
+      let maxW = 240;
+
+      if (originalCanvas?.classList.contains('canvas-tablet')) {
+        ratio = 690 / 920; // 0.75
+        minW = 130;
+        maxW = 320;
+      } else if (originalCanvas?.classList.contains('canvas-paper')) {
+        ratio = 1018 / 720; // 1.414
+        minW = 100;
+        maxW = 260;
+      }
+
+      const clampedW = Math.max(minW, Math.min(maxW, newWidth));
+      const newH = Math.round(clampedW * ratio);
+
+      pipDevice.style.width = `${clampedW}px`;
+      pipDevice.style.height = `${newH}px`;
+      updateMobilePip();
+    };
+
+    // Double tap to toggle compact / expanded
+    pipDevice?.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      const currentW = pipDevice.offsetWidth || 130;
+      if (currentW < 140) {
+        applyDeviceDimensions(180);
+      } else {
+        applyDeviceDimensions(105);
+      }
+    });
 
     const startDrag = (clientX, clientY) => {
       isDragging = true;
@@ -1770,8 +1848,9 @@ class SchedullyApp {
       pipWidget.style.transition = 'none';
     };
 
-    const doDrag = (clientX, clientY) => {
+    const doDrag = (clientX, clientY, e) => {
       if (!isDragging) return;
+      if (e && e.cancelable) e.preventDefault();
       const deltaX = clientX - dragStartX;
       const deltaY = clientY - dragStartY;
       let newLeft = initialLeft + deltaX;
@@ -1787,23 +1866,60 @@ class SchedullyApp {
     };
 
     const stopDrag = () => {
-      if (!isDragging) return;
       isDragging = false;
+      isPinching = false;
       pipWidget.style.transition = '';
     };
 
-    dragHandle?.addEventListener('touchstart', (e) => {
-      startDrag(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
+    // Touch start on PiP widget (Handles 1-finger drag and 2-finger pinch)
+    pipWidget?.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.pip-control-btn')) return;
 
-    window.addEventListener('touchmove', (e) => {
-      if (isDragging) {
-        doDrag(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches.length === 2) {
+        // 2 Fingers -> Start Pinch Zoom
+        isDragging = false;
+        isPinching = true;
+        initialPinchDist = getPinchDistance(e.touches);
+        initialPinchWidth = pipDevice.offsetWidth || 130;
+      } else if (e.touches.length === 1 && (e.target.closest('.pip-header-bar') || e.target === pipWidget || e.target.closest('.pip-camera-notch'))) {
+        // 1 Finger on header/border -> Start Drag
+        isPinching = false;
+        startDrag(e.touches[0].clientX, e.touches[0].clientY);
       }
     }, { passive: true });
 
-    window.addEventListener('touchend', stopDrag, { passive: true });
+    headerBar?.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.pip-control-btn')) return;
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isPinching && e.touches.length === 2) {
+        if (e.cancelable) e.preventDefault();
+        const currentDist = getPinchDistance(e.touches);
+        const pinchScale = currentDist / (initialPinchDist || 1);
+        applyDeviceDimensions(initialPinchWidth * pinchScale);
+      } else if (isDragging && e.touches.length === 1) {
+        doDrag(e.touches[0].clientX, e.touches[0].clientY, e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        doDrag(e.clientX, e.clientY, e);
+      }
+    });
+
+    window.addEventListener('touchend', (e) => {
+      if (e.touches.length === 0) stopDrag();
+      else if (e.touches.length === 1 && isPinching) {
+        isPinching = false;
+      }
+    }, { passive: true });
+
     window.addEventListener('touchcancel', stopDrag, { passive: true });
+    window.addEventListener('mouseup', stopDrag);
 
     window.addEventListener('resize', () => {
       const leftSidebar = document.getElementById('left-sidebar');
