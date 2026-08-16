@@ -1647,44 +1647,37 @@ class SchedullyApp {
     const pipWidget = document.getElementById('mobile-pip-container');
     const pipBubble = document.getElementById('mobile-pip-bubble');
     const pipDevice = document.getElementById('pip-phone-device');
+    const pipDragBar = document.getElementById('pip-drag-bar');
     const btnDots = document.getElementById('btn-pip-dots');
     const actionsCard = document.getElementById('pip-actions-card');
-    const btnClose = document.getElementById('btn-pip-close');
     const btnFullscreen = document.getElementById('btn-pip-fullscreen');
+    const btnClose = document.getElementById('btn-pip-close');
+    const btnDismiss = document.getElementById('btn-pip-dismiss');
     const targetStage = document.getElementById('pip-live-clone-target');
 
     if (!pipWidget || !pipDevice || !targetStage) return;
 
     let isPipMinimized = false;
-
     const isSmartphone = () => window.innerWidth <= 640;
 
-    // 1. Synchronize PiP Content & Device Mode from Live Canvas
+    // 1. Synchronize PiP Content & Real Dimensions from Live Canvas
     const updateMobilePip = () => {
       if (!isSmartphone()) return;
       const originalCanvas = document.getElementById('phone-canvas');
       if (!originalCanvas || !targetStage) return;
 
-      // Determine active device platform mode & base dimensions
+      // Determine active device platform mode
       let deviceMode = 'phone';
-      let baseW = 380;
-      let baseH = 760;
-      let minW = 80;
-      let maxW = 240;
-
       if (originalCanvas.classList.contains('canvas-tablet')) {
         deviceMode = 'tablet';
-        baseW = 920;
-        baseH = 690;
-        minW = 120;
-        maxW = 320;
       } else if (originalCanvas.classList.contains('canvas-paper')) {
         deviceMode = 'paper';
-        baseW = 720;
-        baseH = 1018;
-        minW = 90;
-        maxW = 260;
       }
+
+      // Measure REAL rendered dimensions from original canvas (NO HARDCODED HEIGHTS!)
+      const baseW = originalCanvas.offsetWidth || (deviceMode === 'tablet' ? 920 : (deviceMode === 'paper' ? 720 : 380));
+      const baseH = originalCanvas.offsetHeight || (deviceMode === 'tablet' ? 690 : (deviceMode === 'paper' ? 480 : 760));
+      const ratio = baseH / baseW;
 
       // Detect if user switched device platform (phone <-> tablet <-> paper)
       const modeChanged = pipDevice.dataset.currentMode !== deviceMode;
@@ -1696,18 +1689,23 @@ class SchedullyApp {
 
       // Adaptive Color for 3 Dots based on theme / paper / canvas background
       if (deviceMode === 'paper') {
-        pipDevice.style.setProperty('--pip-dot-color', '#0F172A');
+        pipDevice.style.setProperty('--pip-dot-color', '#1E293B');
       } else {
         pipDevice.style.setProperty('--pip-dot-color', '#FFFFFF');
       }
 
-      // Calculate perfect proportional width & height (No empty black boxes!)
+      // Proportional width bounds
+      let minW = 80;
+      let maxW = 240;
+      if (deviceMode === 'tablet') { minW = 140; maxW = 320; }
+      else if (deviceMode === 'paper') { minW = 90; maxW = 260; }
+
       let curW = pipDevice.offsetWidth;
       if (modeChanged || !curW || curW < 50) {
-        curW = deviceMode === 'tablet' ? 200 : (deviceMode === 'paper' ? 135 : 125);
+        curW = deviceMode === 'tablet' ? 210 : (deviceMode === 'paper' ? 140 : 125);
       }
       curW = Math.max(minW, Math.min(maxW, curW));
-      const curH = Math.round(curW * (baseH / baseW));
+      const curH = Math.round(curW * ratio);
 
       pipDevice.style.width = `${curW}px`;
       pipDevice.style.height = `${curH}px`;
@@ -1724,7 +1722,7 @@ class SchedullyApp {
       targetStage.style.transformOrigin = 'top left';
       targetStage.style.pointerEvents = 'none';
 
-      // 100% exact scaling matching the miniature device viewport
+      // 100% exact subpixel scale matching the miniature device viewport
       const scale = curW / baseW;
       targetStage.style.transform = `scale(${scale})`;
     };
@@ -1755,28 +1753,22 @@ class SchedullyApp {
     };
     this.syncMobilePipVisibility = syncMobilePipVisibility;
 
-    // 3. Size and Dimensions (Pinch & Double Click)
+    // 3. Proportional Pinch & Size Engine
     const applyDeviceDimensions = (newWidth) => {
       const originalCanvas = document.getElementById('phone-canvas');
-      let baseW = 380;
-      let baseH = 760;
+      if (!originalCanvas) return;
+      const deviceMode = pipDevice.dataset.currentMode || 'phone';
+      const baseW = originalCanvas.offsetWidth || (deviceMode === 'tablet' ? 920 : (deviceMode === 'paper' ? 720 : 380));
+      const baseH = originalCanvas.offsetHeight || (deviceMode === 'tablet' ? 690 : (deviceMode === 'paper' ? 480 : 760));
+      const ratio = baseH / baseW;
+
       let minW = 80;
       let maxW = 240;
-
-      if (originalCanvas?.classList.contains('canvas-tablet')) {
-        baseW = 920;
-        baseH = 690;
-        minW = 120;
-        maxW = 320;
-      } else if (originalCanvas?.classList.contains('canvas-paper')) {
-        baseW = 720;
-        baseH = 1018;
-        minW = 90;
-        maxW = 260;
-      }
+      if (deviceMode === 'tablet') { minW = 140; maxW = 320; }
+      else if (deviceMode === 'paper') { minW = 90; maxW = 260; }
 
       const clampedW = Math.max(minW, Math.min(maxW, newWidth));
-      const newH = Math.round(clampedW * (baseH / baseW));
+      const newH = Math.round(clampedW * ratio);
 
       pipDevice.style.width = `${clampedW}px`;
       pipDevice.style.height = `${newH}px`;
@@ -1787,14 +1779,14 @@ class SchedullyApp {
       targetStage.style.transform = `scale(${clampedW / baseW})`;
     };
 
-    // Double tap to toggle compact / expanded
+    // Double tap on device to toggle compact / expanded
     pipDevice?.addEventListener('dblclick', (e) => {
       e.stopPropagation();
       const currentW = pipDevice.offsetWidth || 120;
       const isTablet = pipDevice.classList.contains('mode-tablet');
       const isPaper = pipDevice.classList.contains('mode-paper');
-      const threshold = isTablet ? 210 : 135;
-      const expW = isTablet ? 260 : (isPaper ? 180 : 175);
+      const threshold = isTablet ? 220 : 140;
+      const expW = isTablet ? 270 : (isPaper ? 180 : 175);
       const compW = isTablet ? 160 : (isPaper ? 105 : 100);
 
       if (currentW < threshold) {
@@ -1804,69 +1796,202 @@ class SchedullyApp {
       }
     });
 
-    const startDrag = (clientX, clientY) => {
+    // 4. HyperOS Action Menu Card Actions
+    const toggleActionsMenu = (show) => {
+      if (!actionsCard) return;
+      if (typeof show === 'boolean') {
+        actionsCard.classList.toggle('hidden', !show);
+      } else {
+        actionsCard.classList.toggle('hidden');
+      }
+    };
+
+    btnFullscreen?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleActionsMenu(false);
+      if (typeof this.toggleLeftSidebar === 'function') this.toggleLeftSidebar(true);
+      if (typeof this.toggleRightSidebar === 'function') this.toggleRightSidebar(true);
+    });
+
+    btnClose?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleActionsMenu(false);
+      isPipMinimized = true;
+      pipWidget.classList.add('hidden');
+      pipBubble?.classList.remove('hidden');
+    });
+
+    btnDismiss?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleActionsMenu(false);
+      pipWidget.classList.add('hidden');
+      pipBubble?.classList.add('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (actionsCard && !actionsCard.classList.contains('hidden') && !e.target.closest('#mobile-pip-container')) {
+        toggleActionsMenu(false);
+      }
+    });
+
+    // 5. Robust Touch Drag & 2-Finger Pinch Gesture Engine (Xiaomi HyperOS Floating Screen)
+    let isDragging = false;
+    let isPinching = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initLeft = 0;
+    let initTop = 0;
+    let touchStartTime = 0;
+    let initialPinchDist = 0;
+    let initialPinchWidth = 0;
+
+    const getPinchDistance = (touches) => {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    };
+
+    const startPiPDrag = (clientX, clientY) => {
       isDragging = true;
-      hasMoved = false;
+      touchStartTime = Date.now();
       const rect = pipWidget.getBoundingClientRect();
       dragStartX = clientX;
       dragStartY = clientY;
-      initialLeft = rect.left;
-      initialTop = rect.top;
+      initLeft = rect.left;
+      initTop = rect.top;
       pipWidget.style.bottom = 'auto';
       pipWidget.style.right = 'auto';
-      pipWidget.style.left = `${initialLeft}px`;
-      pipWidget.style.top = `${initialTop}px`;
+      pipWidget.style.left = `${initLeft}px`;
+      pipWidget.style.top = `${initTop}px`;
       pipWidget.style.transition = 'none';
     };
 
-    const doDrag = (clientX, clientY, e) => {
+    const doPiPDrag = (clientX, clientY, e) => {
       if (!isDragging) return;
-      if (Math.abs(clientX - dragStartX) > 4 || Math.abs(clientY - dragStartY) > 4) {
-        hasMoved = true;
-      }
       if (e && e.cancelable) e.preventDefault();
       const deltaX = clientX - dragStartX;
       const deltaY = clientY - dragStartY;
-      let newLeft = initialLeft + deltaX;
-      let newTop = initialTop + deltaY;
+      let newLeft = initLeft + deltaX;
+      let newTop = initTop + deltaY;
 
-      const maxLeft = window.innerWidth - pipWidget.offsetWidth - 8;
-      const maxTop = window.innerHeight - pipWidget.offsetHeight - 8;
-      newLeft = Math.max(8, Math.min(maxLeft, newLeft));
-      newTop = Math.max(8, Math.min(maxTop, newTop));
+      const maxLeft = window.innerWidth - pipWidget.offsetWidth - 6;
+      const maxTop = window.innerHeight - pipWidget.offsetHeight - 6;
+      newLeft = Math.max(6, Math.min(maxLeft, newLeft));
+      newTop = Math.max(6, Math.min(maxTop, newTop));
 
       pipWidget.style.left = `${newLeft}px`;
       pipWidget.style.top = `${newTop}px`;
     };
 
-    const stopDrag = () => {
-      isDragging = false;
+    const stopPiPDrag = (clientX, clientY) => {
+      if (isDragging) {
+        isDragging = false;
+        pipWidget.style.transition = '';
+        // If user tapped without dragging, toggle actions menu
+        if (typeof clientX === 'number' && typeof clientY === 'number') {
+          const dist = Math.hypot(clientX - dragStartX, clientY - dragStartY);
+          const duration = Date.now() - touchStartTime;
+          if (dist < 8 && duration < 350) {
+            // Tap detected
+            toggleActionsMenu();
+          }
+        }
+      }
       isPinching = false;
-      pipWidget.style.transition = '';
     };
 
-    // Touch start on PiP widget (Handles 1-finger drag and 2-finger pinch)
+    // Touch events on PiP Widget
     pipWidget?.addEventListener('touchstart', (e) => {
-      if (e.target.closest('#pip-actions-card') || e.target.closest('#btn-pip-dots')) return;
+      if (e.target.closest('#pip-actions-card')) return;
 
       if (e.touches.length === 2) {
         isDragging = false;
         isPinching = true;
-        hasMoved = true;
         initialPinchDist = getPinchDistance(e.touches);
-        initialPinchWidth = pipDevice.offsetWidth || 120;
+        initialPinchWidth = pipDevice.offsetWidth || 125;
       } else if (e.touches.length === 1) {
         isPinching = false;
-        startDrag(e.touches[0].clientX, e.touches[0].clientY);
+        startPiPDrag(e.touches[0].clientX, e.touches[0].clientY);
       }
     }, { passive: true });
 
     pipWidget?.addEventListener('mousedown', (e) => {
-      if (e.target.closest('#pip-actions-card') || e.target.closest('#btn-pip-dots')) return;
+      if (e.target.closest('#pip-actions-card')) return;
       e.preventDefault();
-      startDrag(e.clientX, e.clientY);
+      startPiPDrag(e.clientX, e.clientY);
     });
 
+    // 6. Draggable Circular Floating Preview Bubble (Action Ball)
+    let isBubbleDragging = false;
+    let bubbleStartX = 0;
+    let bubbleStartY = 0;
+    let bubbleInitLeft = 0;
+    let bubbleInitTop = 0;
+    let bubbleTouchTime = 0;
+
+    const startBubbleDrag = (clientX, clientY) => {
+      isBubbleDragging = true;
+      bubbleTouchTime = Date.now();
+      const rect = pipBubble.getBoundingClientRect();
+      bubbleStartX = clientX;
+      bubbleStartY = clientY;
+      bubbleInitLeft = rect.left;
+      bubbleInitTop = rect.top;
+      pipBubble.style.bottom = 'auto';
+      pipBubble.style.right = 'auto';
+      pipBubble.style.left = `${bubbleInitLeft}px`;
+      pipBubble.style.top = `${bubbleInitTop}px`;
+      pipBubble.style.transition = 'none';
+    };
+
+    const doBubbleDrag = (clientX, clientY, e) => {
+      if (!isBubbleDragging) return;
+      if (e && e.cancelable) e.preventDefault();
+      const deltaX = clientX - bubbleStartX;
+      const deltaY = clientY - bubbleStartY;
+      let newLeft = bubbleInitLeft + deltaX;
+      let newTop = bubbleInitTop + deltaY;
+
+      const maxLeft = window.innerWidth - pipBubble.offsetWidth - 8;
+      const maxTop = window.innerHeight - pipBubble.offsetHeight - 8;
+      newLeft = Math.max(8, Math.min(maxLeft, newLeft));
+      newTop = Math.max(8, Math.min(maxTop, newTop));
+
+      pipBubble.style.left = `${newLeft}px`;
+      pipBubble.style.top = `${newTop}px`;
+    };
+
+    const stopBubbleDrag = (clientX, clientY) => {
+      if (isBubbleDragging) {
+        isBubbleDragging = false;
+        pipBubble.style.transition = '';
+        if (typeof clientX === 'number' && typeof clientY === 'number') {
+          const dist = Math.hypot(clientX - bubbleStartX, clientY - bubbleStartY);
+          const duration = Date.now() - bubbleTouchTime;
+          if (dist < 8 && duration < 350) {
+            // Tap detected -> Expand back into live PiP model
+            isPipMinimized = false;
+            pipBubble.classList.add('hidden');
+            pipWidget.classList.remove('hidden');
+            actionsCard?.classList.add('hidden');
+            updateMobilePip();
+          }
+        }
+      }
+    };
+
+    pipBubble?.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        startBubbleDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    pipBubble?.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startBubbleDrag(e.clientX, e.clientY);
+    });
+
+    // 7. Global Touch/Mouse Movement & Termination Listeners
     window.addEventListener('touchmove', (e) => {
       if (isPinching && e.touches.length === 2) {
         if (e.cancelable) e.preventDefault();
@@ -1874,7 +1999,7 @@ class SchedullyApp {
         const pinchScale = currentDist / (initialPinchDist || 1);
         applyDeviceDimensions(initialPinchWidth * pinchScale);
       } else if (isDragging && e.touches.length === 1) {
-        doDrag(e.touches[0].clientX, e.touches[0].clientY, e);
+        doPiPDrag(e.touches[0].clientX, e.touches[0].clientY, e);
       } else if (isBubbleDragging && e.touches.length === 1) {
         doBubbleDrag(e.touches[0].clientX, e.touches[0].clientY, e);
       }
@@ -1882,29 +2007,31 @@ class SchedullyApp {
 
     window.addEventListener('mousemove', (e) => {
       if (isDragging) {
-        doDrag(e.clientX, e.clientY, e);
+        doPiPDrag(e.clientX, e.clientY, e);
       } else if (isBubbleDragging) {
         doBubbleDrag(e.clientX, e.clientY, e);
       }
     });
 
     window.addEventListener('touchend', (e) => {
+      const touch = e.changedTouches ? e.changedTouches[0] : null;
+      const x = touch ? touch.clientX : null;
+      const y = touch ? touch.clientY : null;
+      if (isDragging) stopPiPDrag(x, y);
+      if (isBubbleDragging) stopBubbleDrag(x, y);
       if (e.touches.length === 0) {
-        stopDrag();
-        stopBubbleDrag();
-      } else if (e.touches.length === 1 && isPinching) {
         isPinching = false;
       }
     }, { passive: true });
 
     window.addEventListener('touchcancel', () => {
-      stopDrag();
+      stopPiPDrag();
       stopBubbleDrag();
     }, { passive: true });
 
-    window.addEventListener('mouseup', () => {
-      stopDrag();
-      stopBubbleDrag();
+    window.addEventListener('mouseup', (e) => {
+      if (isDragging) stopPiPDrag(e.clientX, e.clientY);
+      if (isBubbleDragging) stopBubbleDrag(e.clientX, e.clientY);
     });
 
     window.addEventListener('resize', () => {

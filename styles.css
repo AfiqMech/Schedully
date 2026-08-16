@@ -3438,13 +3438,13 @@ body.dark-mode #btn-preset-menu-trigger:hover {
    ========================================================================== */
 .mobile-pip-widget {
   position: fixed;
-  bottom: 20px;
-  right: 14px;
+  bottom: 24px;
+  right: 16px;
   z-index: 99999;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: fit-content;
   height: fit-content;
   background: transparent;
@@ -3461,47 +3461,49 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Expanded Actions Card */
+/* HyperOS Expanded Actions Card */
 .pip-actions-card {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 9999px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  animation: pipScaleIn 0.18s ease;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: pipScaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 70;
 }
 
 body.dark-mode .pip-actions-card {
-  background: rgba(15, 23, 42, 0.95);
+  background: rgba(15, 23, 42, 0.96);
   border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .pip-action-item {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 5px 9px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 800;
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  touch-action: manipulation;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 .pip-action-item:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
 .pip-action-divider {
   width: 1px;
-  height: 12px;
+  height: 14px;
   background: rgba(0, 0, 0, 0.12);
 }
 body.dark-mode .pip-action-divider {
@@ -3519,39 +3521,50 @@ body.dark-mode .pip-action-divider {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1), height 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Phone Mode (iPhone / Galaxy Bezel) */
+/* Phone Mode (iPhone / Galaxy Physical Model) */
 .pip-phone-device.mode-phone {
   background: #000000;
-  border: 4px solid #000000;
-  border-radius: 28px;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 6px solid #1E293B;
+  border-radius: 34px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
-/* Tablet Mode (Landscape Bezel) */
+/* Tablet Mode (iPad / Xiaomi Pad Model) */
 .pip-phone-device.mode-tablet {
   background: #000000;
-  border: 4px solid #000000;
-  border-radius: 16px;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 6px solid #1E222B;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
-/* Paper Mode (Document Bezel) */
+/* Paper Mode (Document Sheet Model) */
 .pip-phone-device.mode-paper {
   background: #FFFFFF;
-  border: 2px solid #CBD5E1;
-  border-radius: 8px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), 0 4px 10px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Xiaomi HyperOS Top Drag Handle Bar */
+.pip-drag-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  cursor: move;
+  touch-action: none;
 }
 
 /* Triple Horizontal Dot Handle Button */
 .pip-dots-handle {
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3562,9 +3575,8 @@ body.dark-mode .pip-action-divider {
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 9999px;
-  z-index: 60;
   touch-action: none;
-  cursor: move;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -3572,7 +3584,7 @@ body.dark-mode .pip-action-divider {
 .pip-dots-handle:active {
   background: rgba(37, 99, 235, 0.85);
   border-color: #60A5FA;
-  transform: translateX(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
 .pip-dot {
@@ -3581,11 +3593,11 @@ body.dark-mode .pip-action-divider {
   border-radius: 50%;
   background: var(--pip-dot-color, #FFFFFF);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  transition: background 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .pip-phone-device.mode-paper .pip-dots-handle {
-  background: rgba(241, 245, 249, 0.85);
+  background: rgba(241, 245, 249, 0.9);
   border-color: rgba(0, 0, 0, 0.15);
 }
 .pip-phone-device.mode-paper .pip-dot {
@@ -3598,7 +3610,7 @@ body.dark-mode .pip-action-divider {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
   background: #0F172A;
   cursor: pointer;
@@ -3610,7 +3622,7 @@ body.dark-mode .pip-action-divider {
 }
 
 .pip-phone-device.mode-paper .pip-screen-viewport {
-  border-radius: 6px;
+  border-radius: 5px;
   background: #FFFFFF;
 }
 
@@ -3620,6 +3632,26 @@ body.dark-mode .pip-action-divider {
   left: 0;
   transform-origin: top left;
   pointer-events: none;
+}
+
+/* HyperOS Corner Resize Indicator (Bottom Right) */
+.pip-resize-corner {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid rgba(255, 255, 255, 0.45);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
+  border-bottom-right-radius: 4px;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.pip-phone-device.mode-paper .pip-resize-corner {
+  border-right-color: rgba(0, 0, 0, 0.3);
+  border-bottom-color: rgba(0, 0, 0, 0.3);
 }
 
 /* Minimized Floating Circular Preview Bubble (Floating Action Ball) */
