@@ -3433,18 +3433,20 @@ body.dark-mode #btn-preset-menu-trigger:hover {
 /* ==========================================================================
    SMARTPHONE PICTURE-IN-PICTURE (PiP) LIVE PREVIEW WIDGET
    ========================================================================== */
+/* ==========================================================================
+   SMARTPHONE PICTURE-IN-PICTURE (PiP) LIVE PREVIEW WIDGET
+   ========================================================================== */
 .mobile-pip-widget {
   position: fixed;
   bottom: 20px;
   right: 14px;
   z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  border-radius: 24px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 4px 14px rgba(0, 0, 0, 0.4);
-  background: #090D16;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  overflow: hidden;
+  display: block;
+  width: fit-content;
+  height: fit-content;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   user-select: none;
   touch-action: none;
   animation: pipScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -3456,80 +3458,116 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   100% { transform: scale(1); opacity: 1; }
 }
 
-.pip-header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 5px 8px;
-  background: rgba(15, 23, 42, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  touch-action: none;
-  cursor: move;
-}
-
-.pip-drag-handle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  touch-action: none;
-  cursor: move;
-}
-
-.pip-control-btn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: auto;
-}
-
-/* Base Device Frame */
+/* Base Device Frame (Hugs the exact phone model with 0 blank space) */
 .pip-phone-device {
   position: relative;
-  background: #000000;
-  padding: 4px;
   box-sizing: border-box;
+  overflow: hidden;
+  touch-action: none;
+  cursor: move;
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
-  touch-action: none;
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  justify-content: flex-start;
+  transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1), height 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --- 1. PHONE MODE (Portrait 380x760) --- */
-.pip-phone-device.mode-phone.size-sm { width: 96px; height: 196px; }
-.pip-phone-device.mode-phone.size-med { width: 130px; height: 264px; }
-.pip-phone-device.mode-phone.size-lg { width: 168px; height: 340px; }
-
-/* --- 2. TABLET MODE (Landscape 920x690) --- */
-.pip-phone-device.mode-tablet.size-sm { width: 160px; height: 124px; border-radius: 14px; }
-.pip-phone-device.mode-tablet.size-med { width: 210px; height: 162px; border-radius: 18px; }
-.pip-phone-device.mode-tablet.size-lg { width: 260px; height: 200px; border-radius: 20px; }
-
-/* --- 3. PAPER MODE (Portrait Document 720x1018) --- */
-.pip-phone-device.mode-paper { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.15); }
-.pip-phone-device.mode-paper.size-sm { width: 110px; height: 160px; border-radius: 10px; }
-.pip-phone-device.mode-paper.size-med { width: 150px; height: 218px; border-radius: 12px; }
-.pip-phone-device.mode-paper.size-lg { width: 190px; height: 274px; border-radius: 14px; }
-
-/* Dynamic Island / Notch */
-.pip-camera-notch {
-  width: 28px;
-  height: 6px;
+/* Phone Mode (iPhone / Galaxy Bezel) */
+.pip-phone-device.mode-phone {
   background: #000000;
+  border: 4px solid #000000;
+  border-radius: 28px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+  width: 120px;
+  height: 240px;
+}
+
+/* Tablet Mode */
+.pip-phone-device.mode-tablet {
+  background: #000000;
+  border: 4px solid #000000;
+  border-radius: 18px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
+  width: 190px;
+  height: 142px;
+}
+
+/* Paper Mode */
+.pip-phone-device.mode-paper {
+  background: #FFFFFF;
+  border: 2px solid #CBD5E1;
+  border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), 0 4px 10px rgba(0, 0, 0, 0.15);
+  width: 140px;
+  height: 198px;
+}
+
+/* Top Floating Pill Drag Handle (Xiaomi HyperOS style) */
+.pip-pill-handle {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 4.5px;
   border-radius: 9999px;
-  margin-bottom: 2px;
-  z-index: 10;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  z-index: 60;
+  touch-action: none;
+  cursor: move;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.pip-phone-device.mode-paper .pip-pill-handle {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.pip-pill-handle:active,
+.pip-phone-device:active .pip-pill-handle {
+  background: #3B82F6;
+  transform: translateX(-50%) scaleX(1.15);
+}
+
+/* Top Minimize Button */
+.pip-control-btn {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 9999px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  touch-action: auto;
   transition: all 0.2s ease;
 }
-.pip-phone-device.mode-tablet .pip-camera-notch {
-  width: 6px;
-  height: 6px;
-  margin-bottom: 3px;
+
+.pip-control-btn:hover {
+  background: rgba(239, 68, 68, 0.8);
+  color: #FFFFFF;
 }
+
+/* Camera Notch (Phone mode) */
+.pip-camera-notch {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 5px;
+  background: #000000;
+  border-radius: 9999px;
+  z-index: 55;
+}
+
+.pip-phone-device.mode-tablet .pip-camera-notch,
 .pip-phone-device.mode-paper .pip-camera-notch {
   display: none !important;
 }
@@ -3539,13 +3577,19 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 14px;
+  border-radius: 24px;
   overflow: hidden;
   background: #0F172A;
   cursor: pointer;
+  flex: 1;
 }
+
+.pip-phone-device.mode-tablet .pip-screen-viewport {
+  border-radius: 14px;
+}
+
 .pip-phone-device.mode-paper .pip-screen-viewport {
-  border-radius: 6px;
+  border-radius: 8px;
   background: #FFFFFF;
 }
 

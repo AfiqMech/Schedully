@@ -1511,22 +1511,20 @@
 
   <!-- Live Picture-in-Picture (PiP) Mobile Phone Device Mockup Preview Widget -->
   <div id="mobile-pip-container" class="mobile-pip-widget hidden">
-    <!-- PiP Header & Control Actions -->
-    <div class="pip-header-bar flex items-center justify-between px-2.5 py-1 bg-slate-950/90 text-white select-none">
-      <div class="pip-drag-handle flex items-center gap-1.5 cursor-move">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-[10px] font-extrabold tracking-wide uppercase">Live Lockscreen</span>
-      </div>
-      <div class="flex items-center gap-1">
-        <button id="btn-pip-minimize" type="button" class="pip-control-btn p-1 rounded-md text-slate-300 hover:text-white hover:bg-white/20 transition-colors" title="Minimize">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
-      </div>
-    </div>
+    <!-- Exact Miniature Device Frame -->
+    <div id="pip-phone-device" class="pip-phone-device mode-phone">
+      <!-- Xiaomi HyperOS Floating Pill Drag Handle -->
+      <div class="pip-pill-handle" title="1-finger drag"></div>
+      
+      <!-- Subtle Minimize Icon Button -->
+      <button id="btn-pip-minimize" type="button" class="pip-control-btn" title="Minimize">
+        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
 
-    <!-- Exact Miniature Phone Device Frame -->
-    <div id="pip-phone-device" class="pip-phone-device size-med">
+      <!-- Mini Camera Notch (Only in Phone mode) -->
       <div class="pip-camera-notch"></div>
+
+      <!-- Pure Screen Viewport -->
       <div class="pip-screen-viewport" title="Tap to expand full screen">
         <div id="pip-live-clone-target" class="pip-live-stage"></div>
       </div>
