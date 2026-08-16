@@ -1647,12 +1647,6 @@ class SchedullyApp {
     const pipWidget = document.getElementById('mobile-pip-container');
     const pipBubble = document.getElementById('mobile-pip-bubble');
     const pipDevice = document.getElementById('pip-phone-device');
-    const pipDragBar = document.getElementById('pip-drag-bar');
-    const btnDots = document.getElementById('btn-pip-dots');
-    const actionsCard = document.getElementById('pip-actions-card');
-    const btnFullscreen = document.getElementById('btn-pip-fullscreen');
-    const btnClose = document.getElementById('btn-pip-close');
-    const btnDismiss = document.getElementById('btn-pip-dismiss');
     const targetStage = document.getElementById('pip-live-clone-target');
 
     if (!pipWidget || !pipDevice || !targetStage) return;
@@ -1687,11 +1681,11 @@ class SchedullyApp {
       pipDevice.classList.remove('mode-phone', 'mode-tablet', 'mode-paper');
       pipDevice.classList.add(`mode-${deviceMode}`);
 
-      // Adaptive Color for 3 Dots based on theme / paper / canvas background
+      // Adaptive Color for Top Pill Handle based on theme / paper / canvas background
       if (deviceMode === 'paper') {
-        pipDevice.style.setProperty('--pip-dot-color', '#1E293B');
+        pipDevice.style.setProperty('--pip-pill-color', 'rgba(15, 23, 42, 0.6)');
       } else {
-        pipDevice.style.setProperty('--pip-dot-color', '#FFFFFF');
+        pipDevice.style.setProperty('--pip-pill-color', 'rgba(255, 255, 255, 0.75)');
       }
 
       // Proportional width bounds
@@ -1702,7 +1696,7 @@ class SchedullyApp {
 
       let curW = pipDevice.offsetWidth;
       if (modeChanged || !curW || curW < 50) {
-        curW = deviceMode === 'tablet' ? 210 : (deviceMode === 'paper' ? 140 : 125);
+        curW = deviceMode === 'tablet' ? 200 : (deviceMode === 'paper' ? 135 : 125);
       }
       curW = Math.max(minW, Math.min(maxW, curW));
       const curH = Math.round(curW * ratio);
@@ -1712,6 +1706,9 @@ class SchedullyApp {
 
       // Copy HTML and styles from main canvas
       targetStage.innerHTML = originalCanvas.innerHTML;
+      // Strip IDs from clone to avoid collisions with main app
+      targetStage.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+
       targetStage.className = originalCanvas.className + ' pip-live-stage';
       targetStage.style.cssText = originalCanvas.style.cssText;
       targetStage.style.position = 'absolute';
@@ -1720,6 +1717,7 @@ class SchedullyApp {
       targetStage.style.width = `${baseW}px`;
       targetStage.style.height = `${baseH}px`;
       targetStage.style.transformOrigin = 'top left';
+      targetStage.style.margin = '0';
       targetStage.style.pointerEvents = 'none';
 
       // 100% exact subpixel scale matching the miniature device viewport
@@ -1748,7 +1746,6 @@ class SchedullyApp {
       } else {
         pipWidget.classList.add('hidden');
         pipBubble?.classList.add('hidden');
-        actionsCard?.classList.add('hidden');
       }
     };
     this.syncMobilePipVisibility = syncMobilePipVisibility;
@@ -1785,8 +1782,8 @@ class SchedullyApp {
       const currentW = pipDevice.offsetWidth || 120;
       const isTablet = pipDevice.classList.contains('mode-tablet');
       const isPaper = pipDevice.classList.contains('mode-paper');
-      const threshold = isTablet ? 220 : 140;
-      const expW = isTablet ? 270 : (isPaper ? 180 : 175);
+      const threshold = isTablet ? 210 : 135;
+      const expW = isTablet ? 260 : (isPaper ? 180 : 175);
       const compW = isTablet ? 160 : (isPaper ? 105 : 100);
 
       if (currentW < threshold) {
@@ -1796,45 +1793,7 @@ class SchedullyApp {
       }
     });
 
-    // 4. HyperOS Action Menu Card Actions
-    const toggleActionsMenu = (show) => {
-      if (!actionsCard) return;
-      if (typeof show === 'boolean') {
-        actionsCard.classList.toggle('hidden', !show);
-      } else {
-        actionsCard.classList.toggle('hidden');
-      }
-    };
-
-    btnFullscreen?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleActionsMenu(false);
-      if (typeof this.toggleLeftSidebar === 'function') this.toggleLeftSidebar(true);
-      if (typeof this.toggleRightSidebar === 'function') this.toggleRightSidebar(true);
-    });
-
-    btnClose?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleActionsMenu(false);
-      isPipMinimized = true;
-      pipWidget.classList.add('hidden');
-      pipBubble?.classList.remove('hidden');
-    });
-
-    btnDismiss?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleActionsMenu(false);
-      pipWidget.classList.add('hidden');
-      pipBubble?.classList.add('hidden');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (actionsCard && !actionsCard.classList.contains('hidden') && !e.target.closest('#mobile-pip-container')) {
-        toggleActionsMenu(false);
-      }
-    });
-
-    // 5. Robust Touch Drag & 2-Finger Pinch Gesture Engine (Xiaomi HyperOS Floating Screen)
+    // 4. Robust Touch Drag & 2-Finger Pinch Gesture Engine
     let isDragging = false;
     let isPinching = false;
     let dragStartX = 0;
@@ -1887,13 +1846,15 @@ class SchedullyApp {
       if (isDragging) {
         isDragging = false;
         pipWidget.style.transition = '';
-        // If user tapped without dragging, toggle actions menu
+        // If user tapped without dragging, shrink into floating preview ball
         if (typeof clientX === 'number' && typeof clientY === 'number') {
           const dist = Math.hypot(clientX - dragStartX, clientY - dragStartY);
           const duration = Date.now() - touchStartTime;
           if (dist < 8 && duration < 350) {
-            // Tap detected
-            toggleActionsMenu();
+            // Tap detected -> Shrink into circular floating preview ball
+            isPipMinimized = true;
+            pipWidget.classList.add('hidden');
+            pipBubble?.classList.remove('hidden');
           }
         }
       }
@@ -1902,8 +1863,6 @@ class SchedullyApp {
 
     // Touch events on PiP Widget
     pipWidget?.addEventListener('touchstart', (e) => {
-      if (e.target.closest('#pip-actions-card')) return;
-
       if (e.touches.length === 2) {
         isDragging = false;
         isPinching = true;
@@ -1916,12 +1875,11 @@ class SchedullyApp {
     }, { passive: true });
 
     pipWidget?.addEventListener('mousedown', (e) => {
-      if (e.target.closest('#pip-actions-card')) return;
       e.preventDefault();
       startPiPDrag(e.clientX, e.clientY);
     });
 
-    // 6. Draggable Circular Floating Preview Bubble (Action Ball)
+    // 5. Draggable Circular Floating Preview Bubble (Action Ball)
     let isBubbleDragging = false;
     let bubbleStartX = 0;
     let bubbleStartY = 0;
@@ -1973,7 +1931,6 @@ class SchedullyApp {
             isPipMinimized = false;
             pipBubble.classList.add('hidden');
             pipWidget.classList.remove('hidden');
-            actionsCard?.classList.add('hidden');
             updateMobilePip();
           }
         }
@@ -1991,7 +1948,7 @@ class SchedullyApp {
       startBubbleDrag(e.clientX, e.clientY);
     });
 
-    // 7. Global Touch/Mouse Movement & Termination Listeners
+    // 6. Global Touch/Mouse Movement & Termination Listeners
     window.addEventListener('touchmove', (e) => {
       if (isPinching && e.touches.length === 2) {
         if (e.cancelable) e.preventDefault();
@@ -2007,9 +1964,9 @@ class SchedullyApp {
 
     window.addEventListener('mousemove', (e) => {
       if (isDragging) {
-        doPiPDrag(e.clientX, e.clientY, e);
+        doPiPDrag(e.clientX, e.clientY);
       } else if (isBubbleDragging) {
-        doBubbleDrag(e.clientX, e.clientY, e);
+        doBubbleDrag(e.clientX, e.clientY);
       }
     });
 
@@ -2042,7 +1999,6 @@ class SchedullyApp {
       syncMobilePipVisibility(!leftCollapsed || !rightCollapsed);
     });
   }
-
   bindEvents() {
     this.setupFirebaseIntegration();
     this.setupLanguageModal();

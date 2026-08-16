@@ -3444,7 +3444,7 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 0;
   width: fit-content;
   height: fit-content;
   background: transparent;
@@ -3461,100 +3461,30 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* HyperOS Expanded Actions Card */
-.pip-actions-card {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 9999px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  animation: pipScaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 70;
-}
-
-body.dark-mode .pip-actions-card {
-  background: rgba(15, 23, 42, 0.96);
-  border-color: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-.pip-action-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 9px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 800;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-}
-.pip-action-item:active {
-  transform: scale(0.94);
-}
-
-.pip-action-divider {
-  width: 1px;
-  height: 14px;
-  background: rgba(0, 0, 0, 0.12);
-}
-body.dark-mode .pip-action-divider {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* Base Device Frame (Hugs the exact phone model with 0 blank space) */
+/* Exact Model Frame (Follows preview model directly, zero extra border) */
 .pip-phone-device {
   position: relative;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   touch-action: none;
   cursor: move;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Phone Mode (iPhone / Galaxy Physical Model) */
-.pip-phone-device.mode-phone {
-  background: #000000;
-  border: 6px solid #1E293B;
-  border-radius: 34px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-}
-
-/* Tablet Mode (iPad / Xiaomi Pad Model) */
-.pip-phone-device.mode-tablet {
-  background: #000000;
-  border: 6px solid #1E222B;
-  border-radius: 18px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-}
-
-/* Paper Mode (Document Sheet Model) */
-.pip-phone-device.mode-paper {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 6px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-
-/* Xiaomi HyperOS Top Drag Handle Bar */
+/* Sleek Small Top Horizontal Drag & Minimize Handle Bar */
 .pip-drag-bar {
   position: absolute;
-  top: 0;
+  top: 4px;
   left: 0;
   right: 0;
-  height: 22px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3563,45 +3493,29 @@ body.dark-mode .pip-action-divider {
   touch-action: none;
 }
 
-/* Triple Horizontal Dot Handle Button */
-.pip-dots-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3.5px;
-  padding: 3px 8px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* Small Horizontal Pill Handle */
+.pip-pill-handle {
+  width: 32px;
+  height: 4px;
   border-radius: 9999px;
-  touch-action: none;
+  background: var(--pip-pill-color, rgba(255, 255, 255, 0.75));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   cursor: pointer;
+  touch-action: none;
   transition: all 0.2s ease;
 }
 
-.pip-dots-handle:hover,
-.pip-dots-handle:active {
-  background: rgba(37, 99, 235, 0.85);
-  border-color: #60A5FA;
-  transform: scale(1.1);
+.pip-drag-bar:hover .pip-pill-handle,
+.pip-drag-bar:active .pip-pill-handle {
+  background: #3B82F6;
+  transform: scaleX(1.15) scaleY(1.2);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
 }
 
-.pip-dot {
-  width: 3.5px;
-  height: 3.5px;
-  border-radius: 50%;
-  background: var(--pip-dot-color, #FFFFFF);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  transition: background-color 0.2s ease;
-}
-
-.pip-phone-device.mode-paper .pip-dots-handle {
-  background: rgba(241, 245, 249, 0.9);
-  border-color: rgba(0, 0, 0, 0.15);
-}
-.pip-phone-device.mode-paper .pip-dot {
-  background: #1E293B;
+.pip-phone-device.mode-paper .pip-pill-handle {
+  background: rgba(15, 23, 42, 0.6);
   box-shadow: none;
 }
 
@@ -3610,20 +3524,10 @@ body.dark-mode .pip-action-divider {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 28px;
-  overflow: hidden;
-  background: #0F172A;
-  cursor: pointer;
+  overflow: visible;
+  background: transparent;
+  cursor: move;
   flex: 1;
-}
-
-.pip-phone-device.mode-tablet .pip-screen-viewport {
-  border-radius: 12px;
-}
-
-.pip-phone-device.mode-paper .pip-screen-viewport {
-  border-radius: 5px;
-  background: #FFFFFF;
 }
 
 .pip-live-stage {
@@ -3632,21 +3536,7 @@ body.dark-mode .pip-action-divider {
   left: 0;
   transform-origin: top left;
   pointer-events: none;
-}
-
-/* HyperOS Corner Resize Indicator (Bottom Right) */
-.pip-resize-corner {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  width: 9px;
-  height: 9px;
-  border-right: 2px solid rgba(255, 255, 255, 0.45);
-  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
-  border-bottom-right-radius: 4px;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.8;
+  margin: 0 !important;
 }
 
 .pip-phone-device.mode-paper .pip-resize-corner {

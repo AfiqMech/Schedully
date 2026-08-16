@@ -1511,42 +1511,17 @@
 
   <!-- Live Picture-in-Picture (PiP) Mobile Phone Device Mockup Preview Widget -->
   <div id="mobile-pip-container" class="mobile-pip-widget hidden">
-    <!-- Expanded Actions Card (Opens when tapping the top handle) -->
-    <div id="pip-actions-card" class="pip-actions-card hidden">
-      <button id="btn-pip-fullscreen" type="button" class="pip-action-item text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/20" title="Expand to Fullscreen">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-        <span>Expand</span>
-      </button>
-      <div class="pip-action-divider"></div>
-      <button id="btn-pip-close" type="button" class="pip-action-item text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800" title="Minimize to Floating Ball">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-        <span>Minimize</span>
-      </button>
-      <div class="pip-action-divider"></div>
-      <button id="btn-pip-dismiss" type="button" class="pip-action-item text-red-500 hover:bg-red-50 dark:hover:bg-red-500/20" title="Close Preview">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-        <span>Close</span>
-      </button>
-    </div>
-
-    <!-- Exact Miniature Device Frame (Hugs the exact phone / tablet / paper model) -->
+    <!-- Exact Miniature Device Frame (Exact model clone with no extra external borders) -->
     <div id="pip-phone-device" class="pip-phone-device mode-phone">
-      <!-- Xiaomi HyperOS Top Drag Handle Bar (•••) -->
-      <div id="pip-drag-bar" class="pip-drag-bar" title="1-Finger Drag / Tap for Menu">
-        <div id="btn-pip-dots" class="pip-dots-handle">
-          <span class="pip-dot"></span>
-          <span class="pip-dot"></span>
-          <span class="pip-dot"></span>
-        </div>
+      <!-- Sleek Small Horizontal Pill Drag & Minimize Handle -->
+      <div id="pip-drag-bar" class="pip-drag-bar" title="Drag to move / Tap to minimize">
+        <div id="btn-pip-pill" class="pip-pill-handle"></div>
       </div>
 
       <!-- Pure Screen Viewport -->
       <div class="pip-screen-viewport">
         <div id="pip-live-clone-target" class="pip-live-stage"></div>
       </div>
-
-      <!-- HyperOS Corner Resize Indicator (Bottom Right) -->
-      <div class="pip-resize-corner" title="Resize"></div>
     </div>
   </div>
 
