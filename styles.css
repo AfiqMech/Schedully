@@ -3475,48 +3475,42 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Sleek Small Top Horizontal Drag & Minimize Handle Bar */
-.pip-drag-bar {
+/* Top-Right Cross Button (Pinned to top-right of the model, 0ms lag) */
+.pip-cross-btn {
   position: absolute;
-  top: 4px;
-  left: 0;
-  right: 0;
-  height: 20px;
+  top: 6px;
+  right: 6px;
+  z-index: 60;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 60;
-  cursor: move;
-  touch-action: none;
-}
-
-/* Small Horizontal Pill Handle */
-.pip-pill-handle {
-  width: 32px;
-  height: 4px;
-  border-radius: 9999px;
-  background: var(--pip-pill-color, rgba(255, 255, 255, 0.75));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   cursor: pointer;
-  touch-action: none;
-  transition: all 0.2s ease;
+  touch-action: manipulation;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.pip-drag-bar:hover .pip-pill-handle,
-.pip-drag-bar:active .pip-pill-handle {
-  background: #3B82F6;
-  transform: scaleX(1.15) scaleY(1.2);
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+.pip-cross-btn:active {
+  transform: scale(0.88);
+  background: rgba(239, 68, 68, 0.9);
+  border-color: #F87171;
 }
 
-.pip-phone-device.mode-paper .pip-pill-handle {
-  background: rgba(15, 23, 42, 0.6);
-  box-shadow: none;
+.pip-phone-device.mode-paper .pip-cross-btn {
+  background: rgba(241, 245, 249, 0.95);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #0F172A;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Viewport containing the live scaled canvas */

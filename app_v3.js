@@ -1648,6 +1648,7 @@ class SchedullyApp {
     const pipBubble = document.getElementById('mobile-pip-bubble');
     const pipDevice = document.getElementById('pip-phone-device');
     const targetStage = document.getElementById('pip-live-clone-target');
+    const btnCross = document.getElementById('btn-pip-cross');
 
     if (!pipWidget || !pipDevice || !targetStage) return;
 
@@ -1680,13 +1681,6 @@ class SchedullyApp {
       // Update PiP Device Mode Class
       pipDevice.classList.remove('mode-phone', 'mode-tablet', 'mode-paper');
       pipDevice.classList.add(`mode-${deviceMode}`);
-
-      // Adaptive Color for Top Pill Handle based on theme / paper / canvas background
-      if (deviceMode === 'paper') {
-        pipDevice.style.setProperty('--pip-pill-color', 'rgba(15, 23, 42, 0.6)');
-      } else {
-        pipDevice.style.setProperty('--pip-pill-color', 'rgba(255, 255, 255, 0.75)');
-      }
 
       // Proportional width bounds
       let minW = 80;
@@ -1750,7 +1744,7 @@ class SchedullyApp {
     };
     this.syncMobilePipVisibility = syncMobilePipVisibility;
 
-    // 3. Proportional Pinch & Size Engine
+    // 3. Proportional Pinch & Size Engine (Zero lag, 60fps tracking)
     const applyDeviceDimensions = (newWidth) => {
       const originalCanvas = document.getElementById('phone-canvas');
       if (!originalCanvas) return;
@@ -1776,31 +1770,27 @@ class SchedullyApp {
       targetStage.style.transform = `scale(${clampedW / baseW})`;
     };
 
-    // Double tap on device to toggle compact / expanded
-    pipDevice?.addEventListener('dblclick', (e) => {
-      e.stopPropagation();
-      const currentW = pipDevice.offsetWidth || 120;
-      const isTablet = pipDevice.classList.contains('mode-tablet');
-      const isPaper = pipDevice.classList.contains('mode-paper');
-      const threshold = isTablet ? 210 : 135;
-      const expW = isTablet ? 260 : (isPaper ? 180 : 175);
-      const compW = isTablet ? 160 : (isPaper ? 105 : 100);
-
-      if (currentW < threshold) {
-        applyDeviceDimensions(expW);
-      } else {
-        applyDeviceDimensions(compW);
+    // 4. Top-Right Cross Button Minimizes to Action Ball
+    const minimizeToBubble = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
       }
-    });
+      isPipMinimized = true;
+      pipWidget.classList.add('hidden');
+      pipBubble?.classList.remove('hidden');
+    };
 
-    // 4. Robust Touch Drag & 2-Finger Pinch Gesture Engine
+    btnCross?.addEventListener('click', minimizeToBubble);
+    btnCross?.addEventListener('touchend', minimizeToBubble);
+
+    // 5. Robust Touch Drag & 2-Finger Pinch Gesture Engine
     let isDragging = false;
     let isPinching = false;
     let dragStartX = 0;
     let dragStartY = 0;
     let initLeft = 0;
     let initTop = 0;
-    let touchStartTime = 0;
     let initialPinchDist = 0;
     let initialPinchWidth = 0;
 
@@ -1812,7 +1802,6 @@ class SchedullyApp {
 
     const startPiPDrag = (clientX, clientY) => {
       isDragging = true;
-      touchStartTime = Date.now();
       const rect = pipWidget.getBoundingClientRect();
       dragStartX = clientX;
       dragStartY = clientY;
@@ -1842,27 +1831,18 @@ class SchedullyApp {
       pipWidget.style.top = `${newTop}px`;
     };
 
-    const stopPiPDrag = (clientX, clientY) => {
+    const stopPiPDrag = () => {
       if (isDragging) {
         isDragging = false;
         pipWidget.style.transition = '';
-        // If user tapped without dragging, shrink into floating preview ball
-        if (typeof clientX === 'number' && typeof clientY === 'number') {
-          const dist = Math.hypot(clientX - dragStartX, clientY - dragStartY);
-          const duration = Date.now() - touchStartTime;
-          if (dist < 8 && duration < 350) {
-            // Tap detected -> Shrink into circular floating preview ball
-            isPipMinimized = true;
-            pipWidget.classList.add('hidden');
-            pipBubble?.classList.remove('hidden');
-          }
-        }
       }
       isPinching = false;
     };
 
     // Touch events on PiP Widget
     pipWidget?.addEventListener('touchstart', (e) => {
+      if (e.target.closest('#btn-pip-cross')) return;
+
       if (e.touches.length === 2) {
         isDragging = false;
         isPinching = true;
@@ -1875,11 +1855,12 @@ class SchedullyApp {
     }, { passive: true });
 
     pipWidget?.addEventListener('mousedown', (e) => {
+      if (e.target.closest('#btn-pip-cross')) return;
       e.preventDefault();
       startPiPDrag(e.clientX, e.clientY);
     });
 
-    // 5. Draggable Circular Floating Preview Bubble (Action Ball)
+    // 6. Draggable Circular Floating Preview Bubble (Action Ball)
     let isBubbleDragging = false;
     let bubbleStartX = 0;
     let bubbleStartY = 0;
@@ -1948,7 +1929,7 @@ class SchedullyApp {
       startBubbleDrag(e.clientX, e.clientY);
     });
 
-    // 6. Global Touch/Mouse Movement & Termination Listeners
+    // 7. Global Touch/Mouse Movement & Termination Listeners
     window.addEventListener('touchmove', (e) => {
       if (isPinching && e.touches.length === 2) {
         if (e.cancelable) e.preventDefault();
@@ -1974,7 +1955,7 @@ class SchedullyApp {
       const touch = e.changedTouches ? e.changedTouches[0] : null;
       const x = touch ? touch.clientX : null;
       const y = touch ? touch.clientY : null;
-      if (isDragging) stopPiPDrag(x, y);
+      if (isDragging) stopPiPDrag();
       if (isBubbleDragging) stopBubbleDrag(x, y);
       if (e.touches.length === 0) {
         isPinching = false;
@@ -1987,7 +1968,7 @@ class SchedullyApp {
     }, { passive: true });
 
     window.addEventListener('mouseup', (e) => {
-      if (isDragging) stopPiPDrag(e.clientX, e.clientY);
+      if (isDragging) stopPiPDrag();
       if (isBubbleDragging) stopBubbleDrag(e.clientX, e.clientY);
     });
 
