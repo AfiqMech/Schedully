@@ -163,8 +163,10 @@ class SchedullyApp {
 
     // Layout Customization State
     this.showTitle = true;
+    this.tableCornerStyle = 'rounded';
+    this.tableCornerRadiusVal = 8;
     this.cardCornerStyle = 'rounded';
-    this.cardCornerRadiusVal = 8;
+    this.cardCornerRadiusVal = 6;
     this.timetableTitleText = 'Untitled';
     this.newCourseDisplayTime = true;
     this.globalCardTimes = true;
@@ -1025,6 +1027,40 @@ class SchedullyApp {
       e.stopPropagation();
       this.removeWallpaper();
     });
+
+    const resyncBtn = document.getElementById('btn-resync-wallpaper-colors');
+    resyncBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      this.userHasPickedBgColor = false;
+      this.userHasPickedHeaderColor = false;
+      this.userHasPickedSurfaceColor = false;
+      this.userHasPickedFontColor = false;
+      this.globalAdaptiveColor = true;
+
+      // Update Quick Setting Pill if exists
+      document.querySelectorAll('#toggle-quick-adaptive .pill-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('data-val') === 'yes');
+      });
+
+      // Clear all manual overrides on all classes so they strictly re-sync with the wallpaper theme
+      this.classes.forEach(c => {
+        delete c.customColor;
+        delete c.isManualCustomColor;
+        delete c.fontColor;
+      });
+
+      const wallpaperData = this.currentWallpaperData || localStorage.getItem('schedully_wallpaper_data');
+      if (wallpaperData) {
+        this.extractColorsFromImage(wallpaperData, false, true);
+      } else {
+        this.applyThemeEngine();
+      }
+
+      this.renderAll();
+      this._stagePending();
+    });
   }
 
   compressWallpaperImage(file, callback) {
@@ -1106,6 +1142,7 @@ class SchedullyApp {
     const phoneCanvas = document.getElementById('phone-canvas');
     const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
     const controlsBar = document.getElementById('wallpaper-controls-bar');
+    const uploadContainer = document.getElementById('wallpaper-upload-container');
     const thumbPreview = document.getElementById('wallpaper-thumb-preview');
 
     if (wallpaperLayer) {
@@ -1120,6 +1157,10 @@ class SchedullyApp {
     if (controlsBar && thumbPreview) {
       thumbPreview.src = dataUrl;
       controlsBar.classList.remove('hidden');
+    }
+
+    if (uploadContainer) {
+      uploadContainer.classList.add('hidden');
     }
 
     // Auto grey out & disable color palette and randomizer buttons
@@ -1143,6 +1184,7 @@ class SchedullyApp {
     const phoneCanvas = document.getElementById('phone-canvas');
     const wallpaperLayer = document.getElementById('phone-wallpaper-layer');
     const controlsBar = document.getElementById('wallpaper-controls-bar');
+    const uploadContainer = document.getElementById('wallpaper-upload-container');
     const input = document.getElementById('wallpaper-image-input');
 
     if (wallpaperLayer) {
@@ -1157,6 +1199,10 @@ class SchedullyApp {
 
     if (controlsBar) {
       controlsBar.classList.add('hidden');
+    }
+
+    if (uploadContainer) {
+      uploadContainer.classList.remove('hidden');
     }
 
     if (input) input.value = '';
@@ -1266,7 +1312,7 @@ class SchedullyApp {
     }
   }
 
-  extractColorsFromImage(dataUrl, skipAutoStage = false) {
+  extractColorsFromImage(dataUrl, skipAutoStage = false, forceOverrideAll = false) {
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.onload = () => {
@@ -1398,13 +1444,29 @@ class SchedullyApp {
             this.presets[this.activePresetKey].wallpaperSwatches = courseSwatches;
           }
 
-          // Auto update class course colors to match photo palette (override unless user manually picked a specific color)
+          // Auto update class course colors to match photo palette
           this.classes.forEach((cls, idx) => {
-            if (!cls.isManualCustomColor) {
+            if (forceOverrideAll || !cls.isManualCustomColor) {
               cls.customColor = courseSwatches[idx % courseSwatches.length];
               cls.color = courseSwatches[idx % courseSwatches.length];
+              delete cls.isManualCustomColor;
+              if (forceOverrideAll) {
+                delete cls.fontColor;
+              }
             }
           });
+
+          // Update Add A Course swatches with extracted wallpaper course swatches
+          const courseDots = document.querySelectorAll('.swatch-grid .swatch-dot');
+          courseSwatches.forEach((hex, idx) => {
+            if (courseDots[idx]) {
+              courseDots[idx].setAttribute('data-color', hex);
+              courseDots[idx].style.backgroundColor = hex;
+            }
+          });
+          if (courseSwatches.length > 0) {
+            this.selectedColor = courseSwatches[0];
+          }
 
           this.renderAll();
           if (!skipAutoStage) {
@@ -1792,13 +1854,13 @@ class SchedullyApp {
       pipBubble.style.right = 'auto';
       pipBubble.style.left = `${bubbleLeft}px`;
       pipBubble.style.top = `${bubbleTop}px`;
-
       pipWidget.classList.add('hidden');
       pipBubble?.classList.remove('hidden');
     };
 
     btnCross?.addEventListener('click', minimizeToBubble);
     btnCross?.addEventListener('touchend', minimizeToBubble);
+
 
     // 5. Robust Touch Drag & 2-Finger Pinch Gesture Engine
     let isDragging = false;
@@ -2093,6 +2155,18 @@ class SchedullyApp {
       this.toggleAccordion(this.headerAddCourse, this.contentAddCourse);
     });
 
+    // Nested Sub-Accordion Headers (Layout & Add Course Groups)
+    document.querySelectorAll('.sub-accordion-header').forEach(header => {
+      header.addEventListener('click', (e) => {
+        e.preventDefault();
+        const card = header.closest('.sub-accordion-card');
+        const content = card ? card.querySelector('.sub-accordion-content') : header.nextElementSibling;
+        if (content) {
+          this.toggleAccordion(header, content);
+        }
+      });
+    });
+
     // Swipe-to-Right gesture for expanding cards on touch/swipe
     document.querySelectorAll('.card-expand-header').forEach(header => {
       let startX = 0;
@@ -2150,53 +2224,93 @@ class SchedullyApp {
       });
     });
 
-    // Card Corners Toggle
-    document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(btn => {
+    // Timetable Frame Corners Toggle
+    document.querySelectorAll('#toggle-table-corners .pill-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#toggle-table-corners .pill-btn').forEach(b => {
+          b.classList.remove('active');
+          b.style.backgroundColor = '';
+          b.style.color = '';
+        });
         btn.classList.add('active');
-        this.cardCornerStyle = btn.getAttribute('data-val');
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--m3-sys-color-primary').trim() || '#2563EB';
+        const onPrimary = getComputedStyle(document.documentElement).getPropertyValue('--m3-sys-color-on-primary').trim() || '#FFFFFF';
+        btn.style.backgroundColor = primary;
+        btn.style.color = onPrimary;
+
+        this.tableCornerStyle = btn.getAttribute('data-val');
         
-        const rowCornerRadius = document.getElementById('row-corner-radius');
-        if (this.cardCornerStyle === 'sharp') {
-          if (rowCornerRadius) rowCornerRadius.style.display = 'none';
+        const rowTableRadius = document.getElementById('row-table-radius');
+        if (this.tableCornerStyle === 'sharp') {
+          if (rowTableRadius) rowTableRadius.style.display = 'none';
         } else {
-          if (rowCornerRadius) rowCornerRadius.style.display = 'flex';
+          if (rowTableRadius) rowTableRadius.style.display = 'flex';
         }
         this.renderTimetableGrid();
         this._stagePending();
       });
     });
 
-    // Card Corner Radius Steppers
-    const btnRadiusDec = document.getElementById('btn-radius-dec');
-    const btnRadiusInc = document.getElementById('btn-radius-inc');
-    const gridRadiusValEl = document.getElementById('grid-radius-val');
+    // Table Corner Radius Steppers
+    const tableRadiusValEl = document.getElementById('table-radius-val');
+    const btnTableRadiusDec = document.getElementById('btn-table-radius-dec');
+    const btnTableRadiusInc = document.getElementById('btn-table-radius-inc');
 
-    gridRadiusValEl?.addEventListener('input', (e) => {
-      let val = parseInt(e.target.value, 10);
-      if (!isNaN(val)) {
-        this.cardCornerRadiusVal = Math.min(24, Math.max(2, val));
+    const updateTableRadius = (newVal) => {
+      const clamped = Math.min(32, Math.max(0, parseInt(newVal, 10) || 0));
+      this.tableCornerRadiusVal = clamped;
+      if (tableRadiusValEl) tableRadiusValEl.value = clamped;
+      this.renderTimetableGrid();
+      this._stagePending();
+    };
+
+    tableRadiusValEl?.addEventListener('input', (e) => updateTableRadius(e.target.value));
+    btnTableRadiusDec?.addEventListener('click', () => updateTableRadius((this.tableCornerRadiusVal !== undefined ? this.tableCornerRadiusVal : 8) - 1));
+    btnTableRadiusInc?.addEventListener('click', () => updateTableRadius((this.tableCornerRadiusVal !== undefined ? this.tableCornerRadiusVal : 8) + 1));
+
+    // Course Card Corners Toggle
+    document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => {
+          b.classList.remove('active');
+          b.style.backgroundColor = '';
+          b.style.color = '';
+        });
+        btn.classList.add('active');
+        const primary = getComputedStyle(document.documentElement).getPropertyValue('--m3-sys-color-primary').trim() || '#2563EB';
+        const onPrimary = getComputedStyle(document.documentElement).getPropertyValue('--m3-sys-color-on-primary').trim() || '#FFFFFF';
+        btn.style.backgroundColor = primary;
+        btn.style.color = onPrimary;
+
+        this.cardCornerStyle = btn.getAttribute('data-val');
+        
+        const rowCardRadius = document.getElementById('row-card-radius');
+        if (this.cardCornerStyle === 'sharp') {
+          if (rowCardRadius) rowCardRadius.style.display = 'none';
+        } else {
+          if (rowCardRadius) rowCardRadius.style.display = 'flex';
+        }
         this.renderTimetableGrid();
         this._stagePending();
-      }
+      });
     });
-    if (btnRadiusDec && gridRadiusValEl) {
-      btnRadiusDec.addEventListener('click', () => {
-        this.cardCornerRadiusVal = Math.max(2, this.cardCornerRadiusVal - 1);
-        gridRadiusValEl.value = this.cardCornerRadiusVal;
-        this.renderTimetableGrid();
-        this._stagePending();
-      });
-    }
-    if (btnRadiusInc && gridRadiusValEl) {
-      btnRadiusInc.addEventListener('click', () => {
-        this.cardCornerRadiusVal = Math.min(24, this.cardCornerRadiusVal + 1);
-        gridRadiusValEl.value = this.cardCornerRadiusVal;
-        this.renderTimetableGrid();
-        this._stagePending();
-      });
-    }
+
+    // Course Card Corner Radius Steppers
+    const cardRadiusValEl = document.getElementById('card-radius-val');
+    const btnCardRadiusDec = document.getElementById('btn-card-radius-dec');
+    const btnCardRadiusInc = document.getElementById('btn-card-radius-inc');
+
+    const updateCardRadius = (newVal) => {
+      const clamped = Math.min(24, Math.max(0, parseInt(newVal, 10) || 0));
+      this.cardCornerRadiusVal = clamped;
+      if (cardRadiusValEl) cardRadiusValEl.value = clamped;
+      this.renderTimetableGrid();
+      this._stagePending();
+    };
+
+    cardRadiusValEl?.addEventListener('input', (e) => updateCardRadius(e.target.value));
+    btnCardRadiusDec?.addEventListener('click', () => updateCardRadius((this.cardCornerRadiusVal !== undefined ? this.cardCornerRadiusVal : 6) - 1));
+    btnCardRadiusInc?.addEventListener('click', () => updateCardRadius((this.cardCornerRadiusVal !== undefined ? this.cardCornerRadiusVal : 6) + 1));
 
     // SCHEDULE LIST QUICK SETTINGS TOGGLE DRAWER
     const btnScheduleSettings = document.getElementById('btn-schedule-settings-toggle');
@@ -2752,13 +2866,23 @@ class SchedullyApp {
       document.querySelector('.m3-right-sidebar')?.style.removeProperty('--m3-card-text-color');
 
       document.querySelectorAll('#toggle-title .pill-btn')[0].click();
-      document.querySelectorAll('#toggle-card-corners .pill-btn')[0].click();
+      document.querySelectorAll('#toggle-table-corners .pill-btn')[0]?.click();
+      document.querySelectorAll('#toggle-card-corners .pill-btn')[0]?.click();
       
-      const gridRadiusValEl = document.getElementById('grid-radius-val');
-      if (gridRadiusValEl) {
-        gridRadiusValEl.value = 8;
-        this.cardCornerRadiusVal = 8;
+      const tableRadiusValEl = document.getElementById('table-radius-val');
+      if (tableRadiusValEl) {
+        tableRadiusValEl.value = 8;
+        this.tableCornerRadiusVal = 8;
       }
+      const cardRadiusValEl = document.getElementById('card-radius-val');
+      if (cardRadiusValEl) {
+        cardRadiusValEl.value = 6;
+        this.cardCornerRadiusVal = 6;
+      }
+      const rowTableRadius = document.getElementById('row-table-radius');
+      if (rowTableRadius) rowTableRadius.style.display = 'flex';
+      const rowCardRadius = document.getElementById('row-card-radius');
+      if (rowCardRadius) rowCardRadius.style.display = 'flex';
       
       document.querySelectorAll('#toggle-display-time .pill-btn')[0].click();
       document.querySelectorAll('#toggle-clock-type .pill-btn')[0].click();
@@ -2768,6 +2892,8 @@ class SchedullyApp {
 
       this.renderAll();
     });
+
+
 
     // Theme Mode Dots
     document.querySelectorAll('.theme-mode-dot').forEach(dot => {
@@ -3245,22 +3371,24 @@ class SchedullyApp {
       const group = this.inputGroup ? this.inputGroup.value.trim() : '';
 
       const checkedDays = Array.from(document.querySelectorAll('input[name="day"]:checked')).map(cb => cb.value);
-      const selectedDay = checkedDays.length > 0 ? checkedDays[0] : 'Mon';
+      const daysToCreate = checkedDays.length > 0 ? checkedDays : ['Mon'];
 
-      this.classes.push({
-        id: Date.now(),
-        code: code,
-        title: courseType ? `${code} (${courseType})` : code,
-        day: selectedDay,
-        startTime: startTime,
-        endTime: endTime,
-        type: courseType,
-        room: location,
-        lecturer: lecturer,
-        group: group,
-        customColor: this.selectedColor,
-        fontColor: this.newCourseFontColor,
-        displayTime: this.newCourseDisplayTime
+      daysToCreate.forEach((day, idx) => {
+        this.classes.push({
+          id: Date.now() + idx,
+          code: code,
+          title: courseType ? `${code} (${courseType})` : code,
+          day: day,
+          startTime: startTime,
+          endTime: endTime,
+          type: courseType,
+          room: location,
+          lecturer: lecturer,
+          group: group,
+          customColor: this.selectedColor,
+          fontColor: this.newCourseFontColor,
+          displayTime: this.newCourseDisplayTime
+        });
       });
 
       this.inputCourseCode.value = '';
@@ -3677,21 +3805,39 @@ class SchedullyApp {
     if (!settings || typeof settings !== 'object') return;
 
     try {
-      // 1. Card Corners & Radius
-      if (settings.cardCornerStyle) {
-        this.cardCornerStyle = settings.cardCornerStyle;
+                  // 1. Table & Card Corners & Radius
+      if (settings.tableCornerStyle || settings.cardCornerStyle) {
+        this.tableCornerStyle = settings.tableCornerStyle || settings.cardCornerStyle || 'rounded';
+        document.querySelectorAll('#toggle-table-corners .pill-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-val') === this.tableCornerStyle);
+        });
+        const rowTableRadius = document.getElementById('row-table-radius');
+        if (rowTableRadius) {
+          rowTableRadius.style.display = (this.tableCornerStyle === 'sharp') ? 'none' : 'flex';
+        }
+
+        this.cardCornerStyle = settings.cardCornerStyle || 'rounded';
         document.querySelectorAll('#toggle-card-corners .pill-btn').forEach(b => {
           b.classList.toggle('active', b.getAttribute('data-val') === this.cardCornerStyle);
         });
-        const rowCornerRadius = document.getElementById('row-corner-radius');
-        if (rowCornerRadius) {
-          rowCornerRadius.style.display = (this.cardCornerStyle === 'sharp') ? 'none' : 'flex';
+        const rowCardRadius = document.getElementById('row-card-radius');
+        if (rowCardRadius) {
+          rowCardRadius.style.display = (this.cardCornerStyle === 'sharp') ? 'none' : 'flex';
         }
       }
-      if (settings.cardCornerRadiusVal) {
+      if (settings.tableCornerRadiusVal !== undefined) {
+        this.tableCornerRadiusVal = settings.tableCornerRadiusVal;
+        const tableRadiusValEl = document.getElementById('table-radius-val');
+        if (tableRadiusValEl) tableRadiusValEl.value = this.tableCornerRadiusVal;
+      } else if (settings.cardCornerRadiusVal !== undefined) {
+        this.tableCornerRadiusVal = settings.cardCornerRadiusVal;
+        const tableRadiusValEl = document.getElementById('table-radius-val');
+        if (tableRadiusValEl) tableRadiusValEl.value = this.tableCornerRadiusVal;
+      }
+      if (settings.cardCornerRadiusVal !== undefined) {
         this.cardCornerRadiusVal = settings.cardCornerRadiusVal;
-        const gridRadiusValEl = document.getElementById('grid-radius-val');
-        if (gridRadiusValEl) gridRadiusValEl.value = this.cardCornerRadiusVal;
+        const cardRadiusValEl = document.getElementById('card-radius-val');
+        if (cardRadiusValEl) cardRadiusValEl.value = this.cardCornerRadiusVal;
       }
 
       // 2. Mode & Palette
@@ -3967,8 +4113,10 @@ class SchedullyApp {
 
           const key = 'preset_' + Date.now();
           const freshSettings = {
+            tableCornerStyle: 'rounded',
+            tableCornerRadiusVal: 8,
             cardCornerStyle: 'rounded',
-            cardCornerRadiusVal: 8,
+            cardCornerRadiusVal: 6,
             currentMode: 'light',
             currentPalette: 'nord',
             gridWidthVal: 100,
@@ -4024,8 +4172,10 @@ class SchedullyApp {
           this.applyFontColor('');
           
           const freshSettings = {
+            tableCornerStyle: 'rounded',
+            tableCornerRadiusVal: 8,
             cardCornerStyle: 'rounded',
-            cardCornerRadiusVal: 8,
+            cardCornerRadiusVal: 6,
             currentMode: 'light',
             currentPalette: 'nord',
             gridWidthVal: 100,
@@ -4196,8 +4346,10 @@ class SchedullyApp {
         if (!confirmed) return;
 
         const freshSettings = {
+          tableCornerStyle: 'rounded',
+          tableCornerRadiusVal: 8,
           cardCornerStyle: 'rounded',
-          cardCornerRadiusVal: 8,
+          cardCornerRadiusVal: 6,
           currentMode: 'light',
           currentPalette: 'nord',
           gridWidthVal: 100,
@@ -4827,7 +4979,7 @@ class SchedullyApp {
       timetableContainer.style.transform = 'none';
       timetableContainer.style.marginTop = `${this.gridYPosVal || 0}px`;
       timetableContainer.style.transition = 'margin-top 0.15s ease, width 0.15s ease, background-color 0.3s ease, border-color 0.3s ease';
-        timetableContainer.style.borderRadius = this.cardCornerStyle === 'sharp' ? '0px' : this.cardCornerRadiusVal + 'px';
+        timetableContainer.style.borderRadius = this.tableCornerStyle === 'sharp' ? '0px' : (this.tableCornerRadiusVal !== undefined ? this.tableCornerRadiusVal : 8) + 'px';
         timetableContainer.style.overflow = 'hidden';
     }
 
@@ -5011,7 +5163,7 @@ class SchedullyApp {
             text-align: center;
             padding: 2px 3px;
             overflow: hidden;
-            border-radius: ${this.cardCornerStyle === 'sharp' ? '0px' : this.cardCornerRadiusVal + 'px'};
+            border-radius: ${this.cardCornerStyle === 'sharp' ? '0px' : (this.cardCornerRadiusVal !== undefined ? this.cardCornerRadiusVal : 6) + 'px'};
           `;
           cardElement.innerHTML = cardContentHTML;
           slotCell.appendChild(cardElement);
@@ -5306,7 +5458,7 @@ class SchedullyApp {
         this.renderTimetableGrid();
       });
 
-      // In-line Colour Swatch Picker (Grid Color)
+      // In-line Colour Swatch Picker (Grid Color - Individual Card)
       card.querySelectorAll('.mini-swatch').forEach(btn => {
         btn.addEventListener('click', () => {
           card.querySelectorAll('.mini-swatch').forEach(b => b.classList.remove('active'));
@@ -5314,19 +5466,12 @@ class SchedullyApp {
           const pickedColor = btn.getAttribute('data-hex');
           c.customColor = pickedColor;
           c.isManualCustomColor = true;
-          // Apply same color to all slots of this course code
-          this.classes.forEach(cls => {
-            if (cls.code === c.code) {
-              cls.customColor = pickedColor;
-              cls.isManualCustomColor = true;
-            }
-          });
           this.renderTimetableGrid();
           this._stagePending();
         });
       });
 
-      // In-line Custom Colour Picker (Opens Centered Color Modal)
+      // In-line Custom Colour Picker (Individual Card)
       card.querySelector('.mini-grid-custom')?.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -5336,19 +5481,12 @@ class SchedullyApp {
           c.isManualCustomColor = true;
           const btn = card.querySelector('.mini-grid-custom');
           if (btn) btn.style.background = pickedColor;
-          // Apply same color to all slots of this course code
-          this.classes.forEach(cls => {
-            if (cls.code === c.code) {
-              cls.customColor = pickedColor;
-              cls.isManualCustomColor = true;
-            }
-          });
           this.renderTimetableGrid();
           this._stagePending();
         });
       });
 
-      // In-line Font Colour Swatch Picker (Card Text Font Color)
+      // In-line Font Colour Swatch Picker (Individual Card Text Font Color)
       card.querySelectorAll('.mini-font-swatch').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -5356,12 +5494,6 @@ class SchedullyApp {
           btn.classList.add('active');
           const pickedFont = btn.getAttribute('data-fonthex');
           c.fontColor = pickedFont;
-          // Apply same font color to all slots of this course code
-          this.classes.forEach(cls => {
-            if (cls.code === c.code) {
-              cls.fontColor = pickedFont;
-            }
-          });
           const customBtn = card.querySelector('.mini-font-custom');
           if (customBtn) customBtn.style.background = pickedFont;
           this.renderTimetableGrid();
@@ -5369,7 +5501,7 @@ class SchedullyApp {
         });
       });
 
-      // In-line Font Colour Custom Picker (Opens Centered Color Modal)
+      // In-line Font Colour Custom Picker (Individual Card Font Color)
       card.querySelector('.mini-font-custom')?.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -5378,11 +5510,6 @@ class SchedullyApp {
           c.fontColor = pickedFont;
           const btn = card.querySelector('.mini-font-custom');
           if (btn) btn.style.background = pickedFont;
-          this.classes.forEach(cls => {
-            if (cls.code === c.code) {
-              cls.fontColor = pickedFont;
-            }
-          });
           this.renderTimetableGrid();
           this._stagePending();
         });

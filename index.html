@@ -211,7 +211,6 @@
             <div id="palette-picker-section" class="theme-picker-section margin-top-md transition-all duration-300">
               <div class="flex items-center justify-between mb-1.5">
                 <label class="picker-label mb-0">Color Palette</label>
-                <span id="palette-wallpaper-badge" class="badge-adaptive-pill hidden">Auto-Adapted</span>
               </div>
               <div class="palette-row">
                 <button class="palette-dot dot-palette active" data-palette="indigo" title="Electric Indigo">
@@ -301,32 +300,45 @@
               </div>
             </div>
 
-            <!-- Photo Wallpaper & Auto-Adaptive Colors -->
-            <div class="theme-picker-section margin-top-md pt-3 border-t border-gray-100/60">
+            <!-- Photo Wallpaper -->
+            <div class="theme-picker-section margin-top-sm pt-2.5 border-t border-gray-100/60">
               <div class="flex items-center justify-between mb-2">
-                <label class="picker-label mb-0">Photo Wallpaper</label>
-                <span class="badge-adaptive-pill">Auto-Adapt</span>
+                <label class="picker-label mb-0 text-xs font-bold text-gray-800">Photo Wallpaper</label>
               </div>
               
-              <div class="flex flex-col gap-2.5">
-                <!-- Upload Dropzone Button -->
-                <label for="wallpaper-image-input" class="cursor-pointer flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-dashed border-gray-300 hover:border-blue-500 bg-white hover:bg-blue-50/50 transition-all text-xs font-bold text-gray-700">
-                  <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                  <span id="wallpaper-upload-label">Import</span>
-                  <input type="file" id="wallpaper-image-input" accept="image/*" class="hidden">
-                </label>
+              <div class="flex flex-col gap-2">
+                <!-- Upload Dropzone Button (Shown when no wallpaper is set) -->
+                <div id="wallpaper-upload-container">
+                  <label for="wallpaper-image-input" class="cursor-pointer flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-dashed border-gray-300 hover:border-blue-500 bg-white/70 hover:bg-blue-50/50 transition-all text-xs font-bold text-gray-700">
+                    <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span id="wallpaper-upload-label">Import Wallpaper</span>
+                    <input type="file" id="wallpaper-image-input" accept="image/*" class="hidden">
+                  </label>
+                </div>
 
                 <!-- Wallpaper Active Bar (Shown when photo uploaded) -->
-                <div id="wallpaper-controls-bar" class="hidden flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-100/80 border border-slate-200/60">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <img id="wallpaper-thumb-preview" class="w-8 h-8 rounded-lg object-cover border border-white shadow-xs shrink-0" src="" alt="Wallpaper">
-                    <div class="truncate">
-                      <p class="text-[11px] font-bold text-gray-800 truncate">Wallpaper Active</p>
-                      <p id="wallpaper-extracted-status" class="text-[9px] font-medium text-blue-600">Colors Adapted</p>
+                <div id="wallpaper-controls-bar" class="hidden flex flex-col gap-2 p-2.5 rounded-2xl bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <img id="wallpaper-thumb-preview" class="w-9 h-9 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shadow-xs shrink-0" src="" alt="Wallpaper">
+                      <div class="truncate">
+                        <p class="text-[11.5px] font-bold text-slate-800 dark:text-slate-100 truncate">Wallpaper Active</p>
+                        <p id="wallpaper-extracted-status" class="text-[9.5px] font-semibold text-emerald-600 dark:text-emerald-400">Theme Colors Synced</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <label for="wallpaper-image-input" class="btn-wallpaper-action" title="Change Wallpaper">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                      </label>
+                      <button id="btn-remove-wallpaper" type="button" title="Remove Wallpaper" class="btn-wallpaper-delete">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      </button>
                     </div>
                   </div>
-                  <button id="btn-remove-wallpaper" type="button" title="Remove Wallpaper" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <!-- Resync Colors button (only exists and shows when wallpaper is active) -->
+                  <button id="btn-resync-wallpaper-colors" type="button" class="btn-resync-wallpaper">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Colors Resync</span>
                   </button>
                 </div>
               </div>
@@ -343,7 +355,7 @@
               </div>
 
               <!-- Blur Intensity Slider (Appears when toggled ON) -->
-              <div id="blur-intensity-control" class="hidden flex flex-col gap-1.5 pt-2">
+              <div id="blur-intensity-control" class="hidden flex flex-col gap-1 pt-1.5">
                 <div class="flex items-center justify-between text-[11px] font-bold text-gray-600">
                   <span>Blur Intensity</span>
                   <span id="blur-intensity-val" class="text-blue-600 font-extrabold">10px</span>
@@ -352,7 +364,16 @@
               </div>
             </div>
 
-            <!-- Font Family & Custom Font Import -->
+            <!-- Timetable Opacity / Transparency Slider -->
+            <div class="theme-picker-section margin-top-sm pt-2.5 border-t border-gray-100/60">
+              <div class="flex items-center justify-between text-[11px] font-bold text-gray-800">
+                <span class="opt-label text-xs font-bold text-gray-800">Timetable Opacity</span>
+                <span id="timetable-opacity-val" class="text-blue-600 font-extrabold">100%</span>
+              </div>
+              <input type="range" id="slider-timetable-opacity" min="20" max="100" value="100" step="5" class="w-full accent-blue-600 h-1.5 bg-gray-200 rounded-lg cursor-pointer mt-1.5">
+            </div>
+
+            <!-- Font Family & Custom Font Import (Bottom-most in Theme section) -->
             <div class="theme-picker-section margin-top-sm pt-2.5 border-t border-gray-100/60">
               <div class="flex items-center justify-between">
                 <span class="opt-label text-xs font-bold text-gray-800">Font Family</span>
@@ -373,15 +394,6 @@
                 <option value="inter">Inter (Neutral Clean)</option>
               </select>
             </div>
-
-            <!-- Timetable Opacity / Transparency Slider -->
-            <div class="theme-picker-section margin-top-sm pt-2.5 border-t border-gray-100/60">
-              <div class="flex items-center justify-between text-[11px] font-bold text-gray-800">
-                <span class="opt-label text-xs font-bold text-gray-800">Timetable Opacity</span>
-                <span id="timetable-opacity-val" class="text-blue-600 font-extrabold">100%</span>
-              </div>
-              <input type="range" id="slider-timetable-opacity" min="20" max="100" value="100" step="5" class="w-full accent-blue-600 h-1.5 bg-gray-200 rounded-lg cursor-pointer mt-2">
-            </div>
           </div>
         </div>
       
@@ -399,216 +411,288 @@
 <div class="expandable-content hidden" id="content-layout-options">
           <div class="layout-card-inner margin-top-sm">
             
-            <!-- Title Toggle & Title Name Edit -->
-            <div class="opt-row">
-              <span class="opt-label">Title</span>
-              <div class="pill-toggle-group" id="toggle-title">
-                <button type="button" class="pill-btn active" data-val="yes">YES</button>
-                <button type="button" class="pill-btn" data-val="no">NO</button>
+            <!-- 1. Corners & Title Sub-Accordion (Open by Default) -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header active" id="sub-header-corners">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="4" stroke-width="2"></rect>
+                  </svg>
+                  <span>Corners &amp; Title</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+              <div class="sub-accordion-content" id="sub-content-corners">
+                <!-- Title Toggle & Title Name Edit -->
+                <div class="opt-row">
+                  <span class="opt-label">Title</span>
+                  <div class="pill-toggle-group" id="toggle-title">
+                    <button type="button" class="pill-btn active" data-val="yes">YES</button>
+                    <button type="button" class="pill-btn" data-val="no">NO</button>
+                  </div>
+                </div>
+
+                <div class="opt-row">
+                  <span class="opt-label">Title Text</span>
+                  <input type="text" id="input-title-text-sidebar" value="Untitled" class="m3-input opt-input" placeholder="">
+                </div>
+
+                <!-- Timetable Frame Corners -->
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Table Corners</span>
+                  <div class="pill-toggle-group" id="toggle-table-corners">
+                    <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
+                    <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
+                  </div>
+                </div>
+
+                <!-- Table Corner Radius (only visible if Table is ROUNDED) -->
+                <div class="opt-row margin-top-xs" id="row-table-radius">
+                  <span class="opt-label">Table Radius</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-table-radius-dec" class="stepper-btn">-</button>
+                    <input type="number" id="table-radius-val" class="stepper-input" value="8" min="0" max="32">
+                    <button type="button" id="btn-table-radius-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
+
+                <!-- Course Card Corners (inside table) -->
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Card Corners</span>
+                  <div class="pill-toggle-group" id="toggle-card-corners">
+                    <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
+                    <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
+                  </div>
+                </div>
+
+                <!-- Card Corner Radius (only visible if Card is ROUNDED) -->
+                <div class="opt-row margin-top-xs" id="row-card-radius">
+                  <span class="opt-label">Card Radius</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-card-radius-dec" class="stepper-btn">-</button>
+                    <input type="number" id="card-radius-val" class="stepper-input" value="6" min="0" max="24">
+                    <button type="button" id="btn-card-radius-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="opt-row">
-              <span class="opt-label">Title Text</span>
-              <input type="text" id="input-title-text-sidebar" value="Untitled" class="m3-input opt-input" placeholder="">
-            </div>
+            <!-- 2. Dimensions & Position Sub-Accordion -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header" id="sub-header-dimensions">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                  </svg>
+                  <span>Size &amp; Position</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+              <div class="sub-accordion-content hidden" id="sub-content-dimensions">
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Grid Width</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-width-dec" class="stepper-btn">-</button>
+                    <input type="number" id="grid-width-val" class="stepper-input" value="100" min="50" max="100">
+                    <button type="button" id="btn-width-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
 
-            <!-- Days Display Toggles (Mon-Sun) -->
-            <div class="opt-row-stack margin-top-xs">
-              <span class="opt-label">Display Days</span>
-              <div class="days-checkbox-row display-days-row">
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Mon" checked><span>Mon</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Tue" checked><span>Tue</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Wed" checked><span>Wed</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Thu" checked><span>Thu</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Fri" checked><span>Fri</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Sat"><span>Sat</span></label>
-                <label class="day-check"><input type="checkbox" class="day-toggle" value="Sun"><span>Sun</span></label>
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Grid Height</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-height-dec" class="stepper-btn">-</button>
+                    <input type="number" id="grid-height-val" class="stepper-input" value="49" min="30" max="90">
+                    <button type="button" id="btn-height-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
+
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Font Size</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-fontsize-dec" class="stepper-btn">-</button>
+                    <input type="number" id="grid-fontsize-val" class="stepper-input" value="9" min="6" max="16">
+                    <button type="button" id="btn-fontsize-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
+
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Y Position</span>
+                  <div class="stepper-control">
+                    <button type="button" id="btn-ypos-dec" class="stepper-btn">-</button>
+                    <input type="number" id="grid-ypos-val" class="stepper-input" value="0" min="-120" max="150">
+                    <button type="button" id="btn-ypos-inc" class="stepper-btn">+</button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Grid Dimensions & Typography -->
+            <!-- 3. Colors & Theme Sub-Accordion -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header" id="sub-header-colors">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.5V11a7 7 0 0114 0v1.5a5 5 0 013 4.5 4 4 0 01-4 4H7z"></path>
+                  </svg>
+                  <span>Colors &amp; Theme</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+              <div class="sub-accordion-content hidden" id="sub-content-colors">
+                <!-- Grid Surface Colour (Table Box Fill) -->
+                <div class="opt-row-stack">
+                  <span class="opt-label">Grid Surface Colour</span>
+                  <div class="color-grid-picker" id="grid-surface-picker">
+                    <button type="button" class="color-swatch-btn active" data-surface="#FFFFFF" style="background: #FFFFFF"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#F8FAFC" style="background: #F8FAFC"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#E2E8F0" style="background: #E2E8F0"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#CBD5E1" style="background: #CBD5E1"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#94A3B8" style="background: #94A3B8"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#64748B" style="background: #64748B"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#334155" style="background: #334155"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#1E293B" style="background: #1E293B"></button>
+                    <button type="button" class="color-swatch-btn" data-surface="#0F172A" style="background: #0F172A"></button>
+                    <label class="color-custom-btn" title="Pick Custom Grid Surface Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                      <input type="color" id="custom-surface-color" value="#FFFFFF" class="hidden-color-input">
+                    </label>
+                  </div>
+                </div>
 
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Grid Width</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-width-dec" class="stepper-btn">-</button>
-                <input type="number" id="grid-width-val" class="stepper-input" value="100" min="50" max="100">
-                <button type="button" id="btn-width-inc" class="stepper-btn">+</button>
+                <!-- Background Colour Grid Swatches -->
+                <div class="opt-row-stack margin-top-xs">
+                  <span class="opt-label">Background Colour</span>
+                  <div class="color-grid-picker" id="bg-color-picker">
+                    <button type="button" class="color-swatch-btn active" data-bg="#CBB4A9" style="background: #CBB4A9"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#AA9686" style="background: #AA9686"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#7C6B5E" style="background: #7C6B5E"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#ECE1D5" style="background: #ECE1D5"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#C5A88F" style="background: #C5A88F"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#9E9285" style="background: #9E9285"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#DDCDBB" style="background: #DDCDBB"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#A6877B" style="background: #A6877B"></button>
+                    <button type="button" class="color-swatch-btn" data-bg="#6B4D43" style="background: #6B4D43"></button>
+                    <label class="color-custom-btn" title="Pick Custom Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                      <input type="color" id="custom-bg-color" value="#0F121A" class="hidden-color-input">
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Header Colour Grid Swatches -->
+                <div class="opt-row-stack margin-top-xs">
+                  <span class="opt-label">Header Colour</span>
+                  <div class="color-grid-picker" id="header-color-picker">
+                    <button type="button" class="color-swatch-btn active" data-header="#BBA397" style="background: #BBA397"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#F4ECE2" style="background: #F4ECE2"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#7C6B5E" style="background: #7C6B5E"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#ECE1D5" style="background: #ECE1D5"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#C5A88F" style="background: #C5A88F"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#9E9285" style="background: #9E9285"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#CBB4A9" style="background: #CBB4A9"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#A6877B" style="background: #A6877B"></button>
+                    <button type="button" class="color-swatch-btn" data-header="#6B4D43" style="background: #6B4D43"></button>
+                    <label class="color-custom-btn" title="Pick Custom Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                      <input type="color" id="custom-header-color" value="#181C28" class="hidden-color-input">
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Font Colour Swatches Section -->
+                <div class="opt-row-stack margin-top-xs">
+                  <span class="opt-label">Font Colour</span>
+                  <div class="color-grid-picker" id="font-color-picker">
+                    <button type="button" class="color-swatch-btn active" data-font="#0F172A" style="background: #0F172A" title="Deep Midnight Black"></button>
+                    <button type="button" class="color-swatch-btn" data-font="#1E293B" style="background: #1E293B" title="Dark Slate"></button>
+                    <button type="button" class="color-swatch-btn" data-font="#475569" style="background: #475569" title="Cool Gray"></button>
+                    <button type="button" class="color-swatch-btn" data-font="#94A3B8" style="background: #94A3B8" title="Muted Gray"></button>
+                    <button type="button" class="color-swatch-btn" data-font="#FFFFFF" style="background: #FFFFFF" title="Pure White"></button>
+                    <label class="color-custom-btn" title="Pick Custom Font Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                      <input type="color" id="custom-font-color" value="#0F172A" class="hidden-color-input">
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Grid Height</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-height-dec" class="stepper-btn">-</button>
-                <input type="number" id="grid-height-val" class="stepper-input" value="49" min="30" max="90">
-                <button type="button" id="btn-height-inc" class="stepper-btn">+</button>
+            <!-- 4. Days & Time Range Sub-Accordion -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header" id="sub-header-days">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span>Days &amp; Time Range</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
               </div>
-            </div>
+              <div class="sub-accordion-content hidden" id="sub-content-days">
+                <!-- Days Display Toggles (Mon-Sun) -->
+                <div class="opt-row-stack margin-top-xs">
+                  <span class="opt-label">Display Days</span>
+                  <div class="days-checkbox-row display-days-row">
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Mon" checked><span>Mon</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Tue" checked><span>Tue</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Wed" checked><span>Wed</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Thu" checked><span>Thu</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Fri" checked><span>Fri</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Sat"><span>Sat</span></label>
+                    <label class="day-check"><input type="checkbox" class="day-toggle" value="Sun"><span>Sun</span></label>
+                  </div>
+                </div>
 
-            <!-- Font Size -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Font Size</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-fontsize-dec" class="stepper-btn">-</button>
-                <input type="number" id="grid-fontsize-val" class="stepper-input" value="9" min="6" max="16">
-                <button type="button" id="btn-fontsize-inc" class="stepper-btn">+</button>
-              </div>
-            </div>
+                <!-- Start Time -->
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Start Time</span>
+                  <select id="grid-start-time" class="m3-input-time opt-input">
+                    <option value="05:00">05:00 AM</option>
+                    <option value="06:00">06:00 AM</option>
+                    <option value="07:00">07:00 AM</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                  </select>
+                </div>
 
-            <!-- Card Corners -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Card Corners</span>
-              <div class="pill-toggle-group" id="toggle-card-corners">
-                <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
-                <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
-              </div>
-            </div>
+                <!-- End Time -->
+                <div class="opt-row">
+                  <span class="opt-label">End Time</span>
+                  <select id="grid-end-time" class="m3-input-time opt-input">
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                    <option value="21:00">09:00 PM</option>
+                    <option value="22:00">10:00 PM</option>
+                    <option value="23:00">11:00 PM</option>
+                  </select>
+                </div>
 
-            <!-- Corner Radius (only visible if ROUNDED) -->
-            <div class="opt-row margin-top-xs" id="row-corner-radius">
-              <span class="opt-label">Corner Radius</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-radius-dec" class="stepper-btn">-</button>
-                <input type="number" id="grid-radius-val" class="stepper-input" value="8" min="2" max="24">
-                <button type="button" id="btn-radius-inc" class="stepper-btn">+</button>
-              </div>
-            </div>
-
-            <!-- Y Position Offset -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Y Position</span>
-              <div class="stepper-control">
-                <button type="button" id="btn-ypos-dec" class="stepper-btn">-</button>
-                <input type="number" id="grid-ypos-val" class="stepper-input" value="0" min="-120" max="150">
-                <button type="button" id="btn-ypos-inc" class="stepper-btn">+</button>
-              </div>
-            </div>
-
-            <!-- Start Time -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Start Time</span>
-              <select id="grid-start-time" class="m3-input-time opt-input">
-                <option value="05:00">05:00 AM</option>
-                <option value="06:00">06:00 AM</option>
-                <option value="07:00">07:00 AM</option>
-                <option value="08:00">08:00 AM</option>
-                <option value="09:00">09:00 AM</option>
-                <option value="10:00">10:00 AM</option>
-                <option value="11:00">11:00 AM</option>
-                <option value="12:00">12:00 PM</option>
-              </select>
-            </div>
-
-            <!-- End Time -->
-            <div class="opt-row">
-              <span class="opt-label">End Time</span>
-              <select id="grid-end-time" class="m3-input-time opt-input">
-                <option value="12:00">12:00 PM</option>
-                <option value="13:00">01:00 PM</option>
-                <option value="14:00">02:00 PM</option>
-                <option value="15:00">03:00 PM</option>
-                <option value="16:00">04:00 PM</option>
-                <option value="17:00">05:00 PM</option>
-                <option value="18:00">06:00 PM</option>
-                <option value="19:00">07:00 PM</option>
-                <option value="20:00">08:00 PM</option>
-                <option value="21:00">09:00 PM</option>
-                <option value="22:00">10:00 PM</option>
-                <option value="23:00">11:00 PM</option>
-              </select>
-            </div>
-
-            <!-- Grid Surface Colour (Table Box Fill) -->
-            <div class="opt-row-stack">
-              <span class="opt-label">Grid Surface Colour</span>
-              <div class="color-grid-picker" id="grid-surface-picker">
-                <button type="button" class="color-swatch-btn active" data-surface="#FFFFFF" style="background: #FFFFFF"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#F8FAFC" style="background: #F8FAFC"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#E2E8F0" style="background: #E2E8F0"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#CBD5E1" style="background: #CBD5E1"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#94A3B8" style="background: #94A3B8"></button>
-                
-                <button type="button" class="color-swatch-btn" data-surface="#64748B" style="background: #64748B"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#334155" style="background: #334155"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#1E293B" style="background: #1E293B"></button>
-                <button type="button" class="color-swatch-btn" data-surface="#0F172A" style="background: #0F172A"></button>
-                
-                <label class="color-custom-btn" title="Pick Custom Grid Surface Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                  <input type="color" id="custom-surface-color" value="#FFFFFF" class="hidden-color-input">
-                </label>
-              </div>
-            </div>
-
-            <!-- Background Colour Grid Swatches -->
-            <div class="opt-row-stack margin-top-xs">
-              <span class="opt-label">Background Colour</span>
-              <div class="color-grid-picker" id="bg-color-picker">
-                <button type="button" class="color-swatch-btn active" data-bg="#CBB4A9" style="background: #CBB4A9"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#AA9686" style="background: #AA9686"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#7C6B5E" style="background: #7C6B5E"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#ECE1D5" style="background: #ECE1D5"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#C5A88F" style="background: #C5A88F"></button>
-                
-                <button type="button" class="color-swatch-btn" data-bg="#9E9285" style="background: #9E9285"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#DDCDBB" style="background: #DDCDBB"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#A6877B" style="background: #A6877B"></button>
-                <button type="button" class="color-swatch-btn" data-bg="#6B4D43" style="background: #6B4D43"></button>
-                
-                <label class="color-custom-btn" title="Pick Custom Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                  <input type="color" id="custom-bg-color" value="#0F121A" class="hidden-color-input">
-                </label>
-              </div>
-            </div>
-
-            <!-- Header Colour Grid Swatches -->
-            <div class="opt-row-stack margin-top-xs">
-              <span class="opt-label">Header Colour</span>
-              <div class="color-grid-picker" id="header-color-picker">
-                <button type="button" class="color-swatch-btn active" data-header="#BBA397" style="background: #BBA397"></button>
-                <button type="button" class="color-swatch-btn" data-header="#F4ECE2" style="background: #F4ECE2"></button>
-                <button type="button" class="color-swatch-btn" data-header="#7C6B5E" style="background: #7C6B5E"></button>
-                <button type="button" class="color-swatch-btn" data-header="#ECE1D5" style="background: #ECE1D5"></button>
-                <button type="button" class="color-swatch-btn" data-header="#C5A88F" style="background: #C5A88F"></button>
-                
-                <button type="button" class="color-swatch-btn" data-header="#9E9285" style="background: #9E9285"></button>
-                <button type="button" class="color-swatch-btn" data-header="#CBB4A9" style="background: #CBB4A9"></button>
-                <button type="button" class="color-swatch-btn" data-header="#A6877B" style="background: #A6877B"></button>
-                <button type="button" class="color-swatch-btn" data-header="#6B4D43" style="background: #6B4D43"></button>
-                
-                <label class="color-custom-btn" title="Pick Custom Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                  <input type="color" id="custom-header-color" value="#181C28" class="hidden-color-input">
-                </label>
-              </div>
-            </div>
-
-            <!-- Font Colour Swatches Section -->
-            <div class="opt-row-stack margin-top-xs">
-              <span class="opt-label">Font Colour</span>
-              <div class="color-grid-picker" id="font-color-picker">
-                <button type="button" class="color-swatch-btn active" data-font="#0F172A" style="background: #0F172A" title="Deep Midnight Black"></button>
-                <button type="button" class="color-swatch-btn" data-font="#1E293B" style="background: #1E293B" title="Dark Slate"></button>
-                <button type="button" class="color-swatch-btn" data-font="#475569" style="background: #475569" title="Cool Gray"></button>
-                <button type="button" class="color-swatch-btn" data-font="#94A3B8" style="background: #94A3B8" title="Muted Gray"></button>
-                <button type="button" class="color-swatch-btn" data-font="#FFFFFF" style="background: #FFFFFF" title="Pure White"></button>
-                
-                <label class="color-custom-btn" title="Pick Custom Font Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                  <input type="color" id="custom-font-color" value="#0F172A" class="hidden-color-input">
-                </label>
-              </div>
-            </div>
-
-            <!-- Clock Type -->
-            <div class="opt-row margin-top-xs">
-              <span class="opt-label">Clock Type</span>
-              <div class="pill-toggle-group" id="toggle-clock-type">
-                <button type="button" class="pill-btn active" data-val="12">12-HOUR</button>
-                <button type="button" class="pill-btn" data-val="24">24-HOUR</button>
+                <!-- Clock Type -->
+                <div class="opt-row margin-top-xs">
+                  <span class="opt-label">Clock Type</span>
+                  <div class="pill-toggle-group" id="toggle-clock-type">
+                    <button type="button" class="pill-btn active" data-val="12">12-HOUR</button>
+                    <button type="button" class="pill-btn" data-val="24">24-HOUR</button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -633,120 +717,153 @@
 <div class="expandable-content hidden" id="content-add-course">
           <div class="layout-card-inner">
           <form id="add-course-form" class="course-form-body">
-            <!-- Course Code -->
-            <div class="form-row">
-              <label for="input-course-code">Class / Course Name :</label>
-              <input type="text" id="input-course-code" placeholder="" required class="m3-input">
-            </div>
 
-            <!-- Display Time Toggle -->
-            <div class="form-row">
-              <label>Display Time :</label>
-              <div class="pill-toggle-group" id="toggle-display-time">
-                <button type="button" class="pill-btn active" data-val="yes">YES</button>
-                <button type="button" class="pill-btn" data-val="no">NO</button>
+            <!-- 1. Course Info Sub-Accordion (Open by Default) -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header active" id="sub-header-course-info">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                  </svg>
+                  <span>Course Info &amp; Colors</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </div>
+              <div class="sub-accordion-content" id="sub-content-course-info">
+                <!-- Course Code -->
+                <div class="form-row">
+                  <label for="input-course-code">Class / Course Name :</label>
+                  <input type="text" id="input-course-code" placeholder="" required class="m3-input">
+                </div>
+
+                <!-- Display Time Toggle -->
+                <div class="form-row">
+                  <label>Display Time :</label>
+                  <div class="pill-toggle-group" id="toggle-display-time">
+                    <button type="button" class="pill-btn active" data-val="yes">YES</button>
+                    <button type="button" class="pill-btn" data-val="no">NO</button>
+                  </div>
+                </div>
+
+                <!-- Grid Color Picker -->
+                <div class="form-row">
+                  <label>Grid Colour :</label>
+                  <div class="swatch-grid">
+                    <button type="button" class="swatch-dot active" data-color="#D5C5B5" style="background: #D5C5B5"></button>
+                    <button type="button" class="swatch-dot" data-color="#B8A494" style="background: #B8A494"></button>
+                    <button type="button" class="swatch-dot" data-color="#8C7868" style="background: #8C7868"></button>
+                    <button type="button" class="swatch-dot" data-color="#10B981" style="background: #10B981"></button>
+                    <button type="button" class="swatch-dot" data-color="#F59E0B" style="background: #F59E0B"></button>
+                    <button type="button" class="swatch-dot" data-color="#EC4899" style="background: #EC4899"></button>
+                    <label class="swatch-custom" id="btn-course-grid-custom" title="Custom Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                      <input type="color" id="course-grid-custom" value="#000000" class="hidden-color-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Course Font Color Picker (new course only) -->
+                <div class="form-row">
+                  <label>Font Colour :</label>
+                  <div class="swatch-grid" id="course-font-color-picker">
+                    <button type="button" class="font-swatch-sq active" data-coursefont="#FFFFFF" style="background:#FFFFFF" title="White"></button>
+                    <button type="button" class="font-swatch-sq" data-coursefont="#0F172A" style="background:#0F172A" title="Deep Black"></button>
+                    <button type="button" class="font-swatch-sq" data-coursefont="#1E293B" style="background:#1E293B" title="Dark Slate"></button>
+                    <button type="button" class="font-swatch-sq" data-coursefont="#475569" style="background:#475569" title="Cool Gray"></button>
+                    <button type="button" class="font-swatch-sq font-swatch-custom" id="btn-course-font-custom" title="Custom Color">
+                      <span class="material-symbols-outlined icon-xs">colorize</span>
+                    </button>
+                  </div>
+                  <input type="color" id="course-font-custom" value="#FFFFFF" class="hidden-color-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
+                </div>
               </div>
             </div>
 
-            <!-- Grid Color Picker -->
-            <div class="form-row">
-              <label>Grid Colour :</label>
-              <div class="swatch-grid">
-                <button type="button" class="swatch-dot active" data-color="#D5C5B5" style="background: #D5C5B5"></button>
-                <button type="button" class="swatch-dot" data-color="#B8A494" style="background: #B8A494"></button>
-                <button type="button" class="swatch-dot" data-color="#8C7868" style="background: #8C7868"></button>
-                <button type="button" class="swatch-dot" data-color="#10B981" style="background: #10B981"></button>
-                <button type="button" class="swatch-dot" data-color="#F59E0B" style="background: #F59E0B"></button>
-                <button type="button" class="swatch-dot" data-color="#EC4899" style="background: #EC4899"></button>
-                <label class="swatch-custom" id="btn-course-grid-custom" title="Custom Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                  <input type="color" id="course-grid-custom" value="#000000" class="hidden-color-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
-                </label>
+            <!-- 2. Schedule & Details Sub-Accordion (Open by Default) -->
+            <div class="sub-accordion-card">
+              <div class="sub-accordion-header active" id="sub-header-course-schedule">
+                <div class="sub-accordion-title">
+                  <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <span>Schedule &amp; Details</span>
+                </div>
+                <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                </svg>
               </div>
-            </div>
+              <div class="sub-accordion-content" id="sub-content-course-schedule">
+                <!-- Days Checkboxes -->
+                <div class="opt-row-stack" style="margin-bottom: 8px;">
+                  <span class="opt-label">Day</span>
+                  <div class="days-checkbox-row display-days-row">
+                    <label class="day-check"><input type="checkbox" name="day" value="Mon" checked><span>Mon</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Tue"><span>Tue</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Wed"><span>Wed</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Thu"><span>Thu</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Fri"><span>Fri</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Sat"><span>Sat</span></label>
+                    <label class="day-check"><input type="checkbox" name="day" value="Sun"><span>Sun</span></label>
+                  </div>
+                </div>
 
-            <!-- Course Font Color Picker (new course only) -->
-            <div class="form-row">
-              <label>Font Colour :</label>
-              <div class="swatch-grid" id="course-font-color-picker">
-                <button type="button" class="font-swatch-sq active" data-coursefont="#FFFFFF" style="background:#FFFFFF" title="White"></button>
-                <button type="button" class="font-swatch-sq" data-coursefont="#0F172A" style="background:#0F172A" title="Deep Black"></button>
-                <button type="button" class="font-swatch-sq" data-coursefont="#1E293B" style="background:#1E293B" title="Dark Slate"></button>
-                <button type="button" class="font-swatch-sq" data-coursefont="#475569" style="background:#475569" title="Cool Gray"></button>
-                <button type="button" class="font-swatch-sq font-swatch-custom" id="btn-course-font-custom" title="Custom Color">
-                  <span class="material-symbols-outlined icon-xs">colorize</span>
-                </button>
-              </div>
-              <input type="color" id="course-font-custom" value="#FFFFFF" class="hidden-color-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;">
-            </div>
+                <!-- Start Time -->
+                <div class="form-row">
+                  <label data-i18n="startTime" for="input-start-time">Start Time</label>
+                  <select id="input-start-time" class="m3-input-time">
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00" selected>09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                  </select>
+                </div>
 
-            <!-- Meeting Time Box -->
-            <div class="meeting-time-box">
-              <h4 class="meeting-title">Meeting Time 1</h4>
+                <!-- End Time -->
+                <div class="form-row">
+                  <label data-i18n="endTime" for="input-end-time">End Time</label>
+                  <select id="input-end-time" class="m3-input-time">
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00" selected>11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                  </select>
+                </div>
 
-              <!-- Days Checkboxes -->
-              <div class="days-checkbox-row">
-                <label class="day-check"><input type="checkbox" name="day" value="Mon" checked><span>Mon</span></label>
-                <label class="day-check"><input type="checkbox" name="day" value="Tue"><span>Tue</span></label>
-                <label class="day-check"><input type="checkbox" name="day" value="Wed"><span>Wed</span></label>
-                <label class="day-check"><input type="checkbox" name="day" value="Thu"><span>Thu</span></label>
-                <label class="day-check"><input type="checkbox" name="day" value="Fri"><span>Fri</span></label>
-              </div>
+                <!-- Course Type (Optional) -->
+                <div class="form-row">
+                  <label data-i18n="courseType" for="input-type">Course Type</label>
+                  <input type="text" id="input-type" placeholder="" class="m3-input">
+                </div>
 
-              <!-- Start Time -->
-              <div class="form-row">
-                <label data-i18n="startTime" for="input-start-time">Start Time</label>
-                <select id="input-start-time" class="m3-input-time">
-                  <option value="08:00">08:00 AM</option>
-                  <option value="09:00" selected>09:00 AM</option>
-                  <option value="10:00">10:00 AM</option>
-                  <option value="11:00">11:00 AM</option>
-                  <option value="12:00">12:00 PM</option>
-                  <option value="13:00">01:00 PM</option>
-                  <option value="14:00">02:00 PM</option>
-                  <option value="15:00">03:00 PM</option>
-                  <option value="16:00">04:00 PM</option>
-                </select>
-              </div>
+                <!-- Location (Optional) -->
+                <div class="form-row">
+                  <label data-i18n="room" for="input-location">Location</label>
+                  <input type="text" id="input-location" placeholder="" class="m3-input">
+                </div>
 
-              <!-- End Time -->
-              <div class="form-row">
-                <label data-i18n="endTime" for="input-end-time">End Time</label>
-                <select id="input-end-time" class="m3-input-time">
-                  <option value="09:00">09:00 AM</option>
-                  <option value="10:00">10:00 AM</option>
-                  <option value="11:00" selected>11:00 AM</option>
-                  <option value="12:00">12:00 PM</option>
-                  <option value="13:00">01:00 PM</option>
-                  <option value="14:00">02:00 PM</option>
-                  <option value="15:00">03:00 PM</option>
-                  <option value="16:00">04:00 PM</option>
-                  <option value="17:00">05:00 PM</option>
-                </select>
-              </div>
+                <!-- Lecturer (Optional) -->
+                <div class="form-row">
+                  <label data-i18n="lecturer" for="input-lecturer">Teacher / Lecturer</label>
+                  <input type="text" id="input-lecturer" placeholder="" class="m3-input">
+                </div>
 
-              <!-- Course Type (Optional) -->
-              <div class="form-row">
-                <label data-i18n="courseType" for="input-type">Course Type</label>
-                <input type="text" id="input-type" placeholder="" class="m3-input">
-              </div>
-
-              <!-- Location (Optional) -->
-              <div class="form-row">
-                <label data-i18n="room" for="input-location">Location</label>
-                <input type="text" id="input-location" placeholder="" class="m3-input">
-              </div>
-
-              <!-- Lecturer (Optional) -->
-              <div class="form-row">
-                <label data-i18n="lecturer" for="input-lecturer">Teacher / Lecturer</label>
-                <input type="text" id="input-lecturer" placeholder="" class="m3-input">
-              </div>
-
-              <!-- Group (Optional) -->
-              <div class="form-row">
-                <label data-i18n="group" for="input-group">Group</label>
-                <input type="text" id="input-group" placeholder="" class="m3-input">
+                <!-- Group (Optional) -->
+                <div class="form-row">
+                  <label data-i18n="group" for="input-group">Group</label>
+                  <input type="text" id="input-group" placeholder="" class="m3-input">
+                </div>
               </div>
             </div>
 
