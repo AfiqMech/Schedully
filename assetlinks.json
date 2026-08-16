@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.myschedully.twa",
+        "sha256_cert_fingerprints": ["A3:6F:D8:DB:77:C0:14:61:86:21:52:93:47:AA:64:53:9D:90:26:CC:E4:7F:5F:EB:2D:D9:D9:94:D0:6A:4E:85"]
+      }
+    }]
