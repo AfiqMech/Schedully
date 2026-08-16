@@ -3430,6 +3430,155 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   color: #F8FAFC !important;
 }
 
+/* ==========================================================================
+   SMARTPHONE PICTURE-IN-PICTURE (PiP) LIVE PREVIEW WIDGET
+   ========================================================================== */
+.mobile-pip-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 14px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  border-radius: 26px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 4px 14px rgba(0, 0, 0, 0.3);
+  background: #090D16;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+  animation: pipScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.15s ease;
+}
+
+@keyframes pipScaleIn {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pip-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: grab;
+}
+.pip-header-bar:active {
+  cursor: grabbing;
+}
+
+.pip-control-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Phone Device Frame */
+.pip-phone-device {
+  position: relative;
+  background: #000000;
+  padding: 4px 4px 6px 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Three Standard Size Presets */
+.pip-phone-device.size-sm {
+  width: 96px;
+  height: 198px;
+}
+.pip-phone-device.size-sm .pip-live-stage {
+  transform: scale(0.2315);
+}
+
+.pip-phone-device.size-med {
+  width: 132px;
+  height: 270px;
+}
+.pip-phone-device.size-med .pip-live-stage {
+  transform: scale(0.3263);
+}
+
+.pip-phone-device.size-lg {
+  width: 172px;
+  height: 350px;
+}
+.pip-phone-device.size-lg .pip-live-stage {
+  transform: scale(0.4315);
+}
+
+/* Dynamic Island / Camera Notch */
+.pip-camera-notch {
+  width: 28px;
+  height: 7px;
+  background: #000000;
+  border-radius: 9999px;
+  margin-bottom: 2px;
+  z-index: 10;
+}
+
+/* Viewport containing the live scaled canvas */
+.pip-screen-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0F172A;
+  cursor: pointer;
+}
+
+.pip-live-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 380px;
+  height: 760px;
+  transform-origin: top left;
+  pointer-events: none;
+}
+
+/* Minimized Floating Bubble */
+.mobile-pip-bubble {
+  position: fixed;
+  bottom: 20px;
+  right: 14px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1.5px solid #3B82F6;
+  border-radius: 9999px;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+  cursor: pointer;
+  animation: pipScaleIn 0.2s ease;
+}
+
+body.dark-mode .mobile-pip-bubble {
+  background: #1E293B;
+  border-color: #60A5FA;
+}
+body.dark-mode .mobile-pip-bubble span {
+  color: #93C5FD !important;
+}
+
+@media (min-width: 641px) {
+  .mobile-pip-widget,
+  .mobile-pip-bubble {
+    display: none !important;
+  }
+}
+
 
 
 

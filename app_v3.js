@@ -1643,10 +1643,182 @@ class SchedullyApp {
     }
   }
 
+  setupMobilePip() {
+    const pipWidget = document.getElementById('mobile-pip-container');
+    const pipBubble = document.getElementById('mobile-pip-bubble');
+    const pipDevice = document.getElementById('pip-phone-device');
+    const btnSize = document.getElementById('btn-pip-size');
+    const btnMinimize = document.getElementById('btn-pip-minimize');
+    const targetStage = document.getElementById('pip-live-clone-target');
+    const dragHandle = pipWidget?.querySelector('.pip-drag-handle');
+
+    if (!pipWidget || !pipDevice || !targetStage) return;
+
+    let isPipMinimized = false;
+    const SIZES = ['size-sm', 'size-med', 'size-lg'];
+    let currentSizeIdx = 1; // Default: size-med
+
+    const isSmartphone = () => window.innerWidth <= 640;
+
+    // 1. Synchronize PiP Content from Live Canvas
+    const updateMobilePip = () => {
+      if (!isSmartphone()) return;
+      const originalCanvas = document.getElementById('phone-canvas');
+      if (!originalCanvas || !targetStage) return;
+
+      targetStage.innerHTML = originalCanvas.innerHTML;
+      targetStage.className = originalCanvas.className + ' pip-live-stage';
+      targetStage.style.cssText = originalCanvas.style.cssText;
+      targetStage.style.position = 'absolute';
+      targetStage.style.top = '0';
+      targetStage.style.left = '0';
+      targetStage.style.width = '380px';
+      targetStage.style.height = '760px';
+      targetStage.style.transformOrigin = 'top left';
+      targetStage.style.pointerEvents = 'none';
+
+      const currentSize = SIZES[currentSizeIdx];
+      let scale = 0.3263;
+      if (currentSize === 'size-sm') scale = 0.2315;
+      if (currentSize === 'size-lg') scale = 0.4315;
+      targetStage.style.transform = `scale(${scale})`;
+    };
+    this.updateMobilePip = updateMobilePip;
+
+    // 2. Sync Visibility with Sidebar Status
+    const syncMobilePipVisibility = (isAnySidebarOpen) => {
+      if (!isSmartphone()) {
+        pipWidget.classList.add('hidden');
+        pipBubble?.classList.add('hidden');
+        return;
+      }
+
+      if (isAnySidebarOpen) {
+        if (isPipMinimized) {
+          pipWidget.classList.add('hidden');
+          pipBubble?.classList.remove('hidden');
+        } else {
+          pipWidget.classList.remove('hidden');
+          pipBubble?.classList.add('hidden');
+          updateMobilePip();
+        }
+      } else {
+        pipWidget.classList.add('hidden');
+        pipBubble?.classList.add('hidden');
+      }
+    };
+    this.syncMobilePipVisibility = syncMobilePipVisibility;
+
+    // 3. Cycle Size (Small -> Med -> Large)
+    const cycleSize = () => {
+      currentSizeIdx = (currentSizeIdx + 1) % SIZES.length;
+      SIZES.forEach(s => pipDevice.classList.remove(s));
+      pipDevice.classList.add(SIZES[currentSizeIdx]);
+      updateMobilePip();
+    };
+
+    btnSize?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cycleSize();
+    });
+
+    pipDevice?.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      cycleSize();
+    });
+
+    // 4. Minimize / Restore
+    btnMinimize?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isPipMinimized = true;
+      pipWidget.classList.add('hidden');
+      pipBubble?.classList.remove('hidden');
+    });
+
+    pipBubble?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isPipMinimized = false;
+      pipBubble.classList.add('hidden');
+      pipWidget.classList.remove('hidden');
+      updateMobilePip();
+    });
+
+    // 5. Tap on PiP Viewport to Close Sidebar and Return to Canvas
+    pipDevice?.querySelector('.pip-screen-viewport')?.addEventListener('click', () => {
+      if (typeof this.toggleLeftSidebar === 'function') this.toggleLeftSidebar(true);
+      if (typeof this.toggleRightSidebar === 'function') this.toggleRightSidebar(true);
+    });
+
+    // 6. Touch Dragging around screen
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+
+    const startDrag = (clientX, clientY) => {
+      isDragging = true;
+      const rect = pipWidget.getBoundingClientRect();
+      dragStartX = clientX;
+      dragStartY = clientY;
+      initialLeft = rect.left;
+      initialTop = rect.top;
+      pipWidget.style.bottom = 'auto';
+      pipWidget.style.right = 'auto';
+      pipWidget.style.left = `${initialLeft}px`;
+      pipWidget.style.top = `${initialTop}px`;
+      pipWidget.style.transition = 'none';
+    };
+
+    const doDrag = (clientX, clientY) => {
+      if (!isDragging) return;
+      const deltaX = clientX - dragStartX;
+      const deltaY = clientY - dragStartY;
+      let newLeft = initialLeft + deltaX;
+      let newTop = initialTop + deltaY;
+
+      const maxLeft = window.innerWidth - pipWidget.offsetWidth - 8;
+      const maxTop = window.innerHeight - pipWidget.offsetHeight - 8;
+      newLeft = Math.max(8, Math.min(maxLeft, newLeft));
+      newTop = Math.max(8, Math.min(maxTop, newTop));
+
+      pipWidget.style.left = `${newLeft}px`;
+      pipWidget.style.top = `${newTop}px`;
+    };
+
+    const stopDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      pipWidget.style.transition = '';
+    };
+
+    dragHandle?.addEventListener('touchstart', (e) => {
+      startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isDragging) {
+        doDrag(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', stopDrag, { passive: true });
+    window.addEventListener('touchcancel', stopDrag, { passive: true });
+
+    window.addEventListener('resize', () => {
+      const leftSidebar = document.getElementById('left-sidebar');
+      const rightSidebar = document.getElementById('right-sidebar');
+      const leftCollapsed = leftSidebar ? leftSidebar.classList.contains('sidebar-collapsed-left') : true;
+      const rightCollapsed = rightSidebar ? rightSidebar.classList.contains('sidebar-collapsed-right') : true;
+      syncMobilePipVisibility(!leftCollapsed || !rightCollapsed);
+    });
+  }
+
   bindEvents() {
     this.setupFirebaseIntegration();
     this.setupLanguageModal();
     this.setupCoffeeModal();
+    this.setupMobilePip();
     this.setupWallpaperEngine();
     this.setupFontFamilyEngine();
     this.setupCustomColorModalEngine();
@@ -2730,6 +2902,11 @@ class SchedullyApp {
         }
 
         if (mobileExportBar) mobileExportBar.style.display = '';
+      }
+
+      // Sync Mobile PiP on smartphone screens (<= 640px)
+      if (typeof this.syncMobilePipVisibility === 'function') {
+        this.syncMobilePipVisibility(!leftCollapsed || !rightCollapsed);
       }
     };
 
@@ -4646,6 +4823,10 @@ class SchedullyApp {
         this.universalTimetableGrid.appendChild(slotCell);
       });
     });
+
+    if (typeof this.updateMobilePip === 'function') {
+      this.updateMobilePip();
+    }
   }
 
   renderClassList() {
