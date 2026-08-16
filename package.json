@@ -1,0 +1,25 @@
+{
+  "name": "schedully",
+  "version": "1.0.0",
+  "description": "Class Schedule & Lock Screen Wallpaper Builder",
+  "main": "index.html",
+  "scripts": {
+    "dev": "echo 'Development server - use a local server like http-server or python -m http.server'",
+    "build": "echo 'No build step required for vanilla JS'"
+  },
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AfiqMechy/Schedully"
+  },
+  "keywords": [
+    "schedule",
+    "timetable",
+    "wallpaper",
+    "lockscreen"
+  ],
+  "author": "",
+  "license": "ISC"
+}
