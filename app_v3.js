@@ -1770,13 +1770,29 @@ class SchedullyApp {
       targetStage.style.transform = `scale(${clampedW / baseW})`;
     };
 
-    // 4. Top-Right Cross Button Minimizes to Action Ball
+    // 4. Top-Right Cross Button Minimizes to Action Ball (Matches exact PiP position)
     const minimizeToBubble = (e) => {
       if (e) {
         e.preventDefault();
         e.stopPropagation();
       }
       isPipMinimized = true;
+
+      // Position Preview Ball at the exact center of current PiP model
+      const rect = pipWidget.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const bubbleW = 48;
+      const bubbleH = 48;
+      const bubbleLeft = Math.max(8, Math.min(window.innerWidth - bubbleW - 8, centerX - bubbleW / 2));
+      const bubbleTop = Math.max(8, Math.min(window.innerHeight - bubbleH - 8, centerY - bubbleH / 2));
+
+      pipBubble.style.bottom = 'auto';
+      pipBubble.style.right = 'auto';
+      pipBubble.style.left = `${bubbleLeft}px`;
+      pipBubble.style.top = `${bubbleTop}px`;
+
       pipWidget.classList.add('hidden');
       pipBubble?.classList.remove('hidden');
     };
@@ -1908,11 +1924,26 @@ class SchedullyApp {
           const dist = Math.hypot(clientX - bubbleStartX, clientY - bubbleStartY);
           const duration = Date.now() - bubbleTouchTime;
           if (dist < 8 && duration < 350) {
-            // Tap detected -> Expand back into live PiP model
+            // Tap detected -> Expand back into live PiP model at current bubble center
             isPipMinimized = false;
+
+            const rect = pipBubble.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
             pipBubble.classList.add('hidden');
             pipWidget.classList.remove('hidden');
             updateMobilePip();
+
+            const pipW = pipDevice.offsetWidth || 125;
+            const pipH = pipDevice.offsetHeight || 250;
+            const pipLeft = Math.max(6, Math.min(window.innerWidth - pipW - 6, centerX - pipW / 2));
+            const pipTop = Math.max(6, Math.min(window.innerHeight - pipH - 6, centerY - pipH / 2));
+
+            pipWidget.style.bottom = 'auto';
+            pipWidget.style.right = 'auto';
+            pipWidget.style.left = `${pipLeft}px`;
+            pipWidget.style.top = `${pipTop}px`;
           }
         }
       }
