@@ -3441,7 +3441,10 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   bottom: 20px;
   right: 14px;
   z-index: 99999;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
   width: fit-content;
   height: fit-content;
   background: transparent;
@@ -3456,6 +3459,53 @@ body.dark-mode #btn-preset-menu-trigger:hover {
 @keyframes pipScaleIn {
   0% { transform: scale(0.6); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* Expanded Actions Card */
+.pip-actions-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: pipScaleIn 0.18s ease;
+  z-index: 70;
+}
+
+body.dark-mode .pip-actions-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.pip-action-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.pip-action-item:active {
+  transform: scale(0.95);
+}
+
+.pip-action-divider {
+  width: 1px;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.12);
+}
+body.dark-mode .pip-action-divider {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 /* Base Device Frame (Hugs the exact phone model with 0 blank space) */
@@ -3478,98 +3528,69 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   border: 4px solid #000000;
   border-radius: 28px;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
-  width: 120px;
-  height: 240px;
 }
 
-/* Tablet Mode */
+/* Tablet Mode (Landscape Bezel) */
 .pip-phone-device.mode-tablet {
   background: #000000;
   border: 4px solid #000000;
-  border-radius: 18px;
+  border-radius: 16px;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.4);
-  width: 190px;
-  height: 142px;
 }
 
-/* Paper Mode */
+/* Paper Mode (Document Bezel) */
 .pip-phone-device.mode-paper {
   background: #FFFFFF;
   border: 2px solid #CBD5E1;
-  border-radius: 10px;
+  border-radius: 8px;
   box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35), 0 4px 10px rgba(0, 0, 0, 0.15);
-  width: 140px;
-  height: 198px;
 }
 
-/* Top Floating Pill Drag Handle (Xiaomi HyperOS style) */
-.pip-pill-handle {
+/* Triple Horizontal Dot Handle Button */
+.pip-dots-handle {
   position: absolute;
   top: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 32px;
-  height: 4.5px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-  z-index: 60;
-  touch-action: none;
-  cursor: move;
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.pip-phone-device.mode-paper .pip-pill-handle {
-  background: rgba(15, 23, 42, 0.7);
-}
-
-.pip-pill-handle:active,
-.pip-phone-device:active .pip-pill-handle {
-  background: #3B82F6;
-  transform: translateX(-50%) scaleX(1.15);
-}
-
-/* Top Minimize Button */
-.pip-control-btn {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  z-index: 60;
-  background: rgba(0, 0, 0, 0.5);
-  border: none;
-  border-radius: 9999px;
-  width: 18px;
-  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  touch-action: auto;
+  gap: 3.5px;
+  padding: 3px 8px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  z-index: 60;
+  touch-action: none;
+  cursor: move;
   transition: all 0.2s ease;
 }
 
-.pip-control-btn:hover {
-  background: rgba(239, 68, 68, 0.8);
-  color: #FFFFFF;
+.pip-dots-handle:hover,
+.pip-dots-handle:active {
+  background: rgba(37, 99, 235, 0.85);
+  border-color: #60A5FA;
+  transform: translateX(-50%) scale(1.1);
 }
 
-/* Camera Notch (Phone mode) */
-.pip-camera-notch {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 22px;
-  height: 5px;
-  background: #000000;
-  border-radius: 9999px;
-  z-index: 55;
+.pip-dot {
+  width: 3.5px;
+  height: 3.5px;
+  border-radius: 50%;
+  background: var(--pip-dot-color, #FFFFFF);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: background 0.2s ease;
 }
 
-.pip-phone-device.mode-tablet .pip-camera-notch,
-.pip-phone-device.mode-paper .pip-camera-notch {
-  display: none !important;
+.pip-phone-device.mode-paper .pip-dots-handle {
+  background: rgba(241, 245, 249, 0.85);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+.pip-phone-device.mode-paper .pip-dot {
+  background: #1E293B;
+  box-shadow: none;
 }
 
 /* Viewport containing the live scaled canvas */
@@ -3585,11 +3606,11 @@ body.dark-mode #btn-preset-menu-trigger:hover {
 }
 
 .pip-phone-device.mode-tablet .pip-screen-viewport {
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .pip-phone-device.mode-paper .pip-screen-viewport {
-  border-radius: 8px;
+  border-radius: 6px;
   background: #FFFFFF;
 }
 
@@ -3601,30 +3622,50 @@ body.dark-mode #btn-preset-menu-trigger:hover {
   pointer-events: none;
 }
 
-/* Minimized Floating Bubble */
+/* Minimized Floating Circular Preview Bubble (Floating Action Ball) */
 .mobile-pip-bubble {
   position: fixed;
-  bottom: 20px;
-  right: 14px;
+  bottom: 24px;
+  right: 16px;
   z-index: 99999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: #FFFFFF;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
   border: 1.5px solid #3B82F6;
-  border-radius: 9999px;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-  cursor: pointer;
-  animation: pipScaleIn 0.2s ease;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: move;
+  user-select: none;
+  touch-action: none;
+  animation: pipScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.mobile-pip-bubble:active {
+  transform: scale(0.92);
+}
+
+.pip-bubble-pulse {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+  animation: pulse 1.8s infinite;
 }
 
 body.dark-mode .mobile-pip-bubble {
-  background: #1E293B;
+  background: rgba(15, 23, 42, 0.95);
   border-color: #60A5FA;
-}
-body.dark-mode .mobile-pip-bubble span {
-  color: #93C5FD !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(96, 165, 250, 0.25);
 }
 
 @media (min-width: 641px) {
