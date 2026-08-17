@@ -30,6 +30,20 @@
 
   --m3-elevation-1: 0px 4px 12px rgba(0, 0, 0, 0.08);
   --m3-elevation-2: 0px 12px 32px rgba(0, 0, 0, 0.14);
+
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --ease-spring-snappy: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-m3-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+html, body {
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 * {
@@ -39,6 +53,102 @@
   font-family: var(--app-ui-font);
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   FULL GPU COMPOSITOR LAYER PROMOTION
+   Moves ALL animations onto the device GPU thread (Adreno/Mali/PowerVR).
+   CPU never touches animated properties — zero jank.
+───────────────────────────────────────────────────────────────────── */
+
+/* Sidebars: promoted permanently since they slide in/out often */
+#left-sidebar,
+#right-sidebar,
+.m3-sidebar,
+.m3-right-sidebar {
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  contain: layout style;
+}
+
+/* Phone canvas preview: GPU promoted for smooth wallpaper render */
+#phone-canvas,
+#lock-timetable-container,
+.m3-lock-timetable-container {
+  will-change: transform, opacity;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Accordions & Cards: promoted only when they are active/animating */
+.card-expand-content,
+.sub-accordion-card,
+.expandable-content {
+  will-change: transform, opacity, max-height;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Buttons, swatches, palette dots: instant GPU response on tap */
+.m3-button,
+.pill-btn,
+.btn-action,
+.class-card-item,
+.color-swatch-btn,
+.palette-dot,
+.mini-swatch,
+.btn-wallpaper-action,
+.btn-wallpaper-delete,
+.btn-resync-wallpaper,
+.card-expand-header,
+.sub-accordion-header {
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Tactile Micro-Press Feedback (GPU spring scale) */
+.m3-button,
+.pill-btn,
+.btn-action,
+.palette-dot,
+.mini-swatch,
+.color-swatch-btn,
+.card-expand-header,
+.sub-accordion-header,
+.btn-wallpaper-action,
+.btn-wallpaper-delete,
+.btn-resync-wallpaper {
+  transition: transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.m3-button:active,
+.pill-btn:active,
+.btn-action:active,
+.palette-dot:active,
+.mini-swatch:active,
+.color-swatch-btn:active,
+.btn-resync-wallpaper:active,
+.btn-wallpaper-action:active,
+.btn-wallpaper-delete:active {
+  transform: scale(0.93) translateZ(0) !important;
+  transition-duration: 0.08s !important;
+}
+
+.card-expand-header:active,
+.sub-accordion-header:active {
+  transform: scale(0.985) translateZ(0);
+  transition-duration: 0.08s !important;
+}
+
+.class-card-item:active {
+  transform: scale(0.97) translateZ(0) !important;
+  transition-duration: 0.08s !important;
+}
+
 
 /* Scoped ONLY to the Timetable Grid, Headers, Time Column, and Course Cards */
 #lock-timetable-container,
@@ -3787,6 +3897,200 @@ body.dark-mode .mobile-pip-bubble {
 body.dark-mode .m3-slider {
   background: rgba(255, 255, 255, 0.15);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE ICON DOCK NAV — Sub-Accordion Icon Bar (≤1024px only)
+   Circular icon buttons → tap → others fade out → content expands
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Hide the classic vertical accordion list on mobile, replaced by icon dock */
+@media (max-width: 1024px) {
+  .sub-accordion-card {
+    display: none !important;
+  }
+  .mobile-icon-dock-wrapper {
+    display: block;
+  }
+}
+
+/* Always hide the dock on desktop */
+.mobile-icon-dock-wrapper {
+  display: none;
+}
+
+/* Dock container */
+.mobile-icon-dock {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 12px 8px 4px;
+}
+
+/* Each icon + label pill */
+.dock-icon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1),
+              opacity 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+  will-change: transform, opacity;
+  flex-shrink: 0;
+}
+
+/* Circular icon bubble */
+.dock-icon-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(241, 245, 249, 0.92);
+  border: 1.5px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  transition: background 0.22s ease, box-shadow 0.22s ease, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), border-color 0.22s ease;
+}
+
+body.dark-mode .dock-icon-circle {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(71, 85, 105, 0.5);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.dock-icon-btn:active .dock-icon-circle {
+  transform: scale(0.90);
+}
+
+/* Label under each icon */
+.dock-icon-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #64748B;
+  text-align: center;
+  max-width: 60px;
+  line-height: 1.2;
+  transition: color 0.22s ease;
+}
+
+body.dark-mode .dock-icon-label {
+  color: #94A3B8;
+}
+
+/* Active / focused icon state */
+.dock-icon-btn.dock-active .dock-icon-circle {
+  background: var(--m3-sys-color-primary-container, #DBEAFE);
+  border-color: var(--m3-sys-color-primary, #2563EB);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.22);
+}
+
+.dock-icon-btn.dock-active .dock-icon-label {
+  color: var(--m3-sys-color-primary, #2563EB);
+}
+
+body.dark-mode .dock-icon-btn.dock-active .dock-icon-circle {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: rgba(96, 165, 250, 0.7);
+}
+
+body.dark-mode .dock-icon-btn.dock-active .dock-icon-label {
+  color: #93C5FD;
+}
+
+/* Other icons fade & shrink when one is active */
+.dock-icon-btn.dock-dimmed {
+  opacity: 0;
+  transform: scale(0.7) translateY(6px);
+  pointer-events: none;
+}
+
+/* Active icon magnifies slightly */
+.dock-icon-btn.dock-active {
+  transform: scale(1.08);
+}
+
+/* Expanded content panel under the active icon */
+.dock-panel-content {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s cubic-bezier(0.2, 0.9, 0.3, 1),
+              opacity 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  padding: 0 2px;
+}
+
+.dock-panel-content.dock-panel-open {
+  max-height: 600px;
+  opacity: 1;
+}
+
+/* Back button row */
+.dock-back-row {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 8px;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.dock-back-row.dock-back-visible {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dock-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--m3-sys-color-primary, #2563EB);
+  letter-spacing: 0.01em;
+  transition: background 0.18s ease, transform 0.15s ease;
+  will-change: transform;
+}
+
+.dock-back-btn:active {
+  transform: scale(0.93);
+}
+
+.dock-back-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+body.dark-mode .dock-back-btn {
+  color: #93C5FD;
+}
+
+/* Active section title next to back btn */
+.dock-section-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--m3-sys-text-primary, #0F172A);
+  letter-spacing: -0.01em;
+}
+
+body.dark-mode .dock-section-title {
+  color: #E2E8F0;
+}
+
 
 
 

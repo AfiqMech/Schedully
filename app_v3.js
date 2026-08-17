@@ -2167,6 +2167,95 @@ class SchedullyApp {
       });
     });
 
+    // ─────────────────────────────────────────────────────────────
+    // MOBILE ICON DOCK — Focus/Expand interaction logic (≤1024px)
+    // ─────────────────────────────────────────────────────────────
+    const initIconDock = (dockId, panelId, backRowId, backBtnId, sectionTitleId) => {
+      const dock = document.getElementById(dockId);
+      const panel = document.getElementById(panelId);
+      const backRow = document.getElementById(backRowId);
+      const backBtn = document.getElementById(backBtnId);
+      const sectionTitle = document.getElementById(sectionTitleId);
+      if (!dock || !panel || !backRow || !backBtn) return;
+
+      const iconBtns = dock.querySelectorAll('.dock-icon-btn');
+
+      const resetDock = () => {
+        iconBtns.forEach(b => {
+          b.classList.remove('dock-active', 'dock-dimmed');
+        });
+        panel.classList.remove('dock-panel-open');
+        // Move content back out of panel (restore to original parent)
+        if (panel._restoredContentEl && panel._restoredContentParent) {
+          panel._restoredContentParent.appendChild(panel._restoredContentEl);
+          panel._restoredContentEl = null;
+          panel._restoredContentParent = null;
+        }
+        panel.innerHTML = '';
+        backRow.classList.remove('dock-back-visible');
+        if (sectionTitle) sectionTitle.textContent = '';
+      };
+
+      iconBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          // Only activate dock behavior on mobile
+          if (window.innerWidth > 1024) return;
+
+          const targetId = btn.getAttribute('data-dock-target');
+          const label = btn.getAttribute('data-dock-label');
+          const targetContent = document.getElementById(targetId);
+          if (!targetContent) return;
+
+          // If already active, reset
+          if (btn.classList.contains('dock-active')) {
+            resetDock();
+            return;
+          }
+
+          resetDock();
+
+          // Focus this icon, dim others
+          iconBtns.forEach(b => {
+            if (b !== btn) b.classList.add('dock-dimmed');
+            else b.classList.add('dock-active');
+          });
+
+          // Move the sub-content into the dock panel
+          panel._restoredContentEl = targetContent;
+          panel._restoredContentParent = targetContent.parentElement;
+          panel.appendChild(targetContent);
+
+          // Open panel
+          requestAnimationFrame(() => {
+            panel.classList.add('dock-panel-open');
+          });
+
+          // Show back button
+          backRow.classList.add('dock-back-visible');
+          if (sectionTitle) sectionTitle.textContent = label.replace(/&amp;/g, '&');
+        });
+      });
+
+      backBtn.addEventListener('click', () => {
+        resetDock();
+      });
+    };
+
+    initIconDock(
+      'layout-mobile-icon-dock',
+      'layout-dock-panel',
+      'layout-dock-back-row',
+      'layout-dock-back-btn',
+      'layout-dock-section-title'
+    );
+    initIconDock(
+      'course-mobile-icon-dock',
+      'course-dock-panel',
+      'course-dock-back-row',
+      'course-dock-back-btn',
+      'course-dock-section-title'
+    );
+
     // Swipe-to-Right gesture for expanding cards on touch/swipe
     document.querySelectorAll('.card-expand-header').forEach(header => {
       let startX = 0;
@@ -3006,10 +3095,8 @@ class SchedullyApp {
           }, 60);
         }
 
-        // On mobile/tablet screens, set zoom to 1.0 (100%) and auto-center scroll
+        // On mobile/tablet screens, preserve user zoom and only auto-center scroll
         if (window.innerWidth < 1024) {
-          currentZoomScale = 1.0;
-          applyZoom();
           const scrollArea = document.getElementById('canvas-scroll-area');
           if (scrollArea) {
             setTimeout(() => {

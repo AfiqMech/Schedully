@@ -411,6 +411,50 @@
 <div class="expandable-content hidden" id="content-layout-options">
           <div class="layout-card-inner margin-top-sm">
             
+            <!-- ═══ MOBILE ICON DOCK (≤1024px only) ═══ -->
+            <div class="mobile-icon-dock-wrapper" id="layout-icon-dock-wrapper">
+              <!-- Back row (shown when a section is focused) -->
+              <div class="dock-back-row" id="layout-dock-back-row">
+                <button class="dock-back-btn" id="layout-dock-back-btn" type="button">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                  Back
+                </button>
+                <span class="dock-section-title" id="layout-dock-section-title"></span>
+              </div>
+
+              <!-- Icon row -->
+              <div class="mobile-icon-dock" id="layout-mobile-icon-dock">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-corners" data-dock-label="Corners &amp; Title">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" stroke-width="2"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Corners &amp;<br>Title</span>
+                </button>
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-dimensions" data-dock-label="Size &amp; Position">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Size &amp;<br>Position</span>
+                </button>
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-colors" data-dock-label="Colors &amp; Theme">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.5V11a7 7 0 0114 0v1.5a5 5 0 013 4.5 4 4 0 01-4 4H7z"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Colors &amp;<br>Theme</span>
+                </button>
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-days" data-dock-label="Days &amp; Time Range">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Days &amp;<br>Time</span>
+                </button>
+              </div>
+
+              <!-- Panel content target (sub-accordion content teleports here on mobile) -->
+              <div class="dock-panel-content" id="layout-dock-panel"></div>
+            </div>
+            <!-- ═══ END MOBILE ICON DOCK ═══ -->
+
             <!-- 1. Corners & Title Sub-Accordion (Open by Default) -->
             <div class="sub-accordion-card">
               <div class="sub-accordion-header active" id="sub-header-corners">
@@ -717,6 +761,33 @@
 <div class="expandable-content hidden" id="content-add-course">
           <div class="layout-card-inner">
           <form id="add-course-form" class="course-form-body">
+
+            <!-- ═══ MOBILE ICON DOCK — Add Course (≤1024px only) ═══ -->
+            <div class="mobile-icon-dock-wrapper" id="course-icon-dock-wrapper">
+              <div class="dock-back-row" id="course-dock-back-row">
+                <button class="dock-back-btn" id="course-dock-back-btn" type="button">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                  Back
+                </button>
+                <span class="dock-section-title" id="course-dock-section-title"></span>
+              </div>
+              <div class="mobile-icon-dock" id="course-mobile-icon-dock">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-info" data-dock-label="Course Info &amp; Colors">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Course Info<br>&amp; Colors</span>
+                </button>
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-schedule" data-dock-label="Schedule &amp; Details">
+                  <div class="dock-icon-circle">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                  <span class="dock-icon-label">Schedule<br>&amp; Details</span>
+                </button>
+              </div>
+              <div class="dock-panel-content" id="course-dock-panel"></div>
+            </div>
+            <!-- ═══ END MOBILE ICON DOCK ═══ -->
 
             <!-- 1. Course Info Sub-Accordion (Open by Default) -->
             <div class="sub-accordion-card">
