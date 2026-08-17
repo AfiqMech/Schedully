@@ -3903,19 +3903,19 @@ body.dark-mode .m3-slider {
    Circular icon buttons → tap → others fade out → content expands
    ═══════════════════════════════════════════════════════════════ */
 
-/* Hide the classic vertical accordion list on mobile, replaced by icon dock */
+/* Hidden on desktop by default — shown via media query below */
+.mobile-icon-dock-wrapper {
+  display: none;
+}
+
+/* Show icon dock on mobile (≤1024px), hide classic accordion list */
 @media (max-width: 1024px) {
   .sub-accordion-card {
     display: none !important;
   }
   .mobile-icon-dock-wrapper {
-    display: block;
+    display: block !important;
   }
-}
-
-/* Always hide the dock on desktop */
-.mobile-icon-dock-wrapper {
-  display: none;
 }
 
 /* Dock container */
