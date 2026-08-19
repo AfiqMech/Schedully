@@ -158,8 +158,8 @@ class SchedullyApp {
     this.newCourseFontColor = '#FFFFFF';
     this.activeDevice = 'phone';
 
-    this.currentMode = 'auto';
-    this.currentPalette = 'indigo';
+    this.currentMode = localStorage.getItem('schedully_theme_mode') || 'dark';
+    this.currentPalette = localStorage.getItem('schedully_theme_palette') || 'indigo';
 
     // Layout Customization State
     this.showTitle = true;
