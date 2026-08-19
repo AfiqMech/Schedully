@@ -412,41 +412,38 @@
           <div class="layout-card-inner margin-top-sm">
             
             <!-- ═══ MOBILE ICON DOCK (≤1024px only) ═══ -->
+            <!-- ═══ MOBILE ICON DOCK (≤1024px only) ═══ -->
             <div class="mobile-icon-dock-wrapper" id="layout-icon-dock-wrapper">
               <!-- Back row (shown when a section is focused) -->
               <div class="dock-back-row" id="layout-dock-back-row">
                 <button class="dock-back-btn" id="layout-dock-back-btn" type="button">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                  Back
+                  <span data-i18n="back">Back</span>
                 </button>
                 <span class="dock-section-title" id="layout-dock-section-title"></span>
               </div>
 
               <!-- Icon row -->
               <div class="mobile-icon-dock" id="layout-mobile-icon-dock">
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-corners" data-dock-label="Corners &amp; Title">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-corners" data-dock-key="cornersAndTitle">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" stroke-width="2"/></svg>
                   </div>
-                  <span class="dock-icon-label">Corners &amp;<br>Title</span>
                 </button>
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-dimensions" data-dock-label="Size &amp; Position">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-dimensions" data-dock-key="sizeAndPosition">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                   </div>
-                  <span class="dock-icon-label">Size &amp;<br>Position</span>
                 </button>
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-colors" data-dock-label="Colors &amp; Theme">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-colors" data-dock-key="colorsAndTheme">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.5V11a7 7 0 0114 0v1.5a5 5 0 013 4.5 4 4 0 01-4 4H7z"/></svg>
                   </div>
-                  <span class="dock-icon-label">Colors &amp;<br>Theme</span>
                 </button>
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-days" data-dock-label="Days &amp; Time Range">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-days" data-dock-key="daysAndTime">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   </div>
-                  <span class="dock-icon-label">Days &amp;<br>Time</span>
                 </button>
               </div>
 
@@ -462,7 +459,7 @@
                   <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="3" y="3" width="18" height="18" rx="4" stroke-width="2"></rect>
                   </svg>
-                  <span>Corners &amp; Title</span>
+                  <span data-i18n="cornersAndTitle">Corners &amp; Title</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -471,7 +468,7 @@
               <div class="sub-accordion-content" id="sub-content-corners">
                 <!-- Title Toggle & Title Name Edit -->
                 <div class="opt-row">
-                  <span class="opt-label">Title</span>
+                  <span class="opt-label" data-i18n="title">Title</span>
                   <div class="pill-toggle-group" id="toggle-title">
                     <button type="button" class="pill-btn active" data-val="yes">YES</button>
                     <button type="button" class="pill-btn" data-val="no">NO</button>
@@ -479,13 +476,13 @@
                 </div>
 
                 <div class="opt-row">
-                  <span class="opt-label">Title Text</span>
+                  <span class="opt-label" data-i18n="titleText">Title Text</span>
                   <input type="text" id="input-title-text-sidebar" value="Untitled" class="m3-input opt-input" placeholder="">
                 </div>
 
                 <!-- Timetable Frame Corners -->
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Table Corners</span>
+                  <span class="opt-label" data-i18n="tableCorners">Table Corners</span>
                   <div class="pill-toggle-group" id="toggle-table-corners">
                     <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
                     <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
@@ -494,7 +491,7 @@
 
                 <!-- Table Corner Radius (only visible if Table is ROUNDED) -->
                 <div class="opt-row margin-top-xs" id="row-table-radius">
-                  <span class="opt-label">Table Radius</span>
+                  <span class="opt-label" data-i18n="tableRadius">Table Radius</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-table-radius-dec" class="stepper-btn">-</button>
                     <input type="number" id="table-radius-val" class="stepper-input" value="8" min="0" max="32">
@@ -504,7 +501,7 @@
 
                 <!-- Course Card Corners (inside table) -->
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Card Corners</span>
+                  <span class="opt-label" data-i18n="cardCorners">Card Corners</span>
                   <div class="pill-toggle-group" id="toggle-card-corners">
                     <button type="button" class="pill-btn active" data-val="rounded">ROUNDED</button>
                     <button type="button" class="pill-btn" data-val="sharp">SHARP</button>
@@ -513,7 +510,7 @@
 
                 <!-- Card Corner Radius (only visible if Card is ROUNDED) -->
                 <div class="opt-row margin-top-xs" id="row-card-radius">
-                  <span class="opt-label">Card Radius</span>
+                  <span class="opt-label" data-i18n="cardRadius">Card Radius</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-card-radius-dec" class="stepper-btn">-</button>
                     <input type="number" id="card-radius-val" class="stepper-input" value="6" min="0" max="24">
@@ -530,7 +527,7 @@
                   <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                   </svg>
-                  <span>Size &amp; Position</span>
+                  <span data-i18n="sizeAndPosition">Size &amp; Position</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -538,7 +535,7 @@
               </div>
               <div class="sub-accordion-content hidden" id="sub-content-dimensions">
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Grid Width</span>
+                  <span class="opt-label" data-i18n="gridWidth">Grid Width</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-width-dec" class="stepper-btn">-</button>
                     <input type="number" id="grid-width-val" class="stepper-input" value="100" min="50" max="100">
@@ -547,7 +544,7 @@
                 </div>
 
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Grid Height</span>
+                  <span class="opt-label" data-i18n="gridHeight">Grid Height</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-height-dec" class="stepper-btn">-</button>
                     <input type="number" id="grid-height-val" class="stepper-input" value="49" min="30" max="90">
@@ -556,7 +553,7 @@
                 </div>
 
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Font Size</span>
+                  <span class="opt-label" data-i18n="fontSize">Font Size</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-fontsize-dec" class="stepper-btn">-</button>
                     <input type="number" id="grid-fontsize-val" class="stepper-input" value="9" min="6" max="16">
@@ -565,7 +562,7 @@
                 </div>
 
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Y Position</span>
+                  <span class="opt-label" data-i18n="yPosition">Y Position</span>
                   <div class="stepper-control">
                     <button type="button" id="btn-ypos-dec" class="stepper-btn">-</button>
                     <input type="number" id="grid-ypos-val" class="stepper-input" value="0" min="-120" max="150">
@@ -582,7 +579,7 @@
                   <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 013-4.5V11a7 7 0 0114 0v1.5a5 5 0 013 4.5 4 4 0 01-4 4H7z"></path>
                   </svg>
-                  <span>Colors &amp; Theme</span>
+                  <span data-i18n="colorsAndTheme">Colors &amp; Theme</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -591,7 +588,7 @@
               <div class="sub-accordion-content hidden" id="sub-content-colors">
                 <!-- Grid Surface Colour (Table Box Fill) -->
                 <div class="opt-row-stack">
-                  <span class="opt-label">Grid Surface Colour</span>
+                  <span class="opt-label" data-i18n="gridSurfaceColor">Grid Surface Colour</span>
                   <div class="color-grid-picker" id="grid-surface-picker">
                     <button type="button" class="color-swatch-btn active" data-surface="#FFFFFF" style="background: #FFFFFF"></button>
                     <button type="button" class="color-swatch-btn" data-surface="#F8FAFC" style="background: #F8FAFC"></button>
@@ -611,7 +608,7 @@
 
                 <!-- Background Colour Grid Swatches -->
                 <div class="opt-row-stack margin-top-xs">
-                  <span class="opt-label">Background Colour</span>
+                  <span class="opt-label" data-i18n="bgColor">Background Colour</span>
                   <div class="color-grid-picker" id="bg-color-picker">
                     <button type="button" class="color-swatch-btn active" data-bg="#CBB4A9" style="background: #CBB4A9"></button>
                     <button type="button" class="color-swatch-btn" data-bg="#AA9686" style="background: #AA9686"></button>
@@ -631,7 +628,7 @@
 
                 <!-- Header Colour Grid Swatches -->
                 <div class="opt-row-stack margin-top-xs">
-                  <span class="opt-label">Header Colour</span>
+                  <span class="opt-label" data-i18n="headerColor">Header Colour</span>
                   <div class="color-grid-picker" id="header-color-picker">
                     <button type="button" class="color-swatch-btn active" data-header="#BBA397" style="background: #BBA397"></button>
                     <button type="button" class="color-swatch-btn" data-header="#F4ECE2" style="background: #F4ECE2"></button>
@@ -651,7 +648,7 @@
 
                 <!-- Font Colour Swatches Section -->
                 <div class="opt-row-stack margin-top-xs">
-                  <span class="opt-label">Font Colour</span>
+                  <span class="opt-label" data-i18n="fontColor">Font Colour</span>
                   <div class="color-grid-picker" id="font-color-picker">
                     <button type="button" class="color-swatch-btn active" data-font="#0F172A" style="background: #0F172A" title="Deep Midnight Black"></button>
                     <button type="button" class="color-swatch-btn" data-font="#1E293B" style="background: #1E293B" title="Dark Slate"></button>
@@ -674,7 +671,7 @@
                   <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
-                  <span>Days &amp; Time Range</span>
+                  <span data-i18n="daysAndTime">Days &amp; Time Range</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -683,7 +680,7 @@
               <div class="sub-accordion-content hidden" id="sub-content-days">
                 <!-- Days Display Toggles (Mon-Sun) -->
                 <div class="opt-row-stack margin-top-xs">
-                  <span class="opt-label">Display Days</span>
+                  <span class="opt-label" data-i18n="activeDays">Display Days</span>
                   <div class="days-checkbox-row display-days-row">
                     <label class="day-check"><input type="checkbox" class="day-toggle" value="Mon" checked><span>Mon</span></label>
                     <label class="day-check"><input type="checkbox" class="day-toggle" value="Tue" checked><span>Tue</span></label>
@@ -697,7 +694,7 @@
 
                 <!-- Start Time -->
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Start Time</span>
+                  <span class="opt-label" data-i18n="startTime">Start Time</span>
                   <select id="grid-start-time" class="m3-input-time opt-input">
                     <option value="05:00">05:00 AM</option>
                     <option value="06:00">06:00 AM</option>
@@ -712,7 +709,7 @@
 
                 <!-- End Time -->
                 <div class="opt-row">
-                  <span class="opt-label">End Time</span>
+                  <span class="opt-label" data-i18n="endTime">End Time</span>
                   <select id="grid-end-time" class="m3-input-time opt-input">
                     <option value="12:00">12:00 PM</option>
                     <option value="13:00">01:00 PM</option>
@@ -731,7 +728,7 @@
 
                 <!-- Clock Type -->
                 <div class="opt-row margin-top-xs">
-                  <span class="opt-label">Clock Type</span>
+                  <span class="opt-label" data-i18n="clockFormat">Clock Type</span>
                   <div class="pill-toggle-group" id="toggle-clock-type">
                     <button type="button" class="pill-btn active" data-val="12">12-HOUR</button>
                     <button type="button" class="pill-btn" data-val="24">24-HOUR</button>
@@ -741,7 +738,7 @@
             </div>
 
             <!-- Reset Button -->
-            <button type="button" id="btn-reset-layout" class="m3-button m3-button-tonal full-width margin-top-sm">
+            <button type="button" id="btn-reset-layout" class="m3-button m3-button-tonal full-width margin-top-sm" data-i18n="resetToDefault">
               RESET TO DEFAULT
             </button>
 
@@ -763,26 +760,25 @@
           <form id="add-course-form" class="course-form-body">
 
             <!-- ═══ MOBILE ICON DOCK — Add Course (≤1024px only) ═══ -->
+            <!-- ═══ MOBILE ICON DOCK — Add Course (≤1024px only) ═══ -->
             <div class="mobile-icon-dock-wrapper" id="course-icon-dock-wrapper">
               <div class="dock-back-row" id="course-dock-back-row">
                 <button class="dock-back-btn" id="course-dock-back-btn" type="button">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-                  Back
+                  <span data-i18n="back">Back</span>
                 </button>
                 <span class="dock-section-title" id="course-dock-section-title"></span>
               </div>
               <div class="mobile-icon-dock" id="course-mobile-icon-dock">
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-info" data-dock-label="Course Info &amp; Colors">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-info" data-dock-key="courseInfoAndColors">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                   </div>
-                  <span class="dock-icon-label">Course Info<br>&amp; Colors</span>
                 </button>
-                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-schedule" data-dock-label="Schedule &amp; Details">
+                <button class="dock-icon-btn" type="button" data-dock-target="sub-content-course-schedule" data-dock-key="scheduleAndDetails">
                   <div class="dock-icon-circle">
                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   </div>
-                  <span class="dock-icon-label">Schedule<br>&amp; Details</span>
                 </button>
               </div>
               <div class="dock-panel-content" id="course-dock-panel"></div>
@@ -796,7 +792,7 @@
                   <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                   </svg>
-                  <span>Course Info &amp; Colors</span>
+                  <span data-i18n="courseInfoAndColors">Course Info &amp; Colors</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -805,13 +801,13 @@
               <div class="sub-accordion-content" id="sub-content-course-info">
                 <!-- Course Code -->
                 <div class="form-row">
-                  <label for="input-course-code">Class / Course Name :</label>
+                  <label for="input-course-code" data-i18n="courseName">Class / Course Name :</label>
                   <input type="text" id="input-course-code" placeholder="" required class="m3-input">
                 </div>
 
                 <!-- Display Time Toggle -->
                 <div class="form-row">
-                  <label>Display Time :</label>
+                  <label data-i18n="displayTime">Display Time :</label>
                   <div class="pill-toggle-group" id="toggle-display-time">
                     <button type="button" class="pill-btn active" data-val="yes">YES</button>
                     <button type="button" class="pill-btn" data-val="no">NO</button>
@@ -820,7 +816,7 @@
 
                 <!-- Grid Color Picker -->
                 <div class="form-row">
-                  <label>Grid Colour :</label>
+                  <label data-i18n="gridColor">Grid Colour :</label>
                   <div class="swatch-grid">
                     <button type="button" class="swatch-dot active" data-color="#D5C5B5" style="background: #D5C5B5"></button>
                     <button type="button" class="swatch-dot" data-color="#B8A494" style="background: #B8A494"></button>
@@ -837,7 +833,7 @@
 
                 <!-- Course Font Color Picker (new course only) -->
                 <div class="form-row">
-                  <label>Font Colour :</label>
+                  <label data-i18n="fontColor">Font Colour :</label>
                   <div class="swatch-grid" id="course-font-color-picker">
                     <button type="button" class="font-swatch-sq active" data-coursefont="#FFFFFF" style="background:#FFFFFF" title="White"></button>
                     <button type="button" class="font-swatch-sq" data-coursefont="#0F172A" style="background:#0F172A" title="Deep Black"></button>
@@ -859,7 +855,7 @@
                   <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
-                  <span>Schedule &amp; Details</span>
+                  <span data-i18n="scheduleAndDetails">Schedule &amp; Details</span>
                 </div>
                 <svg class="sub-accordion-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
@@ -868,7 +864,7 @@
               <div class="sub-accordion-content" id="sub-content-course-schedule">
                 <!-- Days Checkboxes -->
                 <div class="opt-row-stack" style="margin-bottom: 8px;">
-                  <span class="opt-label">Day</span>
+                  <span class="opt-label" data-i18n="day">Day</span>
                   <div class="days-checkbox-row display-days-row">
                     <label class="day-check"><input type="checkbox" name="day" value="Mon" checked><span>Mon</span></label>
                     <label class="day-check"><input type="checkbox" name="day" value="Tue"><span>Tue</span></label>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schedully-cache-v83';
+const CACHE_NAME = 'schedully-cache-v91';
 const ASSETS = [
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   '/ocr_parser.js',
   '/ics_csv_parser_v3.js',
   '/timetable_engine.js',
+  '/i18n.js',
   '/manifest.json',
   '/logo.jpg',
   '/tng_qr.png'

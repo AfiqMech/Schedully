@@ -320,6 +320,8 @@ class SchedullyApp {
       resolvedMode = isDark ? 'dark' : 'light';
     }
 
+    document.body.classList.toggle('dark-mode', resolvedMode === 'dark');
+
     const paletteGroup = THEME_PALETTES[resolvedMode] || THEME_PALETTES.light;
     const selectedTheme = paletteGroup[this.currentPalette] || paletteGroup.indigo;
 
@@ -890,52 +892,92 @@ class SchedullyApp {
 
   toggleAccordion(header, content) {
     if (!content) return;
-    const isOpening = content.classList.contains('hidden');
+    const isOpening = content.classList.contains('hidden') || content.style.maxHeight === '0px';
+
+    // Clear any pending animation timers
+    if (content._animTimer) {
+      clearTimeout(content._animTimer);
+      content._animTimer = null;
+    }
 
     if (isOpening) {
       content.classList.remove('hidden');
       header?.classList.add('active');
 
+      // Instant measurement pass with no transitions
+      content.style.transition = 'none';
+      content.style.maxHeight = 'none';
+      content.style.opacity = '1';
       content.style.overflow = 'hidden';
+      const targetHeight = content.scrollHeight;
+
+      // Start from 0 with initial state
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
-      content.style.transform = 'translateY(-6px)';
-      content.style.transition = 'max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1)';
+      content.style.paddingTop = '0px';
+      content.style.paddingBottom = '0px';
+      content.style.marginTop = '0px';
+      content.style.marginBottom = '0px';
+      content.style.borderWidth = '0px';
+      content.style.transform = 'scale(0.985) translateY(-4px)';
 
+      // Force synchronous reflow to register the 0-state
       void content.offsetHeight;
 
-      const targetHeight = content.scrollHeight;
+      // Animate smoothly to target size
+      content.style.transition = 'max-height 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out, transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), padding 0.26s cubic-bezier(0.16, 1, 0.3, 1), margin 0.26s cubic-bezier(0.16, 1, 0.3, 1), border-width 0.26s cubic-bezier(0.16, 1, 0.3, 1)';
       content.style.maxHeight = targetHeight + 'px';
       content.style.opacity = '1';
-      content.style.transform = 'translateY(0)';
+      content.style.paddingTop = '';
+      content.style.paddingBottom = '';
+      content.style.marginTop = '';
+      content.style.marginBottom = '';
+      content.style.borderWidth = '';
+      content.style.transform = 'scale(1) translateY(0)';
 
-      setTimeout(() => {
+      content._animTimer = setTimeout(() => {
         if (!content.classList.contains('hidden')) {
           content.style.maxHeight = 'none';
           content.style.overflow = 'visible';
+          content.style.transition = '';
         }
-      }, 330);
+      }, 270);
     } else {
       header?.classList.remove('active');
 
+      // Lock current height instantly from 'none' to px value without animation delay
       content.style.overflow = 'hidden';
+      content.style.transition = 'none';
       content.style.maxHeight = content.scrollHeight + 'px';
       content.style.opacity = '1';
-      content.style.transform = 'translateY(0)';
-      content.style.transition = 'max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-in, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)';
+      content.style.transform = 'scale(1) translateY(0)';
 
+      // Force synchronous reflow to register the starting height
       void content.offsetHeight;
 
+      // Animate all dimensions directly to zero smoothly
+      content.style.transition = 'max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease-in, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), padding 0.22s cubic-bezier(0.16, 1, 0.3, 1), margin 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-width 0.22s cubic-bezier(0.16, 1, 0.3, 1)';
       content.style.maxHeight = '0px';
       content.style.opacity = '0';
-      content.style.transform = 'translateY(-6px)';
+      content.style.paddingTop = '0px';
+      content.style.paddingBottom = '0px';
+      content.style.marginTop = '0px';
+      content.style.marginBottom = '0px';
+      content.style.borderWidth = '0px';
+      content.style.transform = 'scale(0.985) translateY(-4px)';
 
-      setTimeout(() => {
+      content._animTimer = setTimeout(() => {
         if (content.style.maxHeight === '0px') {
           content.classList.add('hidden');
+          content.style.paddingTop = '';
+          content.style.paddingBottom = '';
+          content.style.marginTop = '';
+          content.style.marginBottom = '';
+          content.style.borderWidth = '';
           content.style.transform = '';
+          content.style.transition = '';
         }
-      }, 290);
+      }, 230);
     }
   }
 
@@ -2181,12 +2223,16 @@ class SchedullyApp {
       const iconBtns = dock.querySelectorAll('.dock-icon-btn');
 
       const resetDock = () => {
+        if (dock) dock.classList.remove('dock-has-active');
         iconBtns.forEach(b => {
           b.classList.remove('dock-active', 'dock-dimmed');
         });
         panel.classList.remove('dock-panel-open');
         // Move content back out of panel (restore to original parent)
         if (panel._restoredContentEl && panel._restoredContentParent) {
+          if (panel._restoredWasHidden) {
+            panel._restoredContentEl.classList.add('hidden');
+          }
           panel._restoredContentParent.appendChild(panel._restoredContentEl);
           panel._restoredContentEl = null;
           panel._restoredContentParent = null;
@@ -2202,7 +2248,9 @@ class SchedullyApp {
           if (window.innerWidth > 1024) return;
 
           const targetId = btn.getAttribute('data-dock-target');
-          const label = btn.getAttribute('data-dock-label');
+          const dockKey = btn.getAttribute('data-dock-key');
+          const rawLabel = btn.getAttribute('data-dock-label') || '';
+          const label = (dockKey && window.SchedullyI18n) ? window.SchedullyI18n.get(dockKey) : rawLabel.replace(/&amp;/g, '&');
           const targetContent = document.getElementById(targetId);
           if (!targetContent) return;
 
@@ -2214,13 +2262,16 @@ class SchedullyApp {
 
           resetDock();
 
-          // Focus this icon, dim others
+          // Center active icon and dim others
+          if (dock) dock.classList.add('dock-has-active');
           iconBtns.forEach(b => {
             if (b !== btn) b.classList.add('dock-dimmed');
             else b.classList.add('dock-active');
           });
 
-          // Move the sub-content into the dock panel
+          // Move the sub-content into the dock panel and unhide it so all settings show
+          panel._restoredWasHidden = targetContent.classList.contains('hidden');
+          targetContent.classList.remove('hidden');
           panel._restoredContentEl = targetContent;
           panel._restoredContentParent = targetContent.parentElement;
           panel.appendChild(targetContent);
@@ -2230,9 +2281,12 @@ class SchedullyApp {
             panel.classList.add('dock-panel-open');
           });
 
-          // Show back button
+          // Show back button and title pill at top-right with localized text
           backRow.classList.add('dock-back-visible');
-          if (sectionTitle) sectionTitle.textContent = label.replace(/&amp;/g, '&');
+          if (sectionTitle) {
+            sectionTitle.setAttribute('data-i18n', dockKey || '');
+            sectionTitle.textContent = label;
+          }
         });
       });
 
