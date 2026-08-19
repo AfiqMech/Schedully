@@ -4336,6 +4336,73 @@ body.dark-mode .expandable-content::before {
               border-radius 0.3s ease,
               box-shadow 0.3s ease;
   will-change: width, height, transform;
+  contain: layout style paint;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   7. GLOBAL GPU TURBO ENGINE (MOBILE & TABLET 60/120 FPS)
+   ═══════════════════════════════════════════════════════════════ */
+/* Eliminate mobile tap delay across all interactive elements */
+button,
+input,
+select,
+a,
+.dock-icon-btn,
+.swatch-dot,
+.palette-dot,
+.font-swatch-sq,
+.m3-card,
+.m3-button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Promote core rendering tree to dedicated GPU layers */
+#timetable-content,
+#left-sidebar,
+.class-card-item,
+.exact-grid-cell-course,
+.mobile-icon-dock-wrapper,
+.dock-panel-content {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Mobile & Tablet Specific GPU Fill-Rate Optimizations */
+@media (max-width: 1024px) {
+  /* Prevent GPU fill-rate thermal throttling by optimizing blur layers on mobile */
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    -webkit-backdrop-filter: blur(8px) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+
+  /* Isolate repaints so scrolling or tapping never re-renders the whole DOM */
+  #left-sidebar,
+  #phone-canvas-container,
+  .dock-panel-content,
+  #class-list {
+    contain: layout style paint;
+  }
+
+  /* Hardware-accelerated 120Hz momentum scrolling */
+  body,
+  #left-sidebar,
+  .overflow-y-auto,
+  .no-scrollbar {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain;
+  }
+
+  /* Simplify complex multi-layer shadows on mobile chips */
+  .shadow-2xl,
+  .shadow-\[0_10px_35px_rgba\(0\,0\,0\,0\.06\)\] {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07) !important;
+  }
 }
 
 
