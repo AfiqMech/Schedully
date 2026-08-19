@@ -97,7 +97,7 @@ window.SchedullyI18n = {
         cornersAndTitle: 'Corners & Title',
         sizeAndPosition: 'Size & Position',
         colorsAndTheme: 'Colors & Theme',
-        daysAndTime: 'Days & Time Range',
+        daysAndTime: 'Days & Time',
         courseInfoAndColors: 'Course Info & Colors',
         scheduleAndDetails: 'Schedule & Details',
         back: 'Back',

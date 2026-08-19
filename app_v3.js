@@ -2243,10 +2243,9 @@ class SchedullyApp {
       };
 
       iconBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          // Only activate dock behavior if dock is visible (mobile & tablet)
-          const dockWrapper = document.getElementById(wrapperId);
-          if (dockWrapper && window.getComputedStyle(dockWrapper).display === 'none') return;
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
 
           const targetId = btn.getAttribute('data-dock-target');
           const dockKey = btn.getAttribute('data-dock-key');
