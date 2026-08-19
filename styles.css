@@ -224,41 +224,80 @@ html, body {
     display: none !important;
   }
 
-  /* ── 3 FLOATING PILL BUTTONS AT TOP OF MOBILE SCREEN ── */
+  /* ── 3 ADAPTIVE FLOATING PILL BUTTONS AT TOP OF MOBILE SCREEN ── */
+  #btn-expand-left-floating,
+  #btn-expand-right-floating,
+  #btn-mobile-export-toggle {
+    height: clamp(34px, 4.8dvh, 40px) !important;
+    padding: 0 clamp(8px, 2.5vw, 16px) !important;
+    font-size: clamp(11px, 2.8vw, 13px) !important;
+    font-weight: 800 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: clamp(4px, 1.5vw, 7px) !important;
+    border-radius: 9999px !important;
+    box-sizing: border-box !important;
+    touch-action: manipulation !important;
+    white-space: nowrap !important;
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
+  }
+
+  #btn-expand-left-floating svg,
+  #btn-expand-right-floating svg,
+  #btn-mobile-export-toggle svg {
+    width: clamp(13px, 3.2vw, 15px) !important;
+    height: clamp(13px, 3.2vw, 15px) !important;
+    flex-shrink: 0 !important;
+  }
+
   /* Left: Menu Floating Button */
   #btn-expand-left-floating {
     position: fixed !important;
-    top: 16px !important;
-    left: 16px !important;
+    top: max(12px, env(safe-area-inset-top, 12px)) !important;
+    left: max(8px, env(safe-area-inset-left, 8px)) !important;
+    max-width: 29vw !important;
     z-index: 9999 !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  }
+  #btn-expand-left-floating span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   /* Center: Export Floating Pill Bar */
   #mobile-export-bar {
     display: flex !important;
     position: fixed !important;
-    top: 16px !important;
+    top: max(12px, env(safe-area-inset-top, 12px)) !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     z-index: 9999 !important;
-    justify-content: center;
+    justify-content: center !important;
     width: auto !important;
+    max-width: 36vw !important;
   }
 
   /* Right: Schedule Floating Button */
   #btn-expand-right-floating {
     position: fixed !important;
-    top: 16px !important;
-    right: 16px !important;
+    top: max(12px, env(safe-area-inset-top, 12px)) !important;
+    right: max(8px, env(safe-area-inset-right, 8px)) !important;
+    max-width: 32vw !important;
     z-index: 9999 !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  }
+  #btn-expand-right-floating span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   /* Export Dropdown Card (Floats cleanly directly under Export button) */
   .mobile-export-dropdown {
     position: fixed !important;
-    top: 68px !important;
+    top: calc(max(12px, env(safe-area-inset-top, 12px)) + clamp(42px, 5.5dvh, 48px)) !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
     z-index: 10000 !important;
@@ -266,8 +305,8 @@ html, body {
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
     border-radius: 24px !important;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.12) !important;
-    width: 260px !important;
-    max-width: calc(100vw - 32px) !important;
+    width: min(280px, calc(100vw - 20px)) !important;
+    max-width: calc(100vw - 20px) !important;
     max-height: calc(100dvh - 84px) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
@@ -361,10 +400,10 @@ body.dark-mode .mobile-export-option:hover {
     touch-action: pan-x pan-y !important;
   }
 
-  /* Specific full widths so swiping works smoothly */
+  /* Specific full widths so swiping works smoothly and never overflows small phones */
   .m3-phone-canvas.canvas-phone {
-    min-width: 380px !important;
-    width: 380px !important;
+    min-width: min(380px, calc(100vw - 32px)) !important;
+    width: min(380px, calc(100vw - 32px)) !important;
   }
 
   .m3-phone-canvas.canvas-tablet {
@@ -2844,6 +2883,19 @@ button:active, .pill-btn:active, .adaptive-icon-btn:active {
 }
 
 /* Popover Controls Card Spring Transition */
+#floating-controls-container {
+  bottom: max(14px, env(safe-area-inset-bottom, 14px)) !important;
+  max-width: calc(100vw - 16px) !important;
+}
+
+#canvas-controls-popover {
+  width: min(340px, calc(100vw - 20px)) !important;
+  max-width: calc(100vw - 20px) !important;
+  max-height: calc(100dvh - 110px) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
 #canvas-controls-popover:not(.hidden) {
   animation: popoverSpring 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   transform-origin: bottom center;
@@ -3143,16 +3195,7 @@ input:focus, select:focus, textarea:focus {
     z-index: 10001 !important;
   }
 
-  /* Position the floating trigger buttons clearly */
-  #btn-expand-left-floating {
-    top: 16px !important;
-    left: 16px !important;
-  }
 
-  #btn-expand-right-floating {
-    top: 16px !important;
-    right: 16px !important;
-  }
 
   /* Bottom floating pill bar: natural standard pill styling */
   #bottom-floating-pill-bar {
@@ -3491,15 +3534,7 @@ body.dark-mode #bottom-floating-pill-bar button:not(.btn-theme-primary) {
     right: 8px !important;
   }
 
-  #btn-expand-left-floating {
-    top: 12px !important;
-    left: 12px !important;
-  }
 
-  #btn-expand-right-floating {
-    top: 12px !important;
-    right: 12px !important;
-  }
 }
 
 /* Dark Mode support for revamped OCC Group selector modal */
