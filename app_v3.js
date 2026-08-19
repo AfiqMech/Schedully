@@ -5672,17 +5672,6 @@ const initSchedullyApp = () => {
   if (!window.schedullyApp) {
     window.schedullyApp = new SchedullyApp();
   }
-  
-  // Fade out startup splash screen smoothly after app is ready
-  setTimeout(() => {
-    const splash = document.getElementById('app-splash-screen') || document.getElementById('app-loading-screen');
-    if (splash) {
-      splash.classList.add('splash-hidden');
-      setTimeout(() => {
-        if (splash.parentNode) splash.remove();
-      }, 600);
-    }
-  }, 400);
 };
 
 if (document.readyState === 'loading') {
@@ -5690,15 +5679,6 @@ if (document.readyState === 'loading') {
 } else {
   initSchedullyApp();
 }
-
-// Failsafe auto-dismiss after 2s maximum to guarantee desktop/mobile is NEVER blocked
-setTimeout(() => {
-  const splash = document.getElementById('app-splash-screen') || document.getElementById('app-loading-screen');
-  if (splash && !splash.classList.contains('splash-hidden')) {
-    splash.classList.add('splash-hidden');
-    setTimeout(() => { if (splash.parentNode) splash.remove(); }, 600);
-  }
-}, 2000);
 
 
 
