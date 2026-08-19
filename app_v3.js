@@ -158,7 +158,7 @@ class SchedullyApp {
     this.newCourseFontColor = '#FFFFFF';
     this.activeDevice = 'phone';
 
-    this.currentMode = localStorage.getItem('schedully_theme_mode') || 'dark';
+    this.currentMode = localStorage.getItem('schedully_theme_mode') || 'auto';
     this.currentPalette = localStorage.getItem('schedully_theme_palette') || 'indigo';
 
     // Layout Customization State
@@ -321,6 +321,12 @@ class SchedullyApp {
     }
 
     document.body.classList.toggle('dark-mode', resolvedMode === 'dark');
+    document.documentElement.classList.toggle('dark', resolvedMode === 'dark');
+
+    // Sync UI mode dots
+    document.querySelectorAll('.theme-mode-dot').forEach(d => {
+      d.classList.toggle('active', d.getAttribute('data-mode') === this.currentMode);
+    });
 
     const paletteGroup = THEME_PALETTES[resolvedMode] || THEME_PALETTES.light;
     const selectedTheme = paletteGroup[this.currentPalette] || paletteGroup.indigo;
