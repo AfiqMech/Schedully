@@ -1,4 +1,4 @@
-const CACHE_NAME = 'schedully-cache-v94';
+const CACHE_NAME = 'schedully-cache-v98';
 const ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,9 @@ const ASSETS = [
   '/timetable_engine.js',
   '/i18n.js',
   '/manifest.json',
+  '/logo-transparent.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/logo.jpg',
   '/tng_qr.png'
 ];

@@ -5668,18 +5668,37 @@ class SchedullyApp {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  window.schedullyApp = new SchedullyApp();
+const initSchedullyApp = () => {
+  if (!window.schedullyApp) {
+    window.schedullyApp = new SchedullyApp();
+  }
   
-  // Fade out loading screen smoothly after initialization
+  // Fade out startup splash screen smoothly after app is ready
   setTimeout(() => {
-    const loader = document.getElementById('app-loading-screen');
-    if (loader) {
-      loader.classList.add('hidden');
-      setTimeout(() => loader.remove(), 500); // Remove from DOM after transition
+    const splash = document.getElementById('app-splash-screen') || document.getElementById('app-loading-screen');
+    if (splash) {
+      splash.classList.add('splash-hidden');
+      setTimeout(() => {
+        if (splash.parentNode) splash.remove();
+      }, 600);
     }
-  }, 300);
-});
+  }, 400);
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSchedullyApp);
+} else {
+  initSchedullyApp();
+}
+
+// Failsafe auto-dismiss after 2s maximum to guarantee desktop/mobile is NEVER blocked
+setTimeout(() => {
+  const splash = document.getElementById('app-splash-screen') || document.getElementById('app-loading-screen');
+  if (splash && !splash.classList.contains('splash-hidden')) {
+    splash.classList.add('splash-hidden');
+    setTimeout(() => { if (splash.parentNode) splash.remove(); }, 600);
+  }
+}, 2000);
 
 
 
