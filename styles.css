@@ -1090,12 +1090,30 @@ body.dark-mode .btn-coffee-support:hover {
   box-sizing: border-box !important;
   position: relative !important;
   z-index: 100000 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.coffee-title {
+  color: var(--m3-sys-text-primary, #0F172A) !important;
+}
+
+.coffee-desc {
+  color: var(--m3-sys-text-secondary, #64748B) !important;
 }
 
 body.dark-mode .coffee-modal-card {
   background-color: var(--m3-sys-color-surface, #1E293B) !important;
   border-color: var(--m3-sys-color-outline, rgba(255, 255, 255, 0.15)) !important;
   color: var(--m3-sys-text-primary, #F8FAFC) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark-mode .coffee-title {
+  color: #F8FAFC !important;
+}
+
+body.dark-mode .coffee-desc {
+  color: #94A3B8 !important;
 }
 
 /* Support Modal Tab Buttons */
